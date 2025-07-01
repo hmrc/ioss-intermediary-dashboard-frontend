@@ -14,14 +14,26 @@
  * limitations under the License.
  */
 
-package navigation
+package pages
 
-import play.api.mvc.Call
-import pages._
-import models.{Mode, UserAnswers}
+import models.Mode
 
-class FakeNavigator(desiredRoute: Call) extends Navigator {
+import scala.language.postfixOps
 
-  override def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers): Call =
-    desiredRoute
+case class Waypoint(
+                     page: WaypointPage,
+                     mode: Mode,
+                     urlFragment: String
+                   )
+
+object Waypoint {
+
+  // TODO Add journey loop pages - url fragments
+  private val fragments: Map[String, Waypoint] =
+    Map(
+
+    )
+
+  def fromString(s: String): Option[Waypoint] =
+    fragments.get(s)
 }

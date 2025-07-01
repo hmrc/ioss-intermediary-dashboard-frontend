@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-package generators
+package pages
 
-trait ModelGenerators {
-}
+trait AddToListSection

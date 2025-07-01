@@ -14,7 +14,20 @@
  * limitations under the License.
  */
 
-package generators
+package pages
 
-trait ModelGenerators {
+import org.scalatest.OptionValues
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.must.Matchers
+
+
+class WaypointSpec extends AnyFreeSpec with Matchers with OptionValues {
+
+  // TODO once authenticated journey initiates with loop journeys
+  "fromString" - {
+
+    "must return Check Your Answers when given its waypoint" in {
+      Waypoint.fromString("anything") mustBe None
+    }
+  }
 }

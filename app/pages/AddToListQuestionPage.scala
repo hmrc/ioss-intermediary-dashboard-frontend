@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
-package generators
+package pages
 
-trait ModelGenerators {
+trait AddToListQuestionPage {
+  self: Page =>
+
+  val section: AddToListSection
+  val addItemWaypoint: Waypoint
 }

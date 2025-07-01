@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
-package generators
+package object pages {
 
-trait ModelGenerators {
+  implicit class RecoveryOps(val a: Option[Page]) {
+
+    def orRecover: Page =
+      a.getOrElse(JourneyRecoveryPage)
+  }
 }
