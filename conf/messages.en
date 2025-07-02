@@ -47,3 +47,20 @@ signedOut.guidance = We did not save your answers.
 
 unauthorised.title = You can’t access this service with this account
 unauthorised.heading = You can’t access this service with this account
+
+yourAccount.title = Your Import One Stop Shop intermediary account
+yourAccount.heading = Your Import One Stop Shop intermediary account
+yourAccount.intermediaryNumber = IOSS intermediary number: {0}
+yourAccount.messages = {0} new messages
+yourAccount.paragraph = You can correct a previous return when you submit your next one.
+yourAccount.returns.heading = Returns
+yourAccount.returns.startReturn = Start a return
+yourAccount.returns.previousReturn = View submitted returns
+yourAccount.payment.heading = Payments
+yourAccount.payment.makeAPayment = Make a payment
+yourAccount.clients.heading = Your clients
+yourAccount.clients.addClient = Add a new client
+yourAccount.clients.editClient = View, edit or remove a client
+yourAccount.details.heading = Your details
+yourAccount.details.changeYourRegistration = Change your registration
+yourAccount.details.leaveThisService = Leave this service

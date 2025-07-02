@@ -20,3 +20,5 @@ GET         /account/signed-out                          controllers.auth.Signed
 GET         /account/login                               controllers.auth.AuthController.redirectToLogin(redirectUrl: RedirectUrl)
 
 GET         /unauthorised                                controllers.UnauthorisedController.onPageLoad()
+
+GET         /your-account                                controllers.YourAccountController.onPageLoad(waypoints: Waypoints ?= EmptyWaypoints)
