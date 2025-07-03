@@ -18,6 +18,7 @@ package generators
 
 import models.{Country, DesAddress}
 import models.domain.ModelHelpers.normaliseSpaces
+import models.domain.VatCustomerInfo
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalacheck.Gen.{choose, listOfN}
@@ -87,4 +88,25 @@ trait ModelGenerators extends EitherValues {
         country
       )
     }
+
+  implicit val arbitraryVatCustomerInfo: Arbitrary[VatCustomerInfo] = {
+    Arbitrary {
+      for {
+        desAddress <- arbitraryDesAddress.arbitrary
+        registrationDate <- arbitraryDate.arbitrary
+        organisationName <- Gen.alphaStr
+        individualName <- Gen.alphaStr
+        singleMarketIndicator <- arbitrary[Boolean]
+      } yield {
+        VatCustomerInfo(
+          desAddress = desAddress,
+          registrationDate = registrationDate,
+          organisationName = Some(organisationName),
+          individualName = Some(individualName),
+          singleMarketIndicator = singleMarketIndicator,
+          deregistrationDecisionDate = None
+        )
+      }
+    }
+  }
 }
