@@ -16,35 +16,61 @@
 
 package controllers
 
-import controllers.actions._
+import config.FrontendAppConfig
+import connectors.RegistrationConnector
+import controllers.actions.*
+import logging.Logging
+
 import javax.inject.Inject
 import pages.Waypoints
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.YourAccountView
+import utils.FutureSyntax.FutureOps
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class YourAccountController @Inject()(
                                        cc: AuthenticatedControllerComponents,
-                                       view: YourAccountView
-                                     )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+                                       view: YourAccountView,
+                                       registrationConnector: RegistrationConnector,
+                                       appConfig: FrontendAppConfig
+                                     )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
 
   protected val controllerComponents: MessagesControllerComponents = cc
 
-  def onPageLoad(waypoints: Waypoints): Action[AnyContent] = cc.identify {
+  def onPageLoad(waypoints: Waypoints): Action[AnyContent] = cc.identify.async {
     implicit request =>
 
-      val businessName = "Chartoff Winkler"
-      val intermediaryNumber = "IN9001234567"
-      val newMessages = 0
+      val vrn = request.vrn.vrn
 
-      Ok(view(
-        waypoints,
-        businessName,
-        intermediaryNumber,
-        newMessages
-      ))
+      getIntermediaryName(vrn).flatMap { intermediaryOpt =>
+        val businessName = intermediaryOpt.getOrElse("")
+        val intermediaryNumber = request.intermediaryNumber
+        val newMessages = 0
+        val addClientUrl = appConfig.addClientUrl
+
+        Ok(view(
+          waypoints,
+          businessName,
+          intermediaryNumber,
+          newMessages,
+          addClientUrl
+        )).toFuture
+      }
+  }
+
+  private def getIntermediaryName(vrn: String)(implicit hc: HeaderCarrier): Future[Option[String]] = {
+
+    registrationConnector.getVatCustomerInfo(vrn).map {
+      case Right(vatInfo) =>
+        vatInfo.organisationName.orElse(vatInfo.individualName)
+
+      case Left(_) =>
+        logger.error("Vat Info Not Found")
+        None
+    }
   }
 }

@@ -24,7 +24,8 @@
     waypoints: Waypoints,
     businessName: String,
     intermediaryNumber: String,
-    newMessage: Int
+    newMessage: Int,
+    addClientUrl: String
 )(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("yourAccount.title")),
@@ -84,7 +85,7 @@
                 <h2 class="govuk-heading-m push--top">@messages("yourAccount.clients.heading")</h2>
 
                 <p class="govuk-body">
-                    <a class="govuk-link" href=""
+                    <a class="govuk-link" href="@addClientUrl"
                        id="add-client">
                         @messages("yourAccount.clients.addClient")
                     </a>

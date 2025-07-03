@@ -17,17 +17,23 @@
 package controllers
 
 import base.SpecBase
+import config.FrontendAppConfig
+import connectors.RegistrationConnector
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import pages.{EmptyWaypoints, Waypoints}
+import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import views.html.YourAccountView
+import utils.FutureSyntax.FutureOps
 
 
 class YourAccountControllerSpec extends SpecBase with MockitoSugar {
 
   private val waypoints: Waypoints = EmptyWaypoints
-  private val businessName = "Chartoff Winkler"
+  private val businessName = "Company name"
   private val intermediaryNumber = "IN9001234567"
   private val newMessage = 0
 
@@ -39,7 +45,15 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
 
       "must return OK and the correct view for a GET" in {
 
-        val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+        val mockRegistrationConnector = mock[RegistrationConnector]
+
+        when(mockRegistrationConnector.getVatCustomerInfo(any())(any()))
+          .thenReturn(Right(vatCustomerInfo).toFuture)
+
+        val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+          .overrides(bind[RegistrationConnector].toInstance(mockRegistrationConnector))
+          .build()
+        val appConfig = application.injector.instanceOf[FrontendAppConfig]
 
         running(application) {
           val request = FakeRequest(GET, yourAccountRoute)
@@ -48,8 +62,14 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
 
           val view = application.injector.instanceOf[YourAccountView]
 
-          status(result) mustEqual OK
-          contentAsString(result) mustEqual view(waypoints, businessName, intermediaryNumber, newMessage)(request, messages(application)).toString
+          status(result) `mustEqual` OK
+          contentAsString(result) mustEqual view(
+            waypoints,
+            businessName,
+            intermediaryNumber,
+            newMessage,
+            appConfig.addClientUrl
+          )(request, messages(application)).toString
         }
       }
     }

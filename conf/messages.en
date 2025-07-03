@@ -64,3 +64,15 @@ yourAccount.clients.editClient = View, edit or remove a client
 yourAccount.details.heading = Your details
 yourAccount.details.changeYourRegistration = Change your registration
 yourAccount.details.leaveThisService = Leave this service
+
+cannotUseNotAnIntermediary.title = You cannot use this service
+cannotUseNotAnIntermediary.heading = You cannot use this service
+
+vatApiDown.title = Sorry, there is a problem with the service
+vatApiDown.heading = Sorry, there is a problem with the service
+vatApiDown.tryAgain = Try again later.
+vatApiDown.contactUs = If the problem continues, you can email us at <a class="govuk-link" href="mailto:vatoss.contact@hmrc.gov.uk">vatoss.contact@hmrc.gov.uk</a>
+
+vatInfoNotFound.title = The VAT number you entered does not match a registered business
+vatInfoNotFound.heading = The VAT number you entered does not match a registered business
+vatInfoNotFound.tryAgain = Check you have entered it correctly and try again.

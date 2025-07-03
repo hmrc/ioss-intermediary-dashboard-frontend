@@ -22,3 +22,9 @@ GET         /account/login                               controllers.auth.AuthCo
 GET         /unauthorised                                controllers.UnauthorisedController.onPageLoad()
 
 GET         /your-account                                controllers.YourAccountController.onPageLoad(waypoints: Waypoints ?= EmptyWaypoints)
+
+GET        /cannot-use-this-service                      controllers.CannotUseNotAnIntermediaryController.onPageLoad()
+
+GET        /service-error                                controllers.VatApiDownController.onPageLoad()
+
+GET        /vat-info-not-found                           controllers.VatInfoNotFoundController.onPageLoad()
