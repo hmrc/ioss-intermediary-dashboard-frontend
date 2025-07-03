@@ -25,6 +25,7 @@ import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import pages.{EmptyWaypoints, Waypoints}
 import play.api.inject.bind
+import play.api.mvc.Results.InternalServerError
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import views.html.YourAccountView
@@ -72,6 +73,46 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
             appConfig.addClientUrl
           )(request, messages(application)).toString
         }
+      }
+    }
+
+    "must redirect to VatInfoNotFoundController when VatCustomerNotFound is returned" in {
+
+      val mockRegistrationConnector = mock[RegistrationConnector]
+
+      when(mockRegistrationConnector.getVatCustomerInfo(any())(any()))
+        .thenReturn(Left(VatCustomerNotFound).toFuture)
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        .overrides(bind[RegistrationConnector].toInstance(mockRegistrationConnector))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, yourAccountRoute)
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.VatInfoNotFoundController.onPageLoad().url
+      }
+    }
+
+    "must redirect to VatApiDownController for any other Left error" in {
+
+      val mockRegistrationConnector = mock[RegistrationConnector]
+
+      when(mockRegistrationConnector.getVatCustomerInfo(any())(any()))
+        .thenReturn(Left(InternalServerError("Unexpected error")).toFuture)
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        .overrides(bind[RegistrationConnector].toInstance(mockRegistrationConnector))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, yourAccountRoute)
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.VatApiDownController.onPageLoad().url
       }
     }
   }
