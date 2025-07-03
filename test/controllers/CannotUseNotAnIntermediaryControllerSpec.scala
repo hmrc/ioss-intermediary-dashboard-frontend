@@ -19,23 +19,25 @@ package controllers
 import base.SpecBase
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import views.html.CannotUseNotAnIntermediaryView
 
-class IndexControllerSpec extends SpecBase {
+class CannotUseNotAnIntermediaryControllerSpec extends SpecBase {
 
-  "Index Controller" - {
+  "CannotUseNotAnIntermediary Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
-      val application = applicationBuilder(userAnswers = None).build()
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, routes.IndexController.onPageLoad().url)
+        val request = FakeRequest(GET, routes.CannotUseNotAnIntermediaryController.onPageLoad().url)
 
         val result = route(application, request).value
 
-        status(result) `mustBe` SEE_OTHER
+        val view = application.injector.instanceOf[CannotUseNotAnIntermediaryView]
 
-        redirectLocation(result).value mustBe routes.YourAccountController.onPageLoad().url
+        status(result) `mustEqual` OK
+        contentAsString(result) mustEqual view()(request, messages(application)).toString
       }
     }
   }

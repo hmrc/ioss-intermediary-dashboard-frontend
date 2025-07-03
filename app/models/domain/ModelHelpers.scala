@@ -14,29 +14,26 @@
  * limitations under the License.
  */
 
-package controllers
+package models.domain
 
-import base.SpecBase
-import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import scala.annotation.tailrec
 
-class IndexControllerSpec extends SpecBase {
+object ModelHelpers {
 
-  "Index Controller" - {
+  def normaliseSpaces(string: String): String = {
 
-    "must return OK and the correct view for a GET" in {
-
-      val application = applicationBuilder(userAnswers = None).build()
-
-      running(application) {
-        val request = FakeRequest(GET, routes.IndexController.onPageLoad().url)
-
-        val result = route(application, request).value
-
-        status(result) `mustBe` SEE_OTHER
-
-        redirectLocation(result).value mustBe routes.YourAccountController.onPageLoad().url
+    @tailrec
+    def removeDoubleSpaces(string: String): String = {
+      if(!string.contains("  ")) {
+        string
+      } else {
+        removeDoubleSpaces(string.replaceAll("[ ]{2}", " "))
       }
     }
+
+    removeDoubleSpaces(string.trim)
   }
+
+  def normaliseSpaces(string: Option[String]): Option[String] = string.map(normaliseSpaces)
+
 }

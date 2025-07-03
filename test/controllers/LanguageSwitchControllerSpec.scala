@@ -47,7 +47,7 @@ class LanguageSwitchControllerSpec extends SpecBase  with MockitoSugar {
 
       val result = controller.switchToLanguage("unsupportedLang")(request)
 
-      status(result) mustEqual SEE_OTHER
+      status(result) `mustEqual` SEE_OTHER
       redirectLocation(result).value mustEqual routes.IndexController.onPageLoad().url
     }
   }
@@ -68,7 +68,7 @@ class LanguageSwitchControllerSpec extends SpecBase  with MockitoSugar {
 
     val result = controller.switchToLanguage("en")(request)
 
-    status(result) mustEqual SEE_OTHER
+    status(result) `mustEqual` SEE_OTHER
     redirectLocation(result).value mustEqual routes.IndexController.onPageLoad().url
   }
 

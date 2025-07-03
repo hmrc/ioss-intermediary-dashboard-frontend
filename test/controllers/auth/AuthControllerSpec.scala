@@ -18,16 +18,16 @@ package controllers.auth
 
 import base.SpecBase
 import config.FrontendAppConfig
-import org.mockito.ArgumentMatchers.{any, eq => eqTo}
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.inject.bind
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import repositories.SessionRepository
+import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 
 import java.net.URLEncoder
-
 import scala.concurrent.Future
 
 class AuthControllerSpec extends SpecBase with MockitoSugar {
@@ -86,6 +86,24 @@ class AuthControllerSpec extends SpecBase with MockitoSugar {
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual expectedRedirectUrl
         verify(mockSessionRepository, times(1)).clear(eqTo(userAnswersId))
+      }
+    }
+  }
+
+  ".redirectToLogin" - {
+
+    "must redirect the user to bas-gateway to log in" in {
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.AuthController.redirectToLogin(RedirectUrl("http://localhost/foo")).url)
+
+        val result = route(application, request).value
+
+        status(result) `mustBe` SEE_OTHER
+
+        redirectLocation(result).value `mustBe` "http://localhost:9949/auth-login-stub/gg-sign-in?origin=IOSS-Intermediary-dashboard&continue=http%3A%2F%2Flocalhost%2Ffoo"
       }
     }
   }

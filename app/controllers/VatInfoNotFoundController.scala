@@ -16,16 +16,23 @@
 
 package controllers
 
+import controllers.actions._
 import javax.inject.Inject
-import play.api.i18n.I18nSupport
+import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import views.html.VatInfoNotFoundView
 
-class IndexController @Inject()(
-                                 val controllerComponents: MessagesControllerComponents,
-                               ) extends FrontendBaseController with I18nSupport {
+class VatInfoNotFoundController @Inject()(
+                                       override val messagesApi: MessagesApi,
+                                       cc: AuthenticatedControllerComponents,
+                                       view: VatInfoNotFoundView
+                                     ) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad(): Action[AnyContent] = Action { implicit request =>
-    Redirect(routes.YourAccountController.onPageLoad())
+  protected val controllerComponents: MessagesControllerComponents = cc
+
+  def onPageLoad: Action[AnyContent] = cc.identifyAndGetData {
+    implicit request =>
+      Ok(view())
   }
 }
