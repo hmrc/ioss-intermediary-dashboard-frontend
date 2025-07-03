@@ -20,6 +20,7 @@ import config.FrontendAppConfig
 import connectors.RegistrationConnector
 import controllers.actions.*
 import logging.Logging
+import models.responses.VatCustomerNotFound
 
 import javax.inject.Inject
 import pages.Waypoints
@@ -45,32 +46,28 @@ class YourAccountController @Inject()(
     implicit request =>
 
       val vrn = request.vrn.vrn
+      registrationConnector.getVatCustomerInfo(vrn).flatMap {
+        case Right(vatInfo) =>
+          val businessName = vatInfo.organisationName.orElse(vatInfo.individualName).getOrElse("")
+          val intermediaryNumber = request.intermediaryNumber
+          val newMessages = 0
+          val addClientUrl = appConfig.addClientUrl
 
-      getIntermediaryName(vrn).flatMap { intermediaryOpt =>
-        val businessName = intermediaryOpt.getOrElse("")
-        val intermediaryNumber = request.intermediaryNumber
-        val newMessages = 0
-        val addClientUrl = appConfig.addClientUrl
+          Ok(view(
+            waypoints,
+            businessName,
+            intermediaryNumber,
+            newMessages,
+            addClientUrl
+          )).toFuture
 
-        Ok(view(
-          waypoints,
-          businessName,
-          intermediaryNumber,
-          newMessages,
-          addClientUrl
-        )).toFuture
+        case Left(VatCustomerNotFound) =>
+          logger.error("Vat Info Not Found")
+          Redirect(routes.VatInfoNotFoundController.onPageLoad()).toFuture
+
+        case Left(_) =>
+          logger.error("Vat Api down")
+          Redirect(routes.VatApiDownController.onPageLoad()).toFuture
       }
-  }
-
-  private def getIntermediaryName(vrn: String)(implicit hc: HeaderCarrier): Future[Option[String]] = {
-
-    registrationConnector.getVatCustomerInfo(vrn).map {
-      case Right(vatInfo) =>
-        vatInfo.organisationName.orElse(vatInfo.individualName)
-
-      case Left(_) =>
-        logger.error("Vat Info Not Found")
-        None
-    }
   }
 }
