@@ -23,7 +23,7 @@ import logging.Logging
 import models.responses.VatCustomerNotFound
 
 import javax.inject.Inject
-import pages.Waypoints
+import pages.{JourneyRecoveryPage, Waypoints}
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.http.HeaderCarrier
@@ -61,13 +61,10 @@ class YourAccountController @Inject()(
             addClientUrl
           )).toFuture
 
-        case Left(VatCustomerNotFound) =>
-          logger.error("Vat Info Not Found")
-          Redirect(routes.VatInfoNotFoundController.onPageLoad()).toFuture
-
         case Left(_) =>
-          logger.error("Vat Api down")
-          Redirect(routes.VatApiDownController.onPageLoad()).toFuture
+          logger.error("Vat Info Not Found")
+          Redirect(JourneyRecoveryPage.route(waypoints)).toFuture
+
       }
   }
 }
