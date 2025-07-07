@@ -20,18 +20,16 @@ import config.FrontendAppConfig
 import connectors.RegistrationConnector
 import controllers.actions.*
 import logging.Logging
-import models.responses.VatCustomerNotFound
 
 import javax.inject.Inject
-import pages.{JourneyRecoveryPage, Waypoints}
+import pages.Waypoints
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.YourAccountView
 import utils.FutureSyntax.FutureOps
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 class YourAccountController @Inject()(
                                        cc: AuthenticatedControllerComponents,
@@ -61,10 +59,10 @@ class YourAccountController @Inject()(
             addClientUrl
           )).toFuture
 
-        case Left(_) =>
-          logger.error("Vat Info Not Found")
-          Redirect(JourneyRecoveryPage.route(waypoints)).toFuture
-
+        case Left(error) =>
+          val exception = new Exception(error.body)
+          logger.error(exception.getMessage, exception)
+          throw exception
       }
   }
 }

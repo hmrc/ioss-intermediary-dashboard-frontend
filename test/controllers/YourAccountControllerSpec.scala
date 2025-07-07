@@ -19,13 +19,12 @@ package controllers
 import base.SpecBase
 import config.FrontendAppConfig
 import connectors.RegistrationConnector
-import models.responses.VatCustomerNotFound
+import models.responses.InternalServerError
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import pages.{EmptyWaypoints, Waypoints}
 import play.api.inject.bind
-import play.api.mvc.Results.InternalServerError
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import views.html.YourAccountView
@@ -76,12 +75,11 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to Error page when VatCustomerNotFound is returned" in {
-
+    "must throw an exception and log the error when an unexpected error is returned" in {
       val mockRegistrationConnector = mock[RegistrationConnector]
 
       when(mockRegistrationConnector.getVatCustomerInfo(any())(any()))
-        .thenReturn(Left(VatCustomerNotFound).toFuture)
+        .thenReturn(Left(InternalServerError).toFuture)
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
         .overrides(bind[RegistrationConnector].toInstance(mockRegistrationConnector))
@@ -89,10 +87,12 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request = FakeRequest(GET, yourAccountRoute)
-        val result = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+        val thrown = intercept[Exception] {
+          await(route(application, request).value)
+        }
+
+        thrown.getMessage must include("Internal server error")
       }
     }
   }
