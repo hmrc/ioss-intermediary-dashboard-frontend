@@ -19,6 +19,7 @@ package base
 import controllers.actions.*
 import generators.Generators
 import models.UserAnswers
+import models.domain.VatCustomerInfo
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
@@ -31,7 +32,9 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.CSRFTokenHelper.CSRFRequest
 import play.api.test.FakeRequest
+import uk.gov.hmrc.domain.Vrn
 
+import java.time.{Clock, Instant, LocalDate, ZoneId}
 import java.util.UUID
 
 trait SpecBase
@@ -44,9 +47,14 @@ trait SpecBase
     with Generators {
 
   val userAnswersId: String = "id"
+  val intermediaryNumber = "IN9001234567"
+  val vrn: Vrn = Vrn("123456789")
 
   val journeyId: String = UUID.randomUUID().toString
 
+  val arbitraryInstant: Instant = arbitraryDate.arbitrary.sample.value.atStartOfDay(ZoneId.systemDefault()).toInstant
+  val stubClockAtArbitraryDate: Clock = Clock.fixed(arbitraryInstant, ZoneId.systemDefault())
+  
   val waypoints: Waypoints = EmptyWaypoints
 
   lazy val fakeRequest: FakeRequest[AnyContentAsEmpty.type] =
@@ -55,6 +63,17 @@ trait SpecBase
   def emptyUserAnswers : UserAnswers = UserAnswers(userAnswersId)
 
   def messages(app: Application): Messages = app.injector.instanceOf[MessagesApi].preferred(FakeRequest())
+
+  val vatCustomerInfo: VatCustomerInfo = {
+    VatCustomerInfo(
+      registrationDate = LocalDate.now(stubClockAtArbitraryDate),
+      desAddress = arbitraryDesAddress.arbitrary.sample.value,
+      organisationName = Some("Company name"),
+      individualName = None,
+      singleMarketIndicator = true,
+      deregistrationDecisionDate = None
+    )
+  }
 
   protected def applicationBuilder(userAnswers: Option[UserAnswers] = None): GuiceApplicationBuilder =
     new GuiceApplicationBuilder()

@@ -14,18 +14,13 @@
  * limitations under the License.
  */
 
-package controllers
+package pages
 
-import javax.inject.Inject
-import play.api.i18n.I18nSupport
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import controllers.routes
+import play.api.mvc.Call
 
-class IndexController @Inject()(
-                                 val controllerComponents: MessagesControllerComponents,
-                               ) extends FrontendBaseController with I18nSupport {
+object YourAccountPage extends Page {
 
-  def onPageLoad(): Action[AnyContent] = Action { implicit request =>
-    Redirect(routes.YourAccountController.onPageLoad())
-  }
+  override def route(waypoints: Waypoints): Call =
+    routes.YourAccountController.onPageLoad(waypoints)
 }
