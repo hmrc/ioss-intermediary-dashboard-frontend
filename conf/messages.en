@@ -1,4 +1,4 @@
-service.name = ioss-intermediary-dashboard-frontend
+service.name = Manage your clients’ Import One Stop Shop VAT
 
 site.back = Back
 site.remove = Remove

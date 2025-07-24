@@ -15,8 +15,8 @@ import play.api.libs.json.Json
 import uk.gov.hmrc.mongo.test.DefaultPlayMongoRepositorySupport
 import uk.gov.hmrc.play.bootstrap.dispatchers.MDCPropagatingExecutorService
 
-import java.time.{Clock, Instant, ZoneId}
 import java.time.temporal.ChronoUnit
+import java.time.{Clock, Instant, ZoneId}
 import java.util.concurrent.Executors
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -91,7 +91,6 @@ class SessionRepositorySpec
       insert(userAnswers).futureValue
 
       val result = repository.clear(userAnswers.id).futureValue
-
       repository.get(userAnswers.id).futureValue must not be defined
     }
 
