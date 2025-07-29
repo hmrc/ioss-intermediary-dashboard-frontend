@@ -25,7 +25,8 @@
     businessName: String,
     intermediaryNumber: String,
     newMessage: Int,
-    addClientUrl: String
+    addClientUrl: String,
+    changeYourRegistrationUrl: String
 )(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("yourAccount.title")),
@@ -105,7 +106,7 @@
                 <h2 class="govuk-heading-m">@messages("yourAccount.details.heading")</h2>
 
                 <p class="govuk-body">
-                    <a class="govuk-link" href=""
+                    <a class="govuk-link" href="@changeYourRegistrationUrl"
                        id="change-your-registration">
                         @messages("yourAccount.details.changeYourRegistration")
                     </a>

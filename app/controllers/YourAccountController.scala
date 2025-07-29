@@ -50,13 +50,15 @@ class YourAccountController @Inject()(
           val intermediaryNumber = request.intermediaryNumber
           val newMessages = 0
           val addClientUrl = appConfig.addClientUrl
+          val changeYourRegistrationUrl = appConfig.changeYourRegistrationUrl
 
           Ok(view(
             waypoints,
             businessName,
             intermediaryNumber,
             newMessages,
-            addClientUrl
+            addClientUrl,
+            changeYourRegistrationUrl
           )).toFuture
 
         case Left(error) =>
