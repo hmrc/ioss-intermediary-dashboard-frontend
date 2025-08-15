@@ -70,7 +70,8 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
             intermediaryNumber,
             newMessage,
             appConfig.addClientUrl,
-            appConfig.changeYourRegistrationUrl
+            appConfig.changeYourRegistrationUrl,
+            appConfig.leaveThisServiceUrl
           )(request, messages(application)).toString
         }
       }

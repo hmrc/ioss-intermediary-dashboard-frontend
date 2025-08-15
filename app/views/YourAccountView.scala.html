@@ -26,7 +26,8 @@
     intermediaryNumber: String,
     newMessage: Int,
     addClientUrl: String,
-    changeYourRegistrationUrl: String
+    changeYourRegistrationUrl: String,
+    leaveThisServiceUrl: String
 )(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("yourAccount.title")),
@@ -113,7 +114,7 @@
                 </p>
 
                 <p class="govuk-body">
-                    <a class="govuk-link" href=""
+                    <a class="govuk-link" href="@leaveThisServiceUrl"
                        id="leave-scheme">
                         @messages("yourAccount.details.leaveThisService")
                     </a>

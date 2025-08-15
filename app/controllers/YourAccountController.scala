@@ -51,6 +51,7 @@ class YourAccountController @Inject()(
           val newMessages = 0
           val addClientUrl = appConfig.addClientUrl
           val changeYourRegistrationUrl = appConfig.changeYourRegistrationUrl
+          val leaveThisServiceUrl = appConfig.leaveThisServiceUrl
 
           Ok(view(
             waypoints,
@@ -58,7 +59,8 @@ class YourAccountController @Inject()(
             intermediaryNumber,
             newMessages,
             addClientUrl,
-            changeYourRegistrationUrl
+            changeYourRegistrationUrl,
+            leaveThisServiceUrl
           )).toFuture
 
         case Left(error) =>
