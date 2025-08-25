@@ -17,6 +17,7 @@
 package connectors
 
 import config.Service
+import connectors.SavedPendingRegistrationHttpParser.{SavedPendingRegistrationResponse, SavedPendingRegistrationResultResponseReads}
 import connectors.VatCustomerInfoHttpParser.{VatCustomerInfoResponse, VatCustomerInfoResponseReads}
 import logging.Logging
 import play.api.Configuration
@@ -39,5 +40,10 @@ class RegistrationConnector @Inject()(config: Configuration, httpClientV2: HttpC
 
   def getNumberOfPendingRegistration(intermediaryNumber: String)(implicit hc: HeaderCarrier): Future[Long] = {
     httpClientV2.get(url"$netpUrl/pending-registrations/count/$intermediaryNumber").execute[Long]
+  }
+
+  def getPendingRegistration(intermediaryNumber: String)(implicit hc: HeaderCarrier): Future[SavedPendingRegistrationResponse] = {
+    httpClientV2.get(url"$netpUrl/pending-registrations/$intermediaryNumber")
+      .execute[SavedPendingRegistrationResponse]
   }
 }
