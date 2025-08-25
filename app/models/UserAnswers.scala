@@ -22,10 +22,12 @@ import queries.{Derivable, Gettable, Settable}
 import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
 
 import java.time.Instant
+import java.util.UUID
 import scala.util.{Failure, Success, Try}
 
 final case class UserAnswers(
                               id: String,
+                              journeyId: String = UUID.randomUUID().toString,
                               data: JsObject = Json.obj(),
                               vatInfo: Option[VatCustomerInfo] = None,
                               lastUpdated: Instant = Instant.now
@@ -86,7 +88,8 @@ object UserAnswers {
     import play.api.libs.functional.syntax._
 
     (
-      (__ \ "_id").read[String] and
+      (__ \ "_id").read[String] and 
+      (__ \ "journeyId").read[String] and
       (__ \ "data").read[JsObject] and
       (__ \ "vatInfo").readNullable[VatCustomerInfo] and
       (__ \ "lastUpdated").read(MongoJavatimeFormats.instantFormat)
@@ -99,6 +102,7 @@ object UserAnswers {
 
     (
       (__ \ "_id").write[String] and
+      (__ \ "journeyId").write[String] and
       (__ \ "data").write[JsObject] and
       (__ \ "vatInfo").writeNullable[VatCustomerInfo] and
       (__ \ "lastUpdated").write(MongoJavatimeFormats.instantFormat)
