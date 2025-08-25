@@ -44,29 +44,35 @@ class YourAccountController @Inject()(
     implicit request =>
 
       val vrn = request.vrn.vrn
-      registrationConnector.getVatCustomerInfo(vrn).flatMap {
-        case Right(vatInfo) =>
-          val businessName = vatInfo.organisationName.orElse(vatInfo.individualName).getOrElse("")
-          val intermediaryNumber = request.intermediaryNumber
-          val newMessages = 0
-          val addClientUrl = appConfig.addClientUrl
-          val changeYourRegistrationUrl = appConfig.changeYourRegistrationUrl
-          val leaveThisServiceUrl = appConfig.leaveThisServiceUrl
+      registrationConnector.getNumberOfPendingRegistration(request.intermediaryNumber).map(_.toInt).flatMap { numberOfAwaitingClients =>
+        registrationConnector.getVatCustomerInfo(vrn).flatMap {
+          case Right(vatInfo) =>
+            val businessName = vatInfo.organisationName.orElse(vatInfo.individualName).getOrElse("")
+            val intermediaryNumber = request.intermediaryNumber
 
-          Ok(view(
-            waypoints,
-            businessName,
-            intermediaryNumber,
-            newMessages,
-            addClientUrl,
-            changeYourRegistrationUrl,
-            leaveThisServiceUrl
-          )).toFuture
+            val newMessages = 0
+            val addClientUrl = appConfig.addClientUrl
+            val changeYourRegistrationUrl = appConfig.changeYourRegistrationUrl
+            val redirectToPendingClientsPage = appConfig.redirectToPendingClientsPage
+            val leaveThisServiceUrl = appConfig.leaveThisServiceUrl
 
-        case Left(error) =>
-          val exception = new Exception(error.body)
-          logger.error(exception.getMessage, exception)
-          throw exception
+            Ok(view(
+              waypoints,
+              businessName,
+              intermediaryNumber,
+              newMessages,
+              addClientUrl,
+              changeYourRegistrationUrl,
+              numberOfAwaitingClients,
+              redirectToPendingClientsPage,
+              leaveThisServiceUrl
+            )).toFuture
+
+          case Left(error) =>
+            val exception = new Exception(error.body)
+            logger.error(exception.getMessage, exception)
+            throw exception
+        }
       }
   }
 }
