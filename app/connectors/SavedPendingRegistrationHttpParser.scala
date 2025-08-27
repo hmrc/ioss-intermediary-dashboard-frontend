@@ -25,7 +25,7 @@ import uk.gov.hmrc.http.{HttpReads, HttpResponse}
 
 object SavedPendingRegistrationHttpParser extends Logging {
   
-  type SavedPendingRegistrationResponse = Either[ErrorResponse, SavedPendingRegistration]
+  type SavedPendingRegistrationResponse = Either[ErrorResponse, Seq[SavedPendingRegistration]]
 
   implicit object SavedPendingRegistrationResultResponseReads extends HttpReads[SavedPendingRegistrationResponse] {
 
@@ -37,7 +37,7 @@ object SavedPendingRegistrationHttpParser extends Logging {
 
     override def read(method: String, url: String, response: HttpResponse): SavedPendingRegistrationResponse = {
       response.status match {
-        case OK | CREATED => response.json.validate[SavedPendingRegistration] match {
+        case OK | CREATED => response.json.validate[Seq[SavedPendingRegistration]] match {
           case JsSuccess(savedPendingRegistration, _) => Right(savedPendingRegistration)
           case JsError(errors) =>
             logger.error(s"Failed trying to parse Pending Registration JSON with errors $errors.")
