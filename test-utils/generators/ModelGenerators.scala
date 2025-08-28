@@ -16,15 +16,18 @@
 
 package generators
 
-import models.{Country, DesAddress}
+import models.{Country, DesAddress, UserAnswers}
 import models.domain.ModelHelpers.normaliseSpaces
 import models.domain.VatCustomerInfo
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalacheck.Gen.{choose, listOfN}
 import org.scalatest.EitherValues
+import play.api.libs.json.{JsObject, Json}
 
+import java.time.temporal.ChronoUnit
 import java.time.{Instant, LocalDate, ZoneOffset}
+import java.util.UUID
 
 trait ModelGenerators extends EitherValues {
 
@@ -105,6 +108,26 @@ trait ModelGenerators extends EitherValues {
           individualName = Some(individualName),
           singleMarketIndicator = singleMarketIndicator,
           deregistrationDecisionDate = None
+        )
+      }
+    }
+  }
+
+  implicit lazy val arbitraryUserAnswers: Arbitrary[UserAnswers] = {
+    Arbitrary {
+      for {
+        id <- arbitrary[String]
+        journeyId = UUID.randomUUID().toString
+        data = JsObject(Seq("test" -> Json.toJson("test")))
+        vatInfo <- arbitraryVatCustomerInfo.arbitrary
+        lastUpdated = Instant.now().truncatedTo(ChronoUnit.MILLIS)
+      } yield {
+        UserAnswers(
+          id = id,
+          journeyId = journeyId,
+          data = data,
+          vatInfo = Some(vatInfo),
+          lastUpdated = lastUpdated
         )
       }
     }
