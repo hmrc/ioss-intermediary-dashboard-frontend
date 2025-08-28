@@ -28,3 +28,5 @@ GET        /cannot-use-this-service                      controllers.CannotUseNo
 GET        /service-error                                controllers.VatApiDownController.onPageLoad()
 
 GET        /vat-info-not-found                           controllers.VatInfoNotFoundController.onPageLoad()
+
+GET        /client-awaiting-activation                   controllers.ClientAwaitingActivationController.onPageLoad(waypoints: Waypoints ?= EmptyWaypoints)
