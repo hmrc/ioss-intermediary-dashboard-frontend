@@ -16,6 +16,7 @@
 
 package controllers
 
+import config.FrontendAppConfig
 import connectors.RegistrationConnector
 import controllers.actions.*
 import logging.Logging
@@ -38,6 +39,7 @@ class ClientAwaitingActivationController @Inject()(
                                        cc: AuthenticatedControllerComponents,
                                        val controllerComponents: MessagesControllerComponents,
                                        registrationConnector: RegistrationConnector,
+                                       frontendAppConfig: FrontendAppConfig,
                                        view: ClientAwaitingActivationView
                                      )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
 
@@ -47,11 +49,18 @@ class ClientAwaitingActivationController @Inject()(
       registrationConnector.getNumberOfPendingRegistration(request.intermediaryNumber).map(_.toInt).flatMap { numberOfAwaitingClients =>
         registrationConnector.getPendingRegistration(request.intermediaryNumber).flatMap {
           case Right(savedPendingRegistration) =>
-            val companyName = savedPendingRegistration.userAnswers.vatInfo.get.organisationName.getOrElse("")
-            val activationExpiryDate = savedPendingRegistration.activationExpiryDate
+
+            val companyNames = savedPendingRegistration.map { registration =>
+              registration.userAnswers.vatInfo.get.organisationName.getOrElse(registration.userAnswers.vatInfo.get.individualName.getOrElse(""))
+            }
+
+            val activationExpiryDates = savedPendingRegistration.map(_.activationExpiryDate)
+            val pendingRegistrationUrls = savedPendingRegistration.map { registration =>
+              s"${frontendAppConfig.pendingRegistrationUrl}/${registration.journeyId}"
+            }
 
             val clientsTable =
-              buildClientsTable(companyName, activationExpiryDate, request.userId)
+              buildClientsTable(companyNames, activationExpiryDates, pendingRegistrationUrls)
 
             Ok(view(numberOfAwaitingClients, clientsTable)).toFuture
 
@@ -64,21 +73,29 @@ class ClientAwaitingActivationController @Inject()(
       }
   }
 
-  private def buildClientsTable(clientCompanyName: String, activationExpiryDate: String, userId: String)(implicit messages: Messages): Table =
-    /*
-    Add a for loop (or recursion) to iterate over the number of clients and render them in the table.
-     */
-    Table(
-      rows = Seq(
+  private def buildClientsTable(clientCompanyNames: Seq[String],
+                                activationExpiryDates: Seq[String],
+                                pendingRegistrationUrls: Seq[String],
+                               )(implicit messages: Messages): Table = {
+
+    val rows: Seq[Seq[TableRow]] =
+      clientCompanyNames
+        .zip(activationExpiryDates)
+        .zip(pendingRegistrationUrls).map { case ((name, expiryDate), pendingRegistrationUrl) =>
         Seq(
           TableRow(
-            content = HtmlContent(messages("clientAwaitingActivation.name", clientCompanyName, userId))
+            content = HtmlContent(
+              messages("clientAwaitingActivation.name", name, pendingRegistrationUrl)
+            )
           ),
           TableRow(
-            content = Text(activationExpiryDate)
+            content = Text(expiryDate)
           )
         )
-      ),
+      }
+
+    Table(
+      rows = rows,
       head = Some(Seq(
         HeadCell(
           content = Text("Client name")
@@ -88,5 +105,5 @@ class ClientAwaitingActivationController @Inject()(
         )
       ))
     )
-
+  }
 }
