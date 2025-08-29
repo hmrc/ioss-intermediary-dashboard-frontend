@@ -38,11 +38,11 @@ class RegistrationConnector @Inject()(config: Configuration, httpClientV2: HttpC
     httpClientV2.get(url"$baseUrl/vat-information/$vrn").execute[VatCustomerInfoResponse]
   }
 
-  def getNumberOfPendingRegistration(intermediaryNumber: String)(implicit hc: HeaderCarrier): Future[Long] = {
+  def getNumberOfPendingRegistrations(intermediaryNumber: String)(implicit hc: HeaderCarrier): Future[Long] = {
     httpClientV2.get(url"$netpUrl/pending-registrations/count/$intermediaryNumber").execute[Long]
   }
 
-  def getPendingRegistration(intermediaryNumber: String)(implicit hc: HeaderCarrier): Future[SavedPendingRegistrationResponse] = {
+  def getPendingRegistrations(intermediaryNumber: String)(implicit hc: HeaderCarrier): Future[SavedPendingRegistrationResponse] = {
     httpClientV2.get(url"$netpUrl/pending-registrations/$intermediaryNumber")
       .execute[SavedPendingRegistrationResponse]
   }

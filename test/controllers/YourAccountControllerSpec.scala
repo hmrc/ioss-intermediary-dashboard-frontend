@@ -48,7 +48,7 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
 
         val mockRegistrationConnector = mock[RegistrationConnector]
 
-        when(mockRegistrationConnector.getNumberOfPendingRegistration(any())(any()))
+        when(mockRegistrationConnector.getNumberOfPendingRegistrations(any())(any()))
           .thenReturn(1.toLong.toFuture)
         when(mockRegistrationConnector.getVatCustomerInfo(any())(any()))
           .thenReturn(Right(vatCustomerInfo).toFuture)
@@ -84,7 +84,7 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
     "must throw an exception and log the error when an unexpected error is returned" in {
       val mockRegistrationConnector = mock[RegistrationConnector]
 
-      when(mockRegistrationConnector.getNumberOfPendingRegistration(any())(any()))
+      when(mockRegistrationConnector.getNumberOfPendingRegistrations(any())(any()))
         .thenReturn(0.toLong.toFuture)
       when(mockRegistrationConnector.getVatCustomerInfo(any())(any()))
         .thenReturn(Left(InternalServerError).toFuture)

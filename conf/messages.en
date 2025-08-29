@@ -84,4 +84,4 @@ clientAwaitingActivation.title = {0} client awaiting activation
 clientAwaitingActivation.heading = {0} client awaiting activation
 clientAwaitingActivation.warning = If your client does not activate their registration within 28 days, you''ll need to register them again.
 clientAwaitingActivation.info = If your client has not received an email from HMRC, check you have given us their correct email address.
-clientAwaitingActivation.name = <a class="govuk-link" href="{1}>{0}</a>
+clientAwaitingActivation.name = <a class="govuk-link" href="{1}">{0}</a>

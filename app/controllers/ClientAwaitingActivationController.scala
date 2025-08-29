@@ -46,8 +46,8 @@ class ClientAwaitingActivationController @Inject()(
   def onPageLoad(waypoints: Waypoints): Action[AnyContent] = (cc.actionBuilder andThen cc.identify).async {
     implicit request =>
 
-      registrationConnector.getNumberOfPendingRegistration(request.intermediaryNumber).map(_.toInt).flatMap { numberOfAwaitingClients =>
-        registrationConnector.getPendingRegistration(request.intermediaryNumber).flatMap {
+      registrationConnector.getNumberOfPendingRegistrations(request.intermediaryNumber).map(_.toInt).flatMap { numberOfAwaitingClients =>
+        registrationConnector.getPendingRegistrations(request.intermediaryNumber).flatMap {
           case Right(savedPendingRegistration) =>
 
             val companyNames = savedPendingRegistration.map { registration =>

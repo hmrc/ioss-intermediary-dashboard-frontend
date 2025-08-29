@@ -44,7 +44,7 @@ class YourAccountController @Inject()(
     implicit request =>
 
       val vrn = request.vrn.vrn
-      registrationConnector.getNumberOfPendingRegistration(request.intermediaryNumber).map(_.toInt).flatMap { numberOfAwaitingClients =>
+      registrationConnector.getNumberOfPendingRegistrations(request.intermediaryNumber).map(_.toInt).flatMap { numberOfAwaitingClients =>
         registrationConnector.getVatCustomerInfo(vrn).flatMap {
           case Right(vatInfo) =>
             val businessName = vatInfo.organisationName.orElse(vatInfo.individualName).getOrElse("")
