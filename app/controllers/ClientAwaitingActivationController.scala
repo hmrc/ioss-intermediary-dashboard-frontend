@@ -41,21 +41,21 @@ class ClientAwaitingActivationController @Inject()(
                                        registrationConnector: RegistrationConnector,
                                        frontendAppConfig: FrontendAppConfig,
                                        view: ClientAwaitingActivationView
-                                     )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
+                                     )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging with GetClientCompanyName  {
 
   def onPageLoad(waypoints: Waypoints): Action[AnyContent] = (cc.actionBuilder andThen cc.identify).async {
     implicit request =>
 
       registrationConnector.getNumberOfPendingRegistrations(request.intermediaryNumber).map(_.toInt).flatMap { numberOfAwaitingClients =>
         registrationConnector.getPendingRegistrations(request.intermediaryNumber).flatMap {
-          case Right(savedPendingRegistration) =>
+          case Right(savedPendingRegistrations) =>
 
-            val companyNames = savedPendingRegistration.map { registration =>
-              registration.userAnswers.vatInfo.get.organisationName.getOrElse(registration.userAnswers.vatInfo.get.individualName.getOrElse(""))
+            val companyNames = savedPendingRegistrations.map{ pendingRegistration =>
+              getClientCompanyName(pendingRegistration)
             }
-
-            val activationExpiryDates = savedPendingRegistration.map(_.activationExpiryDate)
-            val pendingRegistrationUrls = savedPendingRegistration.map { registration =>
+            
+            val activationExpiryDates = savedPendingRegistrations.map(_.activationExpiryDate)
+            val pendingRegistrationUrls = savedPendingRegistrations.map { registration =>
               s"${frontendAppConfig.pendingRegistrationUrl}/${registration.journeyId}"
             }
 
