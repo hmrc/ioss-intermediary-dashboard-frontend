@@ -88,11 +88,16 @@ class ClientAwaitingActivationController @Inject()(
       combined
         .sortBy{ case (_, expiryDate, _) => expiryDate }
         .map{ case (name, expiryDate, url) =>
+          val nameWithHiddenTextAppended = messages(
+            "clientAwaitingActivation.link",
+            messages("clientAwaitingActivation.name", name),
+            url,
+            messages("clientAwaitingActivation.hidden", name)
+          )
+
           Seq(
             TableRow(
-              content = HtmlContent(
-                messages("clientAwaitingActivation.name", name, url)
-              )
+              content = HtmlContent(nameWithHiddenTextAppended)
             ),
             TableRow(
               content = Text(expiryDate)
