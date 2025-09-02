@@ -25,7 +25,11 @@
 
     @layout(pageTitle = titleNoForm(messages("clientAwaitingActivation.title", numberOfAwaitingClients))) {
 
-    <h1 class="govuk-heading-l">@messages("clientAwaitingActivation.heading", numberOfAwaitingClients)</h1>
+    @if(numberOfAwaitingClients == 1) {
+        <h1 class="govuk-heading-l">@messages("clientAwaitingActivation.heading.singular", numberOfAwaitingClients)</h1>
+    } else {
+        <h1 class="govuk-heading-l">@messages("clientAwaitingActivation.heading.plural", numberOfAwaitingClients)</h1>
+    }
 
     @govukWarningText(WarningText(
         iconFallbackText = Option(messages("site.warning")),

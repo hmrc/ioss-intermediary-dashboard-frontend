@@ -81,7 +81,8 @@ vatInfoNotFound.heading = The VAT number you entered does not match a registered
 vatInfoNotFound.tryAgain = Check you have entered it correctly and try again.
 
 clientAwaitingActivation.title = {0} client awaiting activation
-clientAwaitingActivation.heading = {0} client awaiting activation
+clientAwaitingActivation.heading.singular = {0} client awaiting activation
+clientAwaitingActivation.heading.plural = {0} clients awaiting activation
 clientAwaitingActivation.warning = If your client does not activate their registration within 28 days, you''ll need to register them again.
 clientAwaitingActivation.info = If your client has not received an email from HMRC, check you have given us their correct email address.
 clientAwaitingActivation.name = <a class="govuk-link" href="{1}">{0}</a>
