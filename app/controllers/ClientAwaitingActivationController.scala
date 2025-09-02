@@ -78,22 +78,28 @@ class ClientAwaitingActivationController @Inject()(
                                 pendingRegistrationUrls: Seq[String],
                                )(implicit messages: Messages): Table = {
 
-    val rows: Seq[Seq[TableRow]] =
+    val combined: Seq[(String, String, String)] =
       clientCompanyNames
-        .zip(activationExpiryDates)
-        .zip(pendingRegistrationUrls).map { case ((name, expiryDate), pendingRegistrationUrl) =>
-        Seq(
-          TableRow(
-            content = HtmlContent(
-              messages("clientAwaitingActivation.name", name, pendingRegistrationUrl)
-            )
-          ),
-          TableRow(
-            content = Text(expiryDate)
-          )
-        )
-      }
+        .lazyZip(activationExpiryDates)
+        .lazyZip(pendingRegistrationUrls)
+        .map((name, expiryDate, url) => (name, expiryDate, url))
 
+    val rows: Seq[Seq[TableRow]] =
+      combined
+        .sortBy{ case (_, expiryDate, _) => expiryDate }
+        .map{ case (name, expiryDate, url) =>
+          Seq(
+            TableRow(
+              content = HtmlContent(
+                messages("clientAwaitingActivation.name", name, url)
+              )
+            ),
+            TableRow(
+              content = Text(expiryDate)
+            )
+          )
+        }
+    
     Table(
       rows = rows,
       head = Some(Seq(
