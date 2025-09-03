@@ -32,6 +32,9 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.ClientAwaitingActivationView
 import utils.FutureSyntax.FutureOps
 
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 import scala.concurrent.ExecutionContext
 
 class ClientAwaitingActivationController @Inject()(
@@ -78,6 +81,11 @@ class ClientAwaitingActivationController @Inject()(
                                 pendingRegistrationUrls: Seq[String],
                                )(implicit messages: Messages): Table = {
 
+    val dateFormatter = DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.ENGLISH)
+
+    def parseDate(dateStr: String): LocalDate =
+      LocalDate.parse(dateStr, dateFormatter)
+
     val combined: Seq[(String, String, String)] =
       clientCompanyNames
         .lazyZip(activationExpiryDates)
@@ -86,8 +94,8 @@ class ClientAwaitingActivationController @Inject()(
 
     val rows: Seq[Seq[TableRow]] =
       combined
-        .sortBy{ case (_, expiryDate, _) => expiryDate }
-        .map{ case (name, expiryDate, url) =>
+        .sortBy { case (name, expiryDate, _) => (parseDate(expiryDate), name) }
+        .map { case (name, expiryDate, url) =>
           val nameWithHiddenTextAppended = messages(
             "clientAwaitingActivation.link",
             messages("clientAwaitingActivation.name", name),
