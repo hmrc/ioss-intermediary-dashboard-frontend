@@ -98,7 +98,7 @@ class ClientAwaitingActivationController @Inject()(
         .map { case (name, expiryDate, url) =>
           val nameWithHiddenTextAppended = messages(
             "clientAwaitingActivation.link",
-            messages("clientAwaitingActivation.name", name),
+            name,
             url,
             messages("clientAwaitingActivation.hidden", name)
           )
