@@ -23,18 +23,13 @@ import logging.Logging
 
 import javax.inject.Inject
 import pages.Waypoints
-import play.api.i18n.{I18nSupport, Messages, MessagesApi}
+import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.govukfrontend.views.Aliases.Table
-import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
-import uk.gov.hmrc.govukfrontend.views.viewmodels.table.{HeadCell, TableRow}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.ClientAwaitingActivationView
 import utils.FutureSyntax.FutureOps
+import utils.ClientTableBuilder.buildClientsTable
 
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.util.Locale
 import scala.concurrent.ExecutionContext
 
 class ClientAwaitingActivationController @Inject()(
@@ -74,55 +69,5 @@ class ClientAwaitingActivationController @Inject()(
             throw exception
         }
       }
-  }
-
-  private def buildClientsTable(clientCompanyNames: Seq[String],
-                                activationExpiryDates: Seq[String],
-                                pendingRegistrationUrls: Seq[String],
-                               )(implicit messages: Messages): Table = {
-
-    val dateFormatter = DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.ENGLISH)
-
-    def parseDate(dateStr: String): LocalDate =
-      LocalDate.parse(dateStr, dateFormatter)
-
-    val combined: Seq[(String, String, String)] =
-      clientCompanyNames
-        .lazyZip(activationExpiryDates)
-        .lazyZip(pendingRegistrationUrls)
-        .map((name, expiryDate, url) => (name, expiryDate, url))
-
-    val rows: Seq[Seq[TableRow]] =
-      combined
-        .sortBy { case (name, expiryDate, _) => (parseDate(expiryDate), name) }
-        .map { case (name, expiryDate, url) =>
-          val nameWithHiddenTextAppended = messages(
-            "clientAwaitingActivation.link",
-            name,
-            url,
-            messages("clientAwaitingActivation.hidden", name)
-          )
-
-          Seq(
-            TableRow(
-              content = HtmlContent(nameWithHiddenTextAppended)
-            ),
-            TableRow(
-              content = Text(expiryDate)
-            )
-          )
-        }
-    
-    Table(
-      rows = rows,
-      head = Some(Seq(
-        HeadCell(
-          content = Text("Client name")
-        ),
-        HeadCell(
-          content = Text("Expiry date")
-        )
-      ))
-    )
   }
 }
