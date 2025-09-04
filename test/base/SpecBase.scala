@@ -48,6 +48,7 @@ trait SpecBase
 
   val userAnswersId: String = "id"
   val intermediaryNumber = "IN9001234567"
+  val intermediaryName = "Intermediary Company Name"
   val vrn: Vrn = Vrn("123456789")
 
   val journeyId: String = UUID.randomUUID().toString
@@ -74,6 +75,8 @@ trait SpecBase
       deregistrationDecisionDate = None
     )
   }
+
+  def emptyUserAnswersWithVatInfo: UserAnswers = emptyUserAnswers.copy(vatInfo = Some(vatCustomerInfo))
 
   protected def applicationBuilder(userAnswers: Option[UserAnswers] = None): GuiceApplicationBuilder =
     new GuiceApplicationBuilder()

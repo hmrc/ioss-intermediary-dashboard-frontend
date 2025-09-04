@@ -17,6 +17,7 @@
 package connectors
 
 import config.Service
+import connectors.SavedPendingRegistrationHttpParser.{SavedPendingRegistrationResponse, SavedPendingRegistrationResultResponseReads}
 import connectors.VatCustomerInfoHttpParser.{VatCustomerInfoResponse, VatCustomerInfoResponseReads}
 import logging.Logging
 import play.api.Configuration
@@ -31,8 +32,18 @@ class RegistrationConnector @Inject()(config: Configuration, httpClientV2: HttpC
 
 
   private val baseUrl: Service = config.get[Service]("microservice.services.ioss-intermediary-dashboard")
+  private val netpUrl: Service = config.get[Service]("microservice.services.ioss-netp-registration")
 
   def getVatCustomerInfo(vrn:String)(implicit hc: HeaderCarrier): Future[VatCustomerInfoResponse] = {
     httpClientV2.get(url"$baseUrl/vat-information/$vrn").execute[VatCustomerInfoResponse]
+  }
+
+  def getNumberOfPendingRegistrations(intermediaryNumber: String)(implicit hc: HeaderCarrier): Future[Long] = {
+    httpClientV2.get(url"$netpUrl/pending-registrations/count/$intermediaryNumber").execute[Long]
+  }
+
+  def getPendingRegistrations(intermediaryNumber: String)(implicit hc: HeaderCarrier): Future[SavedPendingRegistrationResponse] = {
+    httpClientV2.get(url"$netpUrl/pending-registrations/$intermediaryNumber")
+      .execute[SavedPendingRegistrationResponse]
   }
 }

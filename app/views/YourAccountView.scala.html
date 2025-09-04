@@ -17,7 +17,8 @@
 @import viewmodels.InputWidth._
 
 @this(
-    layout: templates.Layout
+    layout: templates.Layout,
+    govukWarningText: GovukWarningText
 )
 
 @(
@@ -27,6 +28,8 @@
     newMessage: Int,
     addClientUrl: String,
     changeYourRegistrationUrl: String,
+    numberOfAwaitingClients: Long,
+    redirectToPendingClientsPage: String,
     leaveThisServiceUrl: String
 )(implicit request: Request[_], messages: Messages)
 
@@ -47,6 +50,15 @@
             @messages("yourAccount.messages", newMessage)
         </a>
     </p>
+
+    @{
+        if(numberOfAwaitingClients > 0) {
+            govukWarningText(WarningText(
+                iconFallbackText = Option(messages("site.warning")),
+                content = Text(messages("yourAccount.clients.clientAwaitingActivation.warn"))
+            ))
+        } else None
+    }
 
     <div class="flex-container govuk-grid-row">
         <div class="tile tile-no-border">
@@ -99,6 +111,23 @@
                         @messages("yourAccount.clients.editClient")
                     </a>
                 </p>
+
+                @if(numberOfAwaitingClients == 1) {
+                    <p class="govuk-body">
+                        <a class="govuk-link" href="@redirectToPendingClientsPage"
+                           id="pending-client-singular">
+                            @messages("yourAccount.clients.pendingClient.singular", numberOfAwaitingClients)
+                        </a>
+                    </p>
+                } else if (numberOfAwaitingClients > 1) {
+                    <p class="govuk-body">
+                        <a class="govuk-link" href="@redirectToPendingClientsPage"
+                           id="pending-client-plural">
+                            @messages("yourAccount.clients.pendingClient.plural", numberOfAwaitingClients)
+                        </a>
+                    </p>
+                }
+
             </div>
         </div>
 
