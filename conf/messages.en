@@ -76,3 +76,14 @@ vatApiDown.contactUs = If the problem continues, you can email us at <a class="g
 vatInfoNotFound.title = The VAT number you entered does not match a registered business
 vatInfoNotFound.heading = The VAT number you entered does not match a registered business
 vatInfoNotFound.tryAgain = Check you have entered it correctly and try again.
+testOnlySecureMessaging.title = testOnlySecureMessaging
+testOnlySecureMessaging.heading = testOnlySecureMessaging
+testOnlySecureMessaging.Subject = Subject
+testOnlySecureMessaging.Message = Message
+testOnlySecureMessaging.checkYourAnswersLabel = TestOnlySecureMessaging
+testOnlySecureMessaging.error.Subject.required = Enter Subject
+testOnlySecureMessaging.error.Message.required = Enter Message
+testOnlySecureMessaging.error.Subject.length = Subject must be 100 characters or less
+testOnlySecureMessaging.error.Message.length = Message must be 100 characters or less
+testOnlySecureMessaging.Subject.change.hidden = Subject
+testOnlySecureMessaging.Message.change.hidden = Message
