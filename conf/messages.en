@@ -87,3 +87,15 @@ clientAwaitingActivation.warning = If your client does not activate their regist
 clientAwaitingActivation.info = If your client has not received an email from HMRC, check you have given us their correct email address.
 clientAwaitingActivation.hidden = view registration details for
 clientAwaitingActivation.link = <a class="govuk-link" href="{1}"><span class="govuk-visually-hidden">{2}</span>{0}</a>
+
+testOnlySecureMessaging.title = testOnlySecureMessaging
+testOnlySecureMessaging.heading = testOnlySecureMessaging
+testOnlySecureMessaging.Subject = Subject
+testOnlySecureMessaging.Message = Message
+testOnlySecureMessaging.checkYourAnswersLabel = TestOnlySecureMessaging
+testOnlySecureMessaging.error.Subject.required = Enter Subject
+testOnlySecureMessaging.error.Message.required = Enter Message
+testOnlySecureMessaging.error.Subject.length = Subject must be 100 characters or less
+testOnlySecureMessaging.error.Message.length = Message must be 100 characters or less
+testOnlySecureMessaging.Subject.change.hidden = Subject
+testOnlySecureMessaging.Message.change.hidden = Message
