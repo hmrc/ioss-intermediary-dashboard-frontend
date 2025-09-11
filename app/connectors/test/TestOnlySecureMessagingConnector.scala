@@ -18,6 +18,7 @@ package connectors.test
 
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.writeableOf_JsValue
+import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
 
@@ -43,33 +44,33 @@ class TestOnlySecureMessagingConnector @Inject()(
 
     val jsonPayload: JsValue = Json.obj(
       "externalRef" -> Json.obj(
-        "id"     -> s"AJD${random18Digit()}",
+        "id" -> s"AJD${random18Digit()}",
         "source" -> "gmc"
       ),
       "recipient" -> Json.obj(
         "taxIdentifier" -> Json.obj(
-          "name"  -> "HMRC-IOSS-INT",
+          "name" -> "HMRC-IOSS-INT",
           "value" -> "IN9001234567"
         ),
         "name" -> Json.obj(
           "line1" -> "Bob",
           "line2" -> "Jones"
         ),
-        "email"  -> "chandan.ray+M08aGIOSS@digital.hmrc.gov.uk",
+        "email" -> "chandan.ray+M08aGIOSS@digital.hmrc.gov.uk",
         "regime" -> "ioss"
       ),
       "messageType" -> "mailout-batch",
       "details" -> Json.obj(
-        "formId"     -> "M08aGIOSS",
+        "formId" -> "M08aGIOSS",
         "sourceData" -> "test-source-data",
-        "batchId"    -> "IOSSMessage",
-        "issueDate"  -> "2025-08-01"
+        "batchId" -> "IOSSMessage",
+        "issueDate" -> "2025-08-01"
       ),
       "content" -> Json.arr(
         Json.obj(
-          "lang"    -> "en",
+          "lang" -> "en",
           "subject" -> "Import One Stop Shop (IOSS)",
-          "body"    -> s"${random18Digit()}" // placeholder: body needs to be unique, ensures successful creation
+          "body" -> s"${random18Digit()}" // placeholder: body needs to be unique, ensures successful creation
         )
       ),
       "language" -> "en"
