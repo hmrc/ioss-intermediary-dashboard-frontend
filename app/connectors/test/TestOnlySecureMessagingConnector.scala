@@ -23,6 +23,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Random
 
 class TestOnlySecureMessagingConnector @Inject()(
                                                   httpClientV2: HttpClientV2,
@@ -30,43 +31,48 @@ class TestOnlySecureMessagingConnector @Inject()(
 
   private val secureMessageUrl = "http://localhost:9051/secure-messaging/v4/message"
 
+  private def random18Digit(): BigInt = {
+    val part1 = Random.between(100000, 999999)
+    val part2 = Random.between(100000, 999999)
+    val part3 = Random.between(100000, 999999)
+    BigInt(s"$part1$part2$part3")
+  }
+
 
   def sendSecureMessage()(implicit hc: HeaderCarrier): Future[HttpResponse] = {
 
-    val jsonPayload: JsValue = Json.parse(
-      """{
-        |  "externalRef": {
-        |    "id": "AJD132324532312318900",
-        |    "source": "gmc"
-        |  },
-        |  "recipient": {
-        |    "taxIdentifier": {
-        |      "name": "HMRC-IOSS-NETP",
-        |      "value": "IM9001234567"
-        |    },
-        |    "name": {
-        |      "line1": "Bob",
-        |      "line2": "Jones"
-        |    },
-        |    "email": "chandan.ray+M08aGIOSS@digital.hmrc.gov.uk",
-        |    "regime": "ioss"
-        |  },
-        |  "messageType": "mailout-batch",
-        |  "details": {
-        |    "formId": "M08aGIOSS",
-        |    "sourceData": "WW91IG5lZWQgdG8gZmlsZSBhIFNlbGYgQXNzZXNzbWVudCB0YXggcmV0dXJuIGZvciB0aGUgMjAyNCB0byAyMDI1IHRheCB5ZWFyIGlmIHlvdSBoYXZlbid0IGFscmVhZHkuIFRoZSB0YXggeWVhciBlbmRlZCBvbiA1IEFwcmlsIDIwMjUuCgpZb3UgbXVzdCBmaWxlIHlvdXIgb25saW5lIHJldHVybiBieSAzMSBKYW51YXJ5IDIwMjYuCgpJZiB5b3UndmUgYWxyZWFkeSBjb21wbGV0ZWQgeW91ciB0YXggcmV0dXJuIGZvciB0aGUgMjAyNCB0byAyMDI1IHRheCB5ZWFyLCBvciB3ZSd2ZSB0b2xkIHlvdSB0aGF0IHlvdSBkb24ndCBuZWVkIHRvIHNlbmQgdXMgYSAyMDI0IHRvIDIwMjUgdGF4IHJldHVybiwgeW91IGRvbid0IG5lZWQgdG8gZG8gYW55dGhpbmcgZWxzZS4KCllvdSBjYW4gcGF5IHRocm91Z2ggeW91ciBQYXkgQXMgWW91IEVhcm4gdGF4IGNvZGUgaWYgeW91IG93ZSBsZXNzIHRoYW4",
-        |    "batchId": "IOSSMessage",
-        |    "issueDate": "2025-08-01"
-        |  },
-        |  "content": [
-        |    {
-        |      "lang": "en",
-        |      "subject": "Import One Stop Shop (IOSS)",
-        |      "body": "test email 3"
-        |    }
-        |  ],
-        |  "language": "en"
-        |}""".stripMargin
+    val jsonPayload: JsValue = Json.obj(
+      "externalRef" -> Json.obj(
+        "id"     -> s"AJD${random18Digit()}",
+        "source" -> "gmc"
+      ),
+      "recipient" -> Json.obj(
+        "taxIdentifier" -> Json.obj(
+          "name"  -> "HMRC-IOSS-NETP",
+          "value" -> "IM9001234567"
+        ),
+        "name" -> Json.obj(
+          "line1" -> "Bob",
+          "line2" -> "Jones"
+        ),
+        "email"  -> "chandan.ray+M08aGIOSS@digital.hmrc.gov.uk",
+        "regime" -> "ioss"
+      ),
+      "messageType" -> "mailout-batch",
+      "details" -> Json.obj(
+        "formId"     -> "M08aGIOSS",
+        "sourceData" -> "test-source-data",
+        "batchId"    -> "IOSSMessage",
+        "issueDate"  -> "2025-08-01"
+      ),
+      "content" -> Json.arr(
+        Json.obj(
+          "lang"    -> "en",
+          "subject" -> "Import One Stop Shop (IOSS)",
+          "body"    -> "test email"
+        )
+      ),
+      "language" -> "en"
     )
 
     httpClientV2
