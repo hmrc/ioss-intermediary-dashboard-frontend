@@ -17,20 +17,15 @@
 package controllers.test
 
 import base.SpecBase
-import forms.ConversationData
 import org.scalatestplus.mockito.MockitoSugar
-import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import views.html.TestOnlySecureMessagingView
 
+
 class TestOnlySecureMessagingControllerSpec extends SpecBase with MockitoSugar {
 
-  val form = ConversationData()
-
-  lazy val testOnlySecureMessagingRoute = routes.TestOnlySecureMessagingController.onPageLoad().url
-
-  private val secureMessageAction = Call("POST", "http://localhost:9202/secure-message-stub")
+  lazy val testOnlySecureMessagingRoute: String = routes.TestOnlySecureMessagingController.onPageLoad().url
 
   "TestOnlySecureMessaging Controller" - {
 
@@ -48,9 +43,9 @@ class TestOnlySecureMessagingControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, secureMessageAction)(request, messages(application)).toString
+        contentAsString(result) mustEqual view()(request, messages(application)).toString
       }
     }
-
   }
+
 }
