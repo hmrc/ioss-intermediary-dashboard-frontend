@@ -48,8 +48,8 @@ class TestOnlySecureMessagingConnector @Inject()(
       ),
       "recipient" -> Json.obj(
         "taxIdentifier" -> Json.obj(
-          "name"  -> "HMRC-IOSS-NETP",
-          "value" -> "IM9001234567"
+          "name"  -> "HMRC-IOSS-INT",
+          "value" -> "IN9001234567"
         ),
         "name" -> Json.obj(
           "line1" -> "Bob",
@@ -69,7 +69,7 @@ class TestOnlySecureMessagingConnector @Inject()(
         Json.obj(
           "lang"    -> "en",
           "subject" -> "Import One Stop Shop (IOSS)",
-          "body"    -> "test email"
+          "body"    -> s"${random18Digit()}" // placeholder: body needs to be unique, ensures successful creation
         )
       ),
       "language" -> "en"
