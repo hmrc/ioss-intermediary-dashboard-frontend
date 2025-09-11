@@ -16,9 +16,9 @@
 
 package controllers.test
 
-import forms.ConversationData
+import connectors.test.TestOnlySecureMessagingConnector
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.TestOnlySecureMessagingView
 
@@ -28,16 +28,45 @@ import scala.concurrent.ExecutionContext
 class TestOnlySecureMessagingController @Inject()(
                                                    override val messagesApi: MessagesApi,
                                                    val controllerComponents: MessagesControllerComponents,
-                                                   view: TestOnlySecureMessagingView
+                                                   view: TestOnlySecureMessagingView,
+                                                   connector: TestOnlySecureMessagingConnector,
                                                  )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  private val form = ConversationData()
 
   def onPageLoad(): Action[AnyContent] = Action {
     implicit request =>
+      Ok(view())
+  }
 
-      val secureMessageAction = Call("POST", "http://localhost:9202/secure-message-stub")
-
-      Ok(view(form, secureMessageAction))
+  def onSubmit(): Action[AnyContent] = Action.async {
+    implicit request =>
+      connector.sendSecureMessage().map { response =>
+        response.status match {
+          case 200 | 201 =>
+            Ok(
+              s"""
+                 |<h1>Message sent successfully</h1>
+                 |<p>Response status: ${response.status}</p>
+                 |<p>Response body: ${response.body}</p>
+                 |</div>
+                 |</div>""".stripMargin).as("text/html")
+          case _ =>
+            Ok(
+              s"""
+                 |<h1>Failed to send message</h1>
+                 |<p>Status: ${response.status}</p>
+                 |<p>Response body: ${response.body}</p>
+                 |""".stripMargin).as("text/html")
+        }
+      }.recover {
+        case ex =>
+          Ok(
+            s"""
+               |<h1>Error sending message</h1>
+               |<p>Error: ${ex.getMessage}</p>
+               """.stripMargin).as("text/html")
+      }
   }
 }
+
+
