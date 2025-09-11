@@ -36,7 +36,7 @@ class TestOnlySecureMessagingConnector @Inject()(
     val jsonPayload: JsValue = Json.parse(
       """{
         |  "externalRef": {
-        |    "id": "AJD132324532312318951",
+        |    "id": "AJD132324532312318900",
         |    "source": "gmc"
         |  },
         |  "recipient": {
@@ -62,7 +62,7 @@ class TestOnlySecureMessagingConnector @Inject()(
         |    {
         |      "lang": "en",
         |      "subject": "Import One Stop Shop (IOSS)",
-        |      "body": "V2UgaGF2ZSByZWNlaXZlZCB5b3VyIFZBVCByZXR1cm4KV2UgaGF2ZSByZWNlaXZlZCB5b3VyIEltcG9ydCBPbmUgU3RvcCBTaG9wIChJT1NTKSBWQVQgcmV0dXJuIGZvciBBdWd1c3QgMjAyMy4KCllvdSBtdXN0IHBheSB0aGUgcmV0dXJuIGluIGZ1bGwgYnkgNSBKdWx5IDIwMjMuCgpFVSBjb3VudHJpZXMgY2FuIGNoYXJnZSB5b3UgaW50ZXJlc3Qgb3IgcGVuYWx0aWVzIGZvciBsYXRlIHBheW1lbnRzIGFuZCB3ZSBtYXkgcmVtb3ZlIHlvdSBmcm9tIHRoZSBJT1NTIHNjaGVtZSBpZiB5b3UgZG8gbm90IHBheSBpbiBmdWxsLgoKUGF5IG5vdyAKWW91ciBJT1NTIG51bWJlciBpczogWE0wMjk5OTk5OTk5"
+        |      "body": "test email 3"
         |    }
         |  ],
         |  "language": "en"
