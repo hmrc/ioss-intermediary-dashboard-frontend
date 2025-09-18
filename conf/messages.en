@@ -61,6 +61,9 @@ yourAccount.payment.makeAPayment = Make a payment
 yourAccount.clients.heading = Your clients
 yourAccount.clients.addClient = Add a new client
 yourAccount.clients.editClient = View, edit or remove a client
+yourAccount.clients.pendingClient.singular = {0} client awaiting activation
+yourAccount.clients.pendingClient.plural = {0} clients awaiting activation
+yourAccount.clients.clientAwaitingActivation.warn = You have clients awaiting activation.
 yourAccount.details.heading = Your details
 yourAccount.details.changeYourRegistration = Change your registration
 yourAccount.details.leaveThisService = Leave this service
@@ -76,3 +79,23 @@ vatApiDown.contactUs = If the problem continues, you can email us at <a class="g
 vatInfoNotFound.title = The VAT number you entered does not match a registered business
 vatInfoNotFound.heading = The VAT number you entered does not match a registered business
 vatInfoNotFound.tryAgain = Check you have entered it correctly and try again.
+
+clientAwaitingActivation.title = {0} client awaiting activation
+clientAwaitingActivation.heading.singular = {0} client awaiting activation
+clientAwaitingActivation.heading.plural = {0} clients awaiting activation
+clientAwaitingActivation.warning = If your client does not activate their registration within 28 days, you''ll need to register them again.
+clientAwaitingActivation.info = If your client has not received an email from HMRC, check you have given us their correct email address.
+clientAwaitingActivation.hidden = view registration details for
+clientAwaitingActivation.link = <a class="govuk-link" href="{1}"><span class="govuk-visually-hidden">{2}</span>{0}</a>
+
+testOnlySecureMessaging.title = testOnlySecureMessaging
+testOnlySecureMessaging.heading = testOnlySecureMessaging
+testOnlySecureMessaging.Subject = Subject
+testOnlySecureMessaging.Message = Message
+testOnlySecureMessaging.checkYourAnswersLabel = TestOnlySecureMessaging
+testOnlySecureMessaging.error.Subject.required = Enter Subject
+testOnlySecureMessaging.error.Message.required = Enter Message
+testOnlySecureMessaging.error.Subject.length = Subject must be 100 characters or less
+testOnlySecureMessaging.error.Message.length = Message must be 100 characters or less
+testOnlySecureMessaging.Subject.change.hidden = Subject
+testOnlySecureMessaging.Message.change.hidden = Message

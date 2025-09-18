@@ -39,7 +39,7 @@ lazy val microservice = (project in file("."))
     ),
     PlayKeys.playDefaultPort := 10179,
     ScoverageKeys.coverageExcludedFiles := "<empty>;Reverse.*;.*handlers.*;.*components.*;" +
-      ".*Routes.*;.*viewmodels.govuk.*;",
+      ".*Routes.*;.*viewmodels.govuk.*;.*connectors.test.*;.*controllers.test.*",
     ScoverageKeys.coverageMinimumStmtTotal := 78,
     ScoverageKeys.coverageFailOnMinimum := true,
     ScoverageKeys.coverageHighlighting := true,
@@ -60,7 +60,7 @@ lazy val microservice = (project in file("."))
     // prevent removal of unused code which generates warning errors due to use of third-party libs
     uglifyCompressOptions := Seq("unused=false", "dead_code=false"),
     pipelineStages := Seq(digest),
-    Assets / pipelineStages := Seq(concat),
+    Assets / pipelineStages := Seq(concat, uglify),
     uglify / includeFilter := GlobFilter("application*.js")
   )
 
