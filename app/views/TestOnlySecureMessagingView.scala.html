@@ -19,16 +19,30 @@
 @this(
     layout: templates.Layout,
     formHelper: FormWithCSRF,
-    govukButton: GovukButton
+    govukErrorSummary: GovukErrorSummary,
+    govukButton: GovukButton,
+    govukInput: GovukInput,
 )
 
-@(messagesResponse: Option[String] = None)(implicit request: Request[_], messages: Messages)
+@(form: Form[_])(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = messages("testOnlySecureMessaging.title")) {
-
-    <h1 class="govuk-heading-xl">@messages("Select continue to create message")</h1>
+@layout(pageTitle = title(form, messages("testOnly - Create Secure Messages"))) {
 
     @formHelper(action = controllers.test.routes.TestOnlySecureMessagingController.onSubmit()) {
+        
+        @if(form.errors.nonEmpty) {
+            @govukErrorSummary(ErrorSummaryViewModel(form))
+        }
+
+        <h1 class="govuk-heading-xl">@messages("Create Secure Messages")</h1>
+
+        @govukInput(
+            InputViewModel(
+                field = form("NumberOfEmails"),
+                label = LabelViewModel("Number of random messages to create").withCssClass("govuk-label--m")
+            ).withWidth(Fixed20)
+        )
+
         @govukButton(
             ButtonViewModel(messages("site.continue"))
         )
