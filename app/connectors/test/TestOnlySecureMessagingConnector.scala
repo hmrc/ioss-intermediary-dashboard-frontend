@@ -18,7 +18,7 @@ package connectors.test
 
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.writeableOf_JsValue
-import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
 
@@ -32,15 +32,7 @@ class TestOnlySecureMessagingConnector @Inject()(
 
   private val secureMessageUrl = "http://localhost:9051/secure-messaging/v4/message"
 
-  private def random18Digit(): BigInt = {
-    val part1 = Random.between(100000, 999999)
-    val part2 = Random.between(100000, 999999)
-    val part3 = Random.between(100000, 999999)
-    BigInt(s"$part1$part2$part3")
-  }
-
-
-  def sendSecureMessage()(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+  def createSecureMessage()(implicit hc: HeaderCarrier): Future[HttpResponse] = {
 
     val jsonPayload: JsValue = Json.obj(
       "externalRef" -> Json.obj(
@@ -56,7 +48,7 @@ class TestOnlySecureMessagingConnector @Inject()(
           "line1" -> "Bob",
           "line2" -> "Jones"
         ),
-        "email" -> "chandan.ray+M08aGIOSS@digital.hmrc.gov.uk",
+        "email" -> "test@mail.com",
         "regime" -> "ioss"
       ),
       "messageType" -> "mailout-batch",
@@ -64,13 +56,12 @@ class TestOnlySecureMessagingConnector @Inject()(
         "formId" -> "M08aGIOSS",
         "sourceData" -> "test-source-data",
         "batchId" -> "IOSSMessage",
-        "issueDate" -> "2025-08-01"
       ),
       "content" -> Json.arr(
         Json.obj(
           "lang" -> "en",
           "subject" -> "Import One Stop Shop (IOSS)",
-          "body" -> s"${random18Digit()}" // placeholder: body needs to be unique, ensures successful creation
+          "body" -> s"test email - unique ID: ${random18Digit()}"
         )
       ),
       "language" -> "en"
@@ -80,5 +71,12 @@ class TestOnlySecureMessagingConnector @Inject()(
       .post(url"$secureMessageUrl")
       .withBody(jsonPayload)
       .execute[HttpResponse]
+  }
+
+  private def random18Digit(): BigInt = {
+    val part1 = Random.between(100000, 999999)
+    val part2 = Random.between(100000, 999999)
+    val part3 = Random.between(100000, 999999)
+    BigInt(s"$part1$part2$part3")
   }
 }
