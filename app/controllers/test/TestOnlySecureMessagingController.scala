@@ -17,55 +17,67 @@
 package controllers.test
 
 import connectors.test.TestOnlySecureMessagingConnector
+import forms.test.TestOnlySecureMessagingFormProvider
+import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.TestOnlySecureMessagingView
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class TestOnlySecureMessagingController @Inject()(
                                                    override val messagesApi: MessagesApi,
                                                    val controllerComponents: MessagesControllerComponents,
                                                    view: TestOnlySecureMessagingView,
                                                    connector: TestOnlySecureMessagingConnector,
+                                                   formProvider: TestOnlySecureMessagingFormProvider
                                                  )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
+  private val form: Form[Option[Int]] = formProvider()
 
   def onPageLoad(): Action[AnyContent] = Action {
     implicit request =>
-      Ok(view())
+      Ok(view(form))
   }
 
-  def onSubmit(): Action[AnyContent] = Action.async {
-    implicit request =>
-      connector.sendSecureMessage().map { response =>
-        response.status match {
-          case 200 | 201 =>
-            Ok(
-              s"""
-                 |<h1>Message sent successfully</h1>
-                 |<p>Response status: ${response.status}</p>
-                 |<p>Response body: ${response.body}</p>
-                 |</div>
-                 |</div>""".stripMargin).as("text/html")
-          case _ =>
-            Ok(
-              s"""
-                 |<h1>Failed to send message</h1>
-                 |<p>Status: ${response.status}</p>
-                 |<p>Response body: ${response.body}</p>
-                 |""".stripMargin).as("text/html")
-        }
-      }.recover {
-        case ex =>
+  def onSubmit(): Action[AnyContent] = Action.async { implicit request =>
+    form.bindFromRequest().fold(
+      formWithErrors => Future.successful(BadRequest(view(formWithErrors))),
+      numberOfEmailsRequested => {
+        val numberOfEmails = numberOfEmailsRequested.getOrElse(1)
+
+        val results: Future[List[HttpResponse]] =
+          (1 to numberOfEmails).foldLeft(Future.successful(List.empty[HttpResponse])) { (acc, _) =>
+            for {
+              acc <- acc
+              res <- connector.createSecureMessage()
+            } yield acc :+ res
+          }
+
+        results.map { results =>
+
           Ok(
             s"""
-               |<h1>Error sending message</h1>
+               |<h1>Messages successfully created!</h1>
+               |<p>Number of messages created: $numberOfEmails</p>
+               |<p><a href="${controllers.test.routes.TestOnlySecureMessagingController.onPageLoad()}">Create more messages</a></p>
+               |""".stripMargin
+          ).as("text/html")
+        }.recover { ex =>
+          InternalServerError(
+            s"""
+               |<h1>Error creating messages</h1>
+               |<p>Requested: $numberOfEmails</p>
                |<p>Error: ${ex.getMessage}</p>
-               """.stripMargin).as("text/html")
+               |<p><a href="${controllers.test.routes.TestOnlySecureMessagingController.onPageLoad()}">Try again</a></p>
+               |""".stripMargin
+          ).as("text/html")
+        }
       }
+    )
   }
 }
 
