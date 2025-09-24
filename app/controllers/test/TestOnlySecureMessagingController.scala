@@ -50,22 +50,27 @@ class TestOnlySecureMessagingController @Inject()(
         val numberOfEmails = numberOfEmailsRequested.getOrElse(1)
 
         val results: Future[List[HttpResponse]] =
-          (1 to numberOfEmails).foldLeft(Future.successful(List.empty[HttpResponse])) { (acc, _) =>
-            for {
-              acc <- acc
-              res <- connector.createSecureMessage()
-            } yield acc :+ res
+          Future.sequence((1 to numberOfEmails).map(_ => connector.createSecureMessage()).toList)
+
+        results.flatMap { responses =>
+          responses.find(r => r.status != 201 ) match {
+            case Some(failure) =>
+              Future.failed(
+                new RuntimeException(s"Message creation failed with status ${failure.status}")
+              )
+
+            case None =>
+              Future.successful(
+                Ok(
+                  s"""
+                     |<h1>Messages successfully created!</h1>
+                     |<p>Number of messages created: $numberOfEmails</p>
+                     |<p>Number of messages created: ${responses.toString()}</p>
+                     |<p><a href="${controllers.test.routes.TestOnlySecureMessagingController.onPageLoad()}">Create more messages</a></p>
+                     |""".stripMargin
+                ).as("text/html")
+              )
           }
-
-        results.map { results =>
-
-          Ok(
-            s"""
-               |<h1>Messages successfully created!</h1>
-               |<p>Number of messages created: $numberOfEmails</p>
-               |<p><a href="${controllers.test.routes.TestOnlySecureMessagingController.onPageLoad()}">Create more messages</a></p>
-               |""".stripMargin
-          ).as("text/html")
         }.recover { ex =>
           InternalServerError(
             s"""
