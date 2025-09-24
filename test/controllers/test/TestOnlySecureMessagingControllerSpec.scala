@@ -17,7 +17,9 @@
 package controllers.test
 
 import base.SpecBase
+import forms.test.TestOnlySecureMessagingFormProvider
 import org.scalatestplus.mockito.MockitoSugar
+import play.api.data.Form
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import views.html.TestOnlySecureMessagingView
@@ -26,6 +28,8 @@ import views.html.TestOnlySecureMessagingView
 class TestOnlySecureMessagingControllerSpec extends SpecBase with MockitoSugar {
 
   lazy val testOnlySecureMessagingRoute: String = routes.TestOnlySecureMessagingController.onPageLoad().url
+  private val formProvider = new TestOnlySecureMessagingFormProvider
+  private val form: Form[Option[Int]] = formProvider()
 
   "TestOnlySecureMessaging Controller" - {
 
@@ -43,7 +47,7 @@ class TestOnlySecureMessagingControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view()(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form)(request, messages(application)).toString
       }
     }
   }
