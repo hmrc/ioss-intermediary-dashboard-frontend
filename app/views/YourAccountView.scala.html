@@ -27,6 +27,7 @@
     intermediaryNumber: String,
     newMessage: Int,
     addClientUrl: String,
+    viewClientsListUrl: String,
     changeYourRegistrationUrl: String,
     numberOfAwaitingClients: Long,
     redirectToPendingClientsPage: String,
@@ -106,7 +107,7 @@
                 </p>
 
                 <p class="govuk-body">
-                    <a class="govuk-link" href=""
+                    <a class="govuk-link" href="@viewClientsListUrl"
                        id="edit-client">
                         @messages("yourAccount.clients.editClient")
                     </a>

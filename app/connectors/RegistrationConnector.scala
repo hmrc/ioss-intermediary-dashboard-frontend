@@ -17,6 +17,7 @@
 package connectors
 
 import config.Service
+import connectors.RegistrationConnectorHttpParser.{EtmpDisplayRegistrationResponse, EtmpDisplayRegistrationResponseReads}
 import connectors.SavedPendingRegistrationHttpParser.{SavedPendingRegistrationResponse, SavedPendingRegistrationResultResponseReads}
 import connectors.VatCustomerInfoHttpParser.{VatCustomerInfoResponse, VatCustomerInfoResponseReads}
 import logging.Logging
@@ -34,7 +35,9 @@ class RegistrationConnector @Inject()(config: Configuration, httpClientV2: HttpC
   private val baseUrl: Service = config.get[Service]("microservice.services.ioss-intermediary-dashboard")
   private val netpUrl: Service = config.get[Service]("microservice.services.ioss-netp-registration")
 
-  def getVatCustomerInfo(vrn:String)(implicit hc: HeaderCarrier): Future[VatCustomerInfoResponse] = {
+  private val displayRegistrationUrl: Service = config.get[Service]("microservice.services.ioss-intermediary-registration")
+
+  def getVatCustomerInfo(vrn: String)(implicit hc: HeaderCarrier): Future[VatCustomerInfoResponse] = {
     httpClientV2.get(url"$baseUrl/vat-information/$vrn").execute[VatCustomerInfoResponse]
   }
 
@@ -45,5 +48,10 @@ class RegistrationConnector @Inject()(config: Configuration, httpClientV2: HttpC
   def getPendingRegistrations(intermediaryNumber: String)(implicit hc: HeaderCarrier): Future[SavedPendingRegistrationResponse] = {
     httpClientV2.get(url"$netpUrl/pending-registrations/$intermediaryNumber")
       .execute[SavedPendingRegistrationResponse]
+  }
+  
+  def getDisplayRegistration(intermediaryNumber: String)(implicit hc: HeaderCarrier): Future[EtmpDisplayRegistrationResponse] = {
+    httpClientV2.get(url"$displayRegistrationUrl/get-registration/$intermediaryNumber")
+      .execute[EtmpDisplayRegistrationResponse]
   }
 }

@@ -99,3 +99,10 @@ testOnlySecureMessaging.error.Subject.length = Subject must be 100 characters or
 testOnlySecureMessaging.error.Message.length = Message must be 100 characters or less
 testOnlySecureMessaging.Subject.change.hidden = Subject
 testOnlySecureMessaging.Message.change.hidden = Message
+
+clientList.title = View or update your clients
+clientList.heading = View or update your clients
+clientList.warning = If your client does not appear on this list, they may not have activated their registration in time. You''ll need to register them again.
+clientList.active.heading = Active clients
+clientList.excluded.heading = Previous clients that have left the service
+clientList.excluded.remove.hidden = client {0}
