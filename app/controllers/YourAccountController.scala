@@ -44,11 +44,12 @@ class YourAccountController @Inject()(
     implicit request =>
 
       val vrn = request.vrn.vrn
-      registrationConnector.getNumberOfPendingRegistrations(request.intermediaryNumber).map(_.toInt).flatMap { numberOfAwaitingClients =>
-        registrationConnector.getVatCustomerInfo(vrn).flatMap {
-          case Right(vatInfo) =>
-            val businessName = vatInfo.organisationName.orElse(vatInfo.individualName).getOrElse("")
-            val intermediaryNumber = request.intermediaryNumber
+      registrationConnector.getNumberOfSavedUserAnswers(request.intermediaryNumber).flatMap { numberOfSavedUserJourneys =>
+        registrationConnector.getNumberOfPendingRegistrations(request.intermediaryNumber).map(_.toInt).flatMap { numberOfAwaitingClients =>
+          registrationConnector.getVatCustomerInfo(vrn).flatMap {
+            case Right(vatInfo) =>
+              val businessName = vatInfo.organisationName.orElse(vatInfo.individualName).getOrElse("")
+              val intermediaryNumber = request.intermediaryNumber
 
             val newMessages = 0
             val addClientUrl = appConfig.addClientUrl
@@ -56,8 +57,9 @@ class YourAccountController @Inject()(
             val redirectToPendingClientsPage = appConfig.redirectToPendingClientsPage
             val leaveThisServiceUrl = appConfig.leaveThisServiceUrl
             val viewClientsListUrl: String = appConfig.viewClientsListUrl
+              val continueSavedRegUrl = appConfig.continueRegistrationUrl
 
-            Ok(view(
+              Ok(view(
               waypoints,
               businessName,
               intermediaryNumber,
@@ -67,7 +69,9 @@ class YourAccountController @Inject()(
               changeYourRegistrationUrl,
               numberOfAwaitingClients,
               redirectToPendingClientsPage,
-              leaveThisServiceUrl
+              leaveThisServiceUrl,
+              numberOfSavedUserJourneys,
+              continueSavedRegUrl
             )).toFuture
 
           case Left(error) =>

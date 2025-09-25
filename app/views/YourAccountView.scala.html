@@ -31,7 +31,9 @@
     changeYourRegistrationUrl: String,
     numberOfAwaitingClients: Long,
     redirectToPendingClientsPage: String,
-    leaveThisServiceUrl: String
+    leaveThisServiceUrl: String,
+    numberOfSavedUserJourneys: Long,
+    continueSavedRegUrl: String
 )(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("yourAccount.title")),
@@ -98,6 +100,15 @@
         <div class="tile tile-no-border">
             <div id="clients" class="tile-body">
                 <h2 class="govuk-heading-m push--top">@messages("yourAccount.clients.heading")</h2>
+
+                @if(numberOfSavedUserJourneys >= 1) {
+                <p class="govuk-body">
+                    <a class="govuk-link" href="@continueSavedRegUrl"
+                       id="continue-saved-answers">
+                        @messages("yourAccount.clients.continueRegistration")
+                    </a>
+                </p>
+                }
 
                 <p class="govuk-body">
                     <a class="govuk-link" href="@addClientUrl"

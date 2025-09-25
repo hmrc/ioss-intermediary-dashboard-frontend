@@ -59,6 +59,7 @@ yourAccount.returns.previousReturn = View submitted returns
 yourAccount.payment.heading = Payments
 yourAccount.payment.makeAPayment = Make a payment
 yourAccount.clients.heading = Your clients
+yourAccount.clients.continueRegistration = Continue a registration in progress
 yourAccount.clients.addClient = Add a new client
 yourAccount.clients.editClient = View, edit or remove a client
 yourAccount.clients.pendingClient.singular = {0} client awaiting activation
