@@ -72,6 +72,7 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
             intermediaryNumber,
             newMessage,
             appConfig.addClientUrl,
+            appConfig.viewClientsListUrl,
             appConfig.changeYourRegistrationUrl,
             1,
             appConfig.redirectToPendingClientsPage,
@@ -82,6 +83,7 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must throw an exception and log the error when an unexpected error is returned" in {
+      
       val mockRegistrationConnector = mock[RegistrationConnector]
 
       when(mockRegistrationConnector.getNumberOfPendingRegistrations(any())(any()))

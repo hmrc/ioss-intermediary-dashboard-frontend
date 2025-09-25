@@ -30,3 +30,5 @@ GET        /service-error                                controllers.VatApiDownC
 GET        /vat-info-not-found                           controllers.VatInfoNotFoundController.onPageLoad()
 
 GET        /client-awaiting-activation                   controllers.ClientAwaitingActivationController.onPageLoad(waypoints: Waypoints ?= EmptyWaypoints)
+
+GET        /client-list                                  controllers.ClientListController.onPageLoad(waypoints: Waypoints ?= EmptyWaypoints)
