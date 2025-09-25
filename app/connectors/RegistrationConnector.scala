@@ -46,4 +46,8 @@ class RegistrationConnector @Inject()(config: Configuration, httpClientV2: HttpC
     httpClientV2.get(url"$netpUrl/pending-registrations/$intermediaryNumber")
       .execute[SavedPendingRegistrationResponse]
   }
+
+  def getNumberOfSavedUserAnswers(intermediaryNumber: String)(implicit hc: HeaderCarrier): Future[Long] = {
+    httpClientV2.get(url"$netpUrl/save-for-later/count/$intermediaryNumber").execute[Long]
+  }
 }
