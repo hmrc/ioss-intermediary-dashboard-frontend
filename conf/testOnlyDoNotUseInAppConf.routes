@@ -13,3 +13,5 @@
 ->         /                          prod.Routes
 GET        /test-only/testOnlySecureMessaging                        @controllers.test.TestOnlySecureMessagingController.onPageLoad()
 POST       /test-only/testOnlySecureMessaging                        @controllers.test.TestOnlySecureMessagingController.onSubmit()
+
+GET        /test-only/testOnlySecureCustomMessaging                  @controllers.test.TestOnlySecureCustomMessagingController.onPageLoad()
