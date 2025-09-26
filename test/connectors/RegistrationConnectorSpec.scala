@@ -28,7 +28,7 @@ import play.api.http.Status.*
 import play.api.libs.json.Json
 import play.api.test.Helpers.running
 import testutils.WireMockHelper
-import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
+import uk.gov.hmrc.http.{BadRequestException, HeaderCarrier, UpstreamErrorResponse}
 
 class RegistrationConnectorSpec extends SpecBase with WireMockHelper {
 
@@ -229,6 +229,8 @@ class RegistrationConnectorSpec extends SpecBase with WireMockHelper {
           whenReady(result.failed) {
             case e: UpstreamErrorResponse =>
               e.statusCode mustBe status
+            case e: BadRequestException =>
+              e.responseCode mustBe status
             case other =>
               fail(s"Expected UpstreamErrorResponse but got $other")
           }
@@ -337,6 +339,8 @@ class RegistrationConnectorSpec extends SpecBase with WireMockHelper {
           whenReady(result.failed) {
             case e: UpstreamErrorResponse =>
               e.statusCode mustBe status
+            case e: BadRequestException =>
+              e.responseCode mustBe status
             case other =>
               fail(s"Expected UpstreamErrorResponse but got $other")
           }
