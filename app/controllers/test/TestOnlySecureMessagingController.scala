@@ -18,7 +18,6 @@ package controllers.test
 
 import connectors.test.TestOnlySecureMessagingConnector
 import forms.test.TestOnlySecureMessagingFormProvider
-import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.http.HttpResponse
@@ -33,56 +32,56 @@ class TestOnlySecureMessagingController @Inject()(
                                                    val controllerComponents: MessagesControllerComponents,
                                                    view: TestOnlySecureMessagingView,
                                                    connector: TestOnlySecureMessagingConnector,
-                                                   formProvider: TestOnlySecureMessagingFormProvider
                                                  )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  private val form: Form[Option[Int]] = formProvider()
+  private val form = TestOnlySecureMessagingFormProvider()
 
   def onPageLoad(): Action[AnyContent] = Action {
     implicit request =>
       Ok(view(form))
   }
 
-  def onSubmit(): Action[AnyContent] = Action.async { implicit request =>
-    form.bindFromRequest().fold(
-      formWithErrors => Future.successful(BadRequest(view(formWithErrors))),
-      numberOfEmailsRequested => {
-        val numberOfEmails = numberOfEmailsRequested.getOrElse(1)
+  def onSubmit(): Action[AnyContent] = Action.async {
+    implicit request =>
+      form.bindFromRequest().fold(
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors))),
+        form => {
+          val numberOfMessages = form.numberOfMessages.getOrElse(1)
+          val isReadMessage = form.isReadMessage
 
-        val results: Future[List[HttpResponse]] =
-          Future.sequence((1 to numberOfEmails).map(_ => connector.createSecureMessage()).toList)
+          val results: Future[List[HttpResponse]] =
+            Future.sequence((1 to numberOfMessages).map(_ => connector.createSecureMessage(isReadMessage)).toList)
 
-        results.flatMap { responses =>
-          responses.find(r => r.status != 201 ) match {
-            case Some(failure) =>
-              Future.failed(
-                new RuntimeException(s"Message creation failed with status ${failure.status}")
-              )
+          results.flatMap { responses =>
+            responses.find(r => r.status != 201) match {
+              case Some(failure) =>
+                Future.failed(
+                  new RuntimeException(s"Message creation failed with status ${failure.status}")
+                )
 
-            case None =>
-              Future.successful(
-                Ok(
-                  s"""
-                     |<h1>Messages successfully created!</h1>
-                     |<p>Number of messages created: $numberOfEmails</p>
-                     |<p>Number of messages created: ${responses.toString()}</p>
-                     |<p><a href="${controllers.test.routes.TestOnlySecureMessagingController.onPageLoad()}">Create more messages</a></p>
-                     |""".stripMargin
-                ).as("text/html")
-              )
+              case None =>
+                Future.successful(
+                  Ok(
+                    s"""
+                       |<h1>Messages successfully created!</h1>
+                       |<p>Number of messages created: $numberOfMessages</p>
+                       |<p><a href="${controllers.test.routes.TestOnlySecureMessagingController.onPageLoad()}">Create more messages</a></p>
+                       |""".stripMargin
+                  ).as("text/html")
+                )
+            }
+          }.recover { ex =>
+            InternalServerError(
+              s"""
+                 |<h1>Error creating messages</h1>
+                 |<p>Requested: $numberOfMessages</p>
+                 |<p>Error: ${ex.getMessage}</p>
+                 |<p><a href="${controllers.test.routes.TestOnlySecureMessagingController.onPageLoad()}">Go back</a></p>
+                 |""".stripMargin
+            ).as("text/html")
           }
-        }.recover { ex =>
-          InternalServerError(
-            s"""
-               |<h1>Error creating messages</h1>
-               |<p>Requested: $numberOfEmails</p>
-               |<p>Error: ${ex.getMessage}</p>
-               |<p><a href="${controllers.test.routes.TestOnlySecureMessagingController.onPageLoad()}">Try again</a></p>
-               |""".stripMargin
-          ).as("text/html")
         }
-      }
-    )
+      )
   }
 }
 

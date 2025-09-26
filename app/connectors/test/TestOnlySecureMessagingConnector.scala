@@ -16,7 +16,7 @@
 
 package connectors.test
 
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.{JsObject, Json}
 import play.api.libs.ws.writeableOf_JsValue
 import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.HttpClientV2
@@ -32,9 +32,9 @@ class TestOnlySecureMessagingConnector @Inject()(
 
   private val secureMessageUrl = "http://localhost:9051/secure-messaging/v4/message"
 
-  def createSecureMessage()(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+  def createSecureMessage(isRead: Boolean = false)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
 
-    val jsonPayload: JsValue = Json.obj(
+    val baseJsonPayload: JsObject = Json.obj(
       "externalRef" -> Json.obj(
         "id" -> s"AJD${random18Digit()}",
         "source" -> "gmc"
@@ -67,6 +67,20 @@ class TestOnlySecureMessagingConnector @Inject()(
       "language" -> "en"
     )
 
+
+    val jsonPayload = if (isRead) {
+      baseJsonPayload ++ Json.obj(
+        "readTime" -> java.time.Instant.now(),
+        "readBy" -> Json.arr(
+          Json.obj(
+            "id" -> 2,
+            "readTime" -> java.time.Instant.now()
+          )
+        )
+      )
+    } else {
+      baseJsonPayload
+    }
     httpClientV2
       .post(url"$secureMessageUrl")
       .withBody(jsonPayload)

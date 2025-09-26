@@ -16,15 +16,23 @@
 
 package forms.test
 
+import forms.mappings.Mappings
 import play.api.data.Form
 import play.api.data.Forms.*
-import forms.mappings.Mappings
 
-class TestOnlySecureMessagingFormProvider extends Mappings {
+object TestOnlySecureMessagingFormProvider extends Mappings {
 
-  def apply(): Form[Option[Int]] =
-    Form(
-      "NumberOfEmails" -> optional(int("Must not be blank", "Must be a whole number", "Must be a number")),
+  def apply(): Form[TestOnlySecureMessagingFormProvider] =
+    Form[TestOnlySecureMessagingFormProvider](
+      mapping(
+        "isReadMessage" -> boolean("Selection required"),
+        "numberOfMessages" -> optional(int("Must not be blank", "Must be a whole number", "Must be a number"))
+      )(TestOnlySecureMessagingFormProvider.apply)(c => Some(Tuple.fromProductTyped[TestOnlySecureMessagingFormProvider](c)))
+
     )
-
 }
+
+case class TestOnlySecureMessagingFormProvider(
+                                              isReadMessage: Boolean,
+                                              numberOfMessages: Option[Int]
+                                      )

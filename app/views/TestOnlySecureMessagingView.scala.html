@@ -22,6 +22,7 @@
     govukErrorSummary: GovukErrorSummary,
     govukButton: GovukButton,
     govukInput: GovukInput,
+    govukRadios: GovukRadios
 )
 
 @(form: Form[_])(implicit request: Request[_], messages: Messages)
@@ -36,11 +37,19 @@
 
         <h1 class="govuk-heading-xl">@messages("Create Secure Messages")</h1>
 
+        @govukRadios(
+            RadiosViewModel.yesNo(
+                field = form("isReadMessage"),
+                legend = LegendViewModel(messages("Generate unread messages?")).withCssClass("govuk-label--m")
+            )
+        )
+
         @govukInput(
             InputViewModel(
-                field = form("NumberOfEmails"),
+                field = form("numberOfMessages"),
                 label = LabelViewModel("Number of random messages to create").withCssClass("govuk-label--m")
-            ).withWidth(Fixed20)
+            ).withWidth(Fixed5)
+                .withHint(HintViewModel(messages("If left blank, will default to 1")))
         )
 
         @govukButton(
