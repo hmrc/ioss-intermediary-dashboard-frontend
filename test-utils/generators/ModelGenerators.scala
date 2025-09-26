@@ -16,6 +16,7 @@
 
 package generators
 
+import models.{Country, DesAddress, IntermediaryDetails, SavedPendingRegistration, UserAnswers}
 import models.domain.ModelHelpers.normaliseSpaces
 import models.domain.VatCustomerInfo
 import models.etmp.EtmpClientDetails
@@ -146,6 +147,24 @@ trait ModelGenerators extends EitherValues {
           clientIossID = clientIossID,
           clientExcluded = clientExcluded
         )
+      }
+    }
+  }
+
+  implicit lazy val arbitrarySavedPendingRegistration: Arbitrary[SavedPendingRegistration] = {
+    Arbitrary {
+      for {
+        userAnswers <- arbitraryUserAnswers.arbitrary
+        uniqueUrlCode = UUID.randomUUID().toString
+        uniqueActivationCode = UUID.randomUUID().toString
+      } yield {
+        SavedPendingRegistration(
+          journeyId = userAnswers.journeyId,
+          uniqueUrlCode = uniqueUrlCode,
+          userAnswers = userAnswers,
+          lastUpdated = userAnswers.lastUpdated,
+          uniqueActivationCode = uniqueActivationCode,
+          intermediaryDetails = IntermediaryDetails("IM123456789", "IntermediaryName"))
       }
     }
   }

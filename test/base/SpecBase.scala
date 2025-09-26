@@ -18,7 +18,7 @@ package base
 
 import controllers.actions.*
 import generators.Generators
-import models.UserAnswers
+import models.{SavedPendingRegistration, UserAnswers}
 import models.domain.VatCustomerInfo
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.freespec.AnyFreeSpec

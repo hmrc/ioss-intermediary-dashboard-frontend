@@ -18,6 +18,7 @@ package connectors
 
 import base.SpecBase
 import com.github.tomakehurst.wiremock.client.WireMock.*
+import models.SavedPendingRegistration
 import models.domain.VatCustomerInfo
 import models.etmp.EtmpClientDetails
 import models.responses.*
@@ -27,7 +28,9 @@ import play.api.http.Status.*
 import play.api.libs.json.Json
 import play.api.test.Helpers.running
 import testutils.WireMockHelper
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
+
+import scala.concurrent.Future
 
 class RegistrationConnectorSpec extends SpecBase with WireMockHelper {
 
@@ -37,10 +40,16 @@ class RegistrationConnectorSpec extends SpecBase with WireMockHelper {
 
   private val etmpClientDetails: Seq[EtmpClientDetails] = Gen.listOfN(3, arbitraryEtmpClientDetails.arbitrary).sample.value
 
-  private def application: Application = applicationBuilder()
+  private def dashboardApplication: Application = applicationBuilder()
     .configure(
       "microservice.services.ioss-intermediary-dashboard.port" -> server.port,
       "microservice.services.ioss-intermediary-registration.port" -> server.port
+    )
+    .build()
+
+  private def netpRegistrationApplication: Application = applicationBuilder()
+    .configure(
+      "microservice.services.ioss-netp-registration.port" -> server.port
     )
     .build()
 
@@ -52,8 +61,8 @@ class RegistrationConnectorSpec extends SpecBase with WireMockHelper {
 
       "must return vat information when the backend returns some" in {
 
-        running(application) {
-          val connector: RegistrationConnector = application.injector.instanceOf[RegistrationConnector]
+        running(dashboardApplication) {
+          val connector: RegistrationConnector = dashboardApplication.injector.instanceOf[RegistrationConnector]
 
           val vatInfo: VatCustomerInfo = vatCustomerInfo
 
@@ -69,8 +78,8 @@ class RegistrationConnectorSpec extends SpecBase with WireMockHelper {
 
       "must return invalid json when the backend returns some" in {
 
-        running(application) {
-          val connector: RegistrationConnector = application.injector.instanceOf[RegistrationConnector]
+        running(dashboardApplication) {
+          val connector: RegistrationConnector = dashboardApplication.injector.instanceOf[RegistrationConnector]
 
           val responseBody = Json.obj("test" -> "test").toString()
 
@@ -84,8 +93,8 @@ class RegistrationConnectorSpec extends SpecBase with WireMockHelper {
 
       "must return Left(NotFound) when the backend returns NOT_FOUND" in {
 
-        running(application) {
-          val connector: RegistrationConnector = application.injector.instanceOf[RegistrationConnector]
+        running(dashboardApplication) {
+          val connector: RegistrationConnector = dashboardApplication.injector.instanceOf[RegistrationConnector]
 
           server.stubFor(get(urlEqualTo(url)).willReturn(notFound()))
 
@@ -99,8 +108,8 @@ class RegistrationConnectorSpec extends SpecBase with WireMockHelper {
 
         val status = Gen.oneOf(BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_IMPLEMENTED, BAD_GATEWAY, SERVICE_UNAVAILABLE).sample.value
 
-        running(application) {
-          val connector: RegistrationConnector = application.injector.instanceOf[RegistrationConnector]
+        running(dashboardApplication) {
+          val connector: RegistrationConnector = dashboardApplication.injector.instanceOf[RegistrationConnector]
 
           server.stubFor(get(urlEqualTo(url)).willReturn(aResponse().withStatus(status)))
 
@@ -186,5 +195,157 @@ class RegistrationConnectorSpec extends SpecBase with WireMockHelper {
         }
       }
     }
+
+    "getNumberOfPendingRegistrations" - {
+
+      val netpPendingRegCountUrl: String = s"/ioss-netp-registration/pending-registrations/count/$intermediaryNumber"
+
+
+      "must return a count when the backend returns a count" in {
+
+        running(netpRegistrationApplication) {
+          val connector: RegistrationConnector = netpRegistrationApplication.injector.instanceOf[RegistrationConnector]
+
+          val responseBody = 1
+
+          server.stubFor(get(urlEqualTo(netpPendingRegCountUrl))
+            .willReturn(aResponse().withBody(responseBody.toString)))
+
+          val result = connector.getNumberOfPendingRegistrations(intermediaryNumber).futureValue
+
+          result `mustBe` 1
+        }
+      }
+
+      "must return Left(UnexpectedResponseStatus) when the backend returns another error code" in {
+
+        val status = Gen.oneOf(BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_IMPLEMENTED, BAD_GATEWAY, SERVICE_UNAVAILABLE).sample.value
+
+        running(netpRegistrationApplication) {
+          val connector: RegistrationConnector = netpRegistrationApplication.injector.instanceOf[RegistrationConnector]
+
+          server.stubFor(get(urlEqualTo(netpPendingRegCountUrl)).willReturn(aResponse().withStatus(status)))
+
+          val result = connector.getNumberOfPendingRegistrations(intermediaryNumber)
+
+          whenReady(result.failed) {
+            case e: UpstreamErrorResponse =>
+              e.statusCode mustBe status
+            case other =>
+              fail(s"Expected UpstreamErrorResponse but got $other")
+          }
+        }
+      }
+    }
+
+    ".getPendingRegistrations" - {
+
+      val netpPendingRegUrl: String = s"/ioss-netp-registration/pending-registrations/$intermediaryNumber"
+
+      val arbSavedPendingReg = arbitrarySavedPendingRegistration.arbitrary.sample.value
+      "must return vat information when the backend returns some" in {
+
+        running(netpRegistrationApplication) {
+          val connector: RegistrationConnector = netpRegistrationApplication.injector.instanceOf[RegistrationConnector]
+
+          val response: Seq[SavedPendingRegistration] = Seq(arbSavedPendingReg, arbSavedPendingReg, arbSavedPendingReg)
+
+          val responseBody = Json.toJson(response).toString()
+
+          server.stubFor(get(urlEqualTo(netpPendingRegUrl)).willReturn(ok().withBody(responseBody)))
+
+          val result = connector.getPendingRegistrations(intermediaryNumber).futureValue
+
+          result `mustBe` Right(response)
+        }
+      }
+
+      "must return invalid json when the backend returns some" in {
+
+        running(netpRegistrationApplication) {
+          val connector: RegistrationConnector = netpRegistrationApplication.injector.instanceOf[RegistrationConnector]
+
+          val responseBody = Json.obj("test" -> "test").toString()
+
+          server.stubFor(get(urlEqualTo(netpPendingRegUrl)).willReturn(ok().withBody(responseBody)))
+
+          val result = connector.getPendingRegistrations(intermediaryNumber).futureValue
+
+          result `mustBe` Left(InvalidJson)
+        }
+      }
+
+      "must return Left(NotFound) when the backend returns NOT_FOUND" in {
+
+        running(netpRegistrationApplication) {
+          val connector: RegistrationConnector = netpRegistrationApplication.injector.instanceOf[RegistrationConnector]
+
+          server.stubFor(get(urlEqualTo(netpPendingRegUrl)).willReturn(notFound()))
+
+          val result = connector.getPendingRegistrations(intermediaryNumber).futureValue
+
+          result `mustBe` Left(UnexpectedResponseStatus(NOT_FOUND, "Unexpected response when trying to retrieve the pending registration, status 404 returned"))
+        }
+      }
+
+      "must return Left(UnexpectedResponseStatus) when the backend returns another error code" in {
+
+        val status = Gen.oneOf(BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_IMPLEMENTED, BAD_GATEWAY, SERVICE_UNAVAILABLE).sample.value
+
+        running(netpRegistrationApplication) {
+          val connector: RegistrationConnector = netpRegistrationApplication.injector.instanceOf[RegistrationConnector]
+
+          server.stubFor(get(urlEqualTo(netpPendingRegUrl)).willReturn(aResponse().withStatus(status)))
+
+          val result = connector.getPendingRegistrations(intermediaryNumber).futureValue
+
+          result `mustBe` Left(UnexpectedResponseStatus(status, s"Unexpected response when trying to retrieve the pending registration, status $status returned"))
+        }
+      }
+    }
+
+    "getNumberOfSavedUserAnswers" -{
+
+      val netpSavedCountUrl: String = s"/ioss-netp-registration/save-for-later/count/$intermediaryNumber"
+
+
+      "must return a count when the backend returns a count" in {
+
+        running(netpRegistrationApplication) {
+          val connector: RegistrationConnector = netpRegistrationApplication.injector.instanceOf[RegistrationConnector]
+
+          val responseBody = 1
+
+          server.stubFor(get(urlEqualTo(netpSavedCountUrl))
+            .willReturn(aResponse().withBody(responseBody.toString)))
+
+          val result = connector.getNumberOfSavedUserAnswers(intermediaryNumber).futureValue
+
+          result `mustBe` 1
+        }
+      }
+
+      "must return Left(UnexpectedResponseStatus) when the backend returns another error code" in {
+
+        val status = Gen.oneOf(BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_IMPLEMENTED, BAD_GATEWAY, SERVICE_UNAVAILABLE).sample.value
+
+        running(netpRegistrationApplication) {
+          val connector: RegistrationConnector = netpRegistrationApplication.injector.instanceOf[RegistrationConnector]
+
+          server.stubFor(get(urlEqualTo(netpSavedCountUrl)).willReturn(aResponse().withStatus(status)))
+
+          val result = connector.getNumberOfSavedUserAnswers(intermediaryNumber)
+
+          whenReady(result.failed) {
+            case e: UpstreamErrorResponse =>
+              e.statusCode mustBe status
+            case other =>
+              fail(s"Expected UpstreamErrorResponse but got $other")
+          }
+        }
+      }
+    }
+
+
   }
 }
