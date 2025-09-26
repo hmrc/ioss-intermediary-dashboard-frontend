@@ -30,8 +30,6 @@ import play.api.test.Helpers.running
 import testutils.WireMockHelper
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
-import scala.concurrent.Future
-
 class RegistrationConnectorSpec extends SpecBase with WireMockHelper {
 
   implicit private lazy val hc: HeaderCarrier = HeaderCarrier()
@@ -304,7 +302,7 @@ class RegistrationConnectorSpec extends SpecBase with WireMockHelper {
       }
     }
 
-    "getNumberOfSavedUserAnswers" -{
+    "getNumberOfSavedUserAnswers" - {
 
       val netpSavedCountUrl: String = s"/ioss-netp-registration/save-for-later/count/$intermediaryNumber"
 

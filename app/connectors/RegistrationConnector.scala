@@ -24,6 +24,7 @@ import logging.Logging
 import play.api.Configuration
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpErrorFunctions, StringContextOps}
+import uk.gov.hmrc.http.HttpReads.Implicits
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}

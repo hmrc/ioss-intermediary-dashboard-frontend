@@ -92,6 +92,8 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
 
       when(mockRegistrationConnector.getNumberOfPendingRegistrations(any())(any()))
         .thenReturn(0.toLong.toFuture)
+      when(mockRegistrationConnector.getNumberOfSavedUserAnswers(any())(any()))
+        .thenReturn(1.toLong.toFuture)
       when(mockRegistrationConnector.getVatCustomerInfo(any())(any()))
         .thenReturn(Left(InternalServerError).toFuture)
 
