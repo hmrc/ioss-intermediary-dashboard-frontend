@@ -23,6 +23,7 @@ import logging.Logging
 import play.api.Configuration
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpErrorFunctions, StringContextOps}
+import uk.gov.hmrc.http.HttpReads.Implicits
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -45,5 +46,9 @@ class RegistrationConnector @Inject()(config: Configuration, httpClientV2: HttpC
   def getPendingRegistrations(intermediaryNumber: String)(implicit hc: HeaderCarrier): Future[SavedPendingRegistrationResponse] = {
     httpClientV2.get(url"$netpUrl/pending-registrations/$intermediaryNumber")
       .execute[SavedPendingRegistrationResponse]
+  }
+
+  def getNumberOfSavedUserAnswers(intermediaryNumber: String)(implicit hc: HeaderCarrier): Future[Long] = {
+    httpClientV2.get(url"$netpUrl/save-for-later/count/$intermediaryNumber").execute[Long]
   }
 }

@@ -42,6 +42,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   val pendingRegistrationUrl: String = configuration.get[String]("urls.pendingRegistrationUrl")
   val changeYourRegistrationUrl: String = configuration.get[String]("urls.changeYourRegistrationUrl")
   val leaveThisServiceUrl: String = configuration.get[String]("urls.leaveThisServiceUrl")
+  val continueRegistrationUrl:String = configuration.get[String]("urls.continueRegistrationUrl")
 
   val allowedRedirectUrls: Seq[String] = configuration.get[Seq[String]]("urls.allowedRedirects")
 
