@@ -18,8 +18,11 @@ package models.securemessage
 
 import play.api.libs.json.{Json, OFormat}
 
-case class Content(lang: String, subject: String, body: String)
+case class CustomerEnrolment(key: String, name: String, value: String) {
+  
+  def toQueryParam: String = s"$key~$name~$value"
+}
 
-object Content {
-  implicit val formats: OFormat[Content] = Json.format[Content]
+object CustomerEnrolment {
+  implicit val formats: OFormat[CustomerEnrolment] = Json.format[CustomerEnrolment]
 }
