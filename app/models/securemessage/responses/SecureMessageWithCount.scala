@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package models.securemessage
+package models.securemessage.responses
 
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json.{Format, Json, OFormat}
 
-case class Content(lang: String, subject: String, body: String)
+case class SecureMessageWithCount(items: Seq[SecureMessageResponse], count: SecureMessageCount)
 
-object Content {
-  implicit val formats: OFormat[Content] = Json.format[Content]
+object SecureMessageWithCount {
+  implicit val format: Format[SecureMessageWithCount] = Json.format[SecureMessageWithCount]
 }

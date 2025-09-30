@@ -16,10 +16,13 @@
 
 package models.securemessage
 
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json.{Json, Reads}
 
-case class Content(lang: String, subject: String, body: String)
+case class MessageFilter(taxIdentifiers: Seq[String] = List(), regimes: Seq[String] = List()) {
+  
+  def toQueryParam: String = s"$taxIdentifiers~$regimes"
+}
 
-object Content {
-  implicit val formats: OFormat[Content] = Json.format[Content]
+object MessageFilter {
+  implicit val messageFilterReads: Reads[MessageFilter] = Json.reads[MessageFilter]
 }
