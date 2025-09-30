@@ -16,6 +16,7 @@
 
 package controllers
 
+import config.FrontendAppConfig
 import connectors.RegistrationConnector
 import controllers.actions.*
 import logging.Logging
@@ -24,6 +25,7 @@ import pages.Waypoints
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import viewmodels.clientList.ClientListViewModel
 import views.html.ClientListView
 
 import javax.inject.Inject
@@ -33,6 +35,7 @@ class ClientListController @Inject()(
                                       override val messagesApi: MessagesApi,
                                       cc: AuthenticatedControllerComponents,
                                       registrationConnector: RegistrationConnector,
+                                      frontendAppConfig: FrontendAppConfig,
                                       view: ClientListView
                                     )(implicit executionContext: ExecutionContext)
   extends FrontendBaseController with I18nSupport with Logging {
@@ -54,13 +57,12 @@ class ClientListController @Inject()(
             throw new Exception(errorMessage)
         }
 
-        val activeClientList: Seq[EtmpClientDetails] = clientDetailsList.filterNot(_.clientExcluded)
-        val excludedClientList: Seq[EtmpClientDetails] = clientDetailsList.filter(_.clientExcluded)
+        val changeRegistrationRedirectUrl: String = frontendAppConfig.changeYourNetpRegistrationUrl
+        val excludeClientRedirectUrl: String = frontendAppConfig.leaveNetpServiceUrl
 
-        val changeRegistrationRedirectUrl: String = "" // TODO -> Redirect to changeReg for given ioss number?
-        val excludeClientRedirectUrl: String = "" // TODO -> Redirect to exclude for given ioss number?
-
-        Ok(view(activeClientList, excludedClientList, changeRegistrationRedirectUrl, excludeClientRedirectUrl))
+        val viewModel: ClientListViewModel = ClientListViewModel(clientDetailsList, changeRegistrationRedirectUrl, excludeClientRedirectUrl)
+        
+        Ok(view(viewModel))
       }
   }
 }

@@ -14,19 +14,16 @@
  * limitations under the License.
  *@
 
-@import models.etmp.EtmpClientDetails
+@import viewmodels.clientList.ClientListViewModel
 
 @this(
-        layout: templates.Layout,
-        govukWarningText: GovukWarningText,
-        clientList : components.clientList
+    layout: templates.Layout,
+    govukWarningText: GovukWarningText,
+    govukTable: GovukTable
 )
 
 @(
-    activeClientDetails: Seq[EtmpClientDetails],
-    excludedClientDetails: Seq[EtmpClientDetails],
-    changeRegistrationRedirectUrl: String,
-    excludeClientRedirectUrl: String
+    clientListViewModel: ClientListViewModel
 )(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("clientList.title"))) {
@@ -38,8 +35,16 @@
         content = Text(messages("clientList.warning"))
     ))
 
-    @clientList(messages("clientList.active.heading"), activeClientDetails, changeRegistrationRedirectUrl, Some(excludeClientRedirectUrl))
+    @if(clientListViewModel.activeClients.rows.nonEmpty) {
+        @govukTable(clientListViewModel.activeClients)
+    } else {
+        <p class="govuk-body">@messages("clientList.noActiveClients")</p>
+    }
 
-    @clientList(messages("clientList.excluded.heading"), excludedClientDetails, changeRegistrationRedirectUrl, None)
-
+    @if(clientListViewModel.excludedClients.rows.nonEmpty) {
+        @govukTable(clientListViewModel.excludedClients)
+    } else {
+        <p class="govuk-body">@messages("clientList.noExcludedClients")</p>
+    }
 }
+

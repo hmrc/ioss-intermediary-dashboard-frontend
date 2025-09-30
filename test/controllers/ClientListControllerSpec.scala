@@ -17,6 +17,7 @@
 package controllers
 
 import base.SpecBase
+import config.FrontendAppConfig
 import connectors.RegistrationConnector
 import models.etmp.EtmpClientDetails
 import models.responses.*
@@ -26,10 +27,12 @@ import org.mockito.Mockito.{times, verify, when}
 import org.scalacheck.Gen
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar.mock
+import play.api.i18n.Messages
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import utils.FutureSyntax.FutureOps
+import viewmodels.clientList.ClientListViewModel
 import views.html.ClientListView
 
 class ClientListControllerSpec extends SpecBase with BeforeAndAfterEach {
@@ -56,20 +59,24 @@ class ClientListControllerSpec extends SpecBase with BeforeAndAfterEach {
       when(mockRegistrationConnector.getDisplayRegistration(any())(any())) thenReturn Right(etmpClientDetails).toFuture
 
       running(application) {
+        implicit val msgs: Messages = messages(application)
+
         val request = FakeRequest(GET, routes.ClientListController.onPageLoad().url)
+
+        val config = application.injector.instanceOf[FrontendAppConfig]
 
         val result = route(application, request).value
 
         val view = application.injector.instanceOf[ClientListView]
 
-        val activeClientList: Seq[EtmpClientDetails] = etmpClientDetails.filterNot(_.clientExcluded)
-        val excludedClientList: Seq[EtmpClientDetails] = etmpClientDetails.filter(_.clientExcluded)
-
-        val changeRegistrationRedirectUrl: String = ""
-        val excludeClientRedirectUrl: String = ""
+        val clientListViewModel: ClientListViewModel = ClientListViewModel(
+          clientList = etmpClientDetails,
+          changeClientRegistrationUrl = config.changeYourNetpRegistrationUrl,
+          excludeClientUrl = config.leaveNetpServiceUrl
+        )
 
         status(result) `mustBe` OK
-        contentAsString(result) `mustBe` view(activeClientList, excludedClientList, changeRegistrationRedirectUrl,excludeClientRedirectUrl)(request, messages(application)).toString
+        contentAsString(result) `mustBe` view(clientListViewModel)(request).toString
         verify(mockRegistrationConnector, times(1)).getDisplayRegistration(eqTo(intermediaryNumber))(any())
       }
     }
