@@ -43,8 +43,6 @@
 
     @if(clientListViewModel.excludedClients.rows.nonEmpty) {
         @govukTable(clientListViewModel.excludedClients)
-    } else {
-        <p class="govuk-body">@messages("clientList.noExcludedClients")</p>
-    }
+    } else {}
 }
 

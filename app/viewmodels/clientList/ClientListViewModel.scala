@@ -53,10 +53,13 @@ object ClientListViewModel {
     Seq(
       TableRow(
         content = HtmlContent(
-          s"""<a class="govuk-link"
-             |id="change-registration"
-             |href="$changeClientRegistrationUrl/${activeClient.clientIossID}">${activeClient.clientName}
-             |</a>""".stripMargin),
+          messages(
+            "clientList.change.link",
+            activeClient.clientName,
+            s"$changeClientRegistrationUrl/${activeClient.clientIossID}",
+            messages("clientList.change.hidden", activeClient.clientName)
+          )
+        ),
         classes = "govuk-!-font-weight-regular"
       ),
       TableRow(
@@ -64,12 +67,12 @@ object ClientListViewModel {
       ),
       TableRow(
         content = HtmlContent(
-          s"""<a
-             |class="govuk-link"
-             |id="exclude-trader"
-             |href="$excludeClientUrl/${activeClient.clientIossID}"><span aria-hidden="true">${messages("site.remove")}</span>
-             |<span class="govuk-visually-hidden">${messages("clientList.excluded.remove.hidden", activeClient.clientName)}</span>
-             |</a>""".stripMargin
+          messages(
+            "clientList.remove.link",
+            messages("site.remove"),
+            s"$excludeClientUrl/${activeClient.clientIossID}",
+            messages("clientList.remove.hidden", activeClient.clientName)
+          )
         ),
         classes = "govuk-table__cell--numeric"
       )
@@ -79,14 +82,17 @@ object ClientListViewModel {
   private def excludedClientRows(
                                   excludedClient: EtmpClientDetails,
                                   changeClientRegistrationUrl: String
-                                ): Seq[TableRow] = {
+                                )(implicit messages: Messages): Seq[TableRow] = {
     Seq(
       TableRow(
         content = HtmlContent(
-          s"""<a class="govuk-link"
-             |id="change-registration"
-             |href="$changeClientRegistrationUrl/${excludedClient.clientIossID}">${excludedClient.clientName}
-             |</a>""".stripMargin),
+          messages(
+            "clientList.change.link",
+            excludedClient.clientName,
+            s"$changeClientRegistrationUrl/${excludedClient.clientIossID}",
+            messages("clientList.change.hidden", excludedClient.clientName)
+          )
+        ),
         classes = "govuk-!-font-weight-regular"
       ),
       TableRow(
