@@ -16,9 +16,14 @@
 
 package connectors.test
 
+import config.Service
+import connectors.SecureMessagesHttpParser.{SecureMessageResultResponse, SecureMessageResultResponseReads}
+import logging.Logging
+import models.securemessage.{CustomerEnrolment, MessageFilter}
+import play.api.Configuration
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.writeableOf_JsValue
-import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
 
@@ -28,9 +33,11 @@ import scala.util.Random
 
 class TestOnlySecureMessagingConnector @Inject()(
                                                   httpClientV2: HttpClientV2,
-                                                )(implicit ec: ExecutionContext) {
+                                                  config: Configuration
+                                                )(implicit ec: ExecutionContext)  extends Logging {
 
   private val secureMessageUrl = "http://localhost:9051/secure-messaging/v4/message"
+  private val baseUrl: Service = config.get[Service]("microservice.services.secure-message")
 
   private def random18Digit(): BigInt = {
     val part1 = Random.between(100000, 999999)
@@ -76,9 +83,31 @@ class TestOnlySecureMessagingConnector @Inject()(
       "language" -> "en"
     )
 
+    logger.info(s"Calling POST to $secureMessageUrl with body: ${Json.prettyPrint(Json.toJson(jsonPayload))}")
     httpClientV2
       .post(url"$secureMessageUrl")
       .withBody(jsonPayload)
       .execute[HttpResponse]
+  }
+
+  def getMessages(
+                   enrolmentKey: Option[String] = None,
+                   enrolment: Option[CustomerEnrolment] = None,
+                   messageFilter: Option[MessageFilter] = None,
+                   language: Option[String] = None,
+                   taxIdentifiers: Option[String] = None
+                 )(implicit hc: HeaderCarrier): Future[SecureMessageResultResponse] = {
+
+    val queryParams = Seq(
+      enrolmentKey.map("enrolmentKey" -> _),
+      enrolment.map(e => "enrolment" -> e.toQueryParam),
+      messageFilter.map(e => "messageFilter" -> e.toQueryParam),
+      language.map("language" -> _),
+      taxIdentifiers.map("taxIdentifiers" -> _)
+    ).flatten
+
+    httpClientV2.get(url"$baseUrl/messages")
+      .transform(_.addQueryStringParameters(queryParams: _*))
+      .execute[SecureMessageResultResponse]
   }
 }
