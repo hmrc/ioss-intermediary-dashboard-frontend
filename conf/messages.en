@@ -51,7 +51,7 @@ unauthorised.heading = You can’t access this service with this account
 yourAccount.title = Your Import One Stop Shop intermediary account
 yourAccount.heading = Your Import One Stop Shop intermediary account
 yourAccount.intermediaryNumber = IOSS intermediary number: {0}
-yourAccount.messages = {0} new messages
+yourAccount.messages = <span class="govuk-!-font-weight-bold">{0} secure messages</span>
 yourAccount.paragraph = You can correct a previous return when you submit your next one.
 yourAccount.returns.heading = Returns
 yourAccount.returns.startReturn = Start a return
@@ -116,4 +116,4 @@ clientList.change.link = <a class="govuk-link" href="{1}"><span class="govuk-vis
 clientList.remove.link = <a class="govuk-link" href="{1}"><span aria-hidden=true>{0}</span><span class="govuk-visually-hidden">{2}</span></a>
 
 secureMessages.title = Messages
-secureMessages.subject = {0}
+secureMessages.subject = <a class="govuk-link">{0}</a>

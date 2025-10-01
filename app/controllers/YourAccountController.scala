@@ -18,6 +18,7 @@ package controllers
 
 import config.FrontendAppConfig
 import connectors.RegistrationConnector
+import connectors.test.TestOnlySecureMessagingConnector
 import controllers.actions.*
 import logging.Logging
 import models.etmp.EtmpExclusion
@@ -38,6 +39,7 @@ class YourAccountController @Inject()(
                                        cc: AuthenticatedControllerComponents,
                                        view: YourAccountView,
                                        registrationConnector: RegistrationConnector,
+                                       testOnlySecureMessagingConnector: TestOnlySecureMessagingConnector,
                                        appConfig: FrontendAppConfig,
                                        clock: Clock
                                      )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
@@ -61,37 +63,50 @@ class YourAccountController @Inject()(
               val businessName = vatInfo.organisationName.orElse(vatInfo.individualName).getOrElse("")
               val intermediaryNumber = request.intermediaryNumber
 
-              val newMessages = 0
-              val addClientUrl = appConfig.addClientUrl
-              val changeYourRegistrationUrl = appConfig.changeYourRegistrationUrl
-              val redirectToPendingClientsPage = appConfig.redirectToPendingClientsPage
-              val viewClientsListUrl: String = appConfig.viewClientsListUrl
-              val continueSavedRegUrl = appConfig.continueRegistrationUrl
+            testOnlySecureMessagingConnector.getMessages(taxIdentifiers = Some("HMRC-IOSS-INT")).flatMap {
+              case Right(secureMessages) =>
 
-              Ok(view(
-                waypoints,
-                businessName,
-                intermediaryNumber,
-                newMessages,
-                addClientUrl,
-                viewClientsListUrl,
-                changeYourRegistrationUrl,
-                numberOfAwaitingClients,
-                redirectToPendingClientsPage,
-                leaveThisServiceUrl,
-                cancelYourRequestToLeaveUrl(maybeExclusion),
-                numberOfSavedUserJourneys,
-                continueSavedRegUrl
-              )).toFuture
+                val messagesCount = secureMessages.count.total.toInt
+                val addClientUrl = appConfig.addClientUrl
+                val changeYourRegistrationUrl = appConfig.changeYourRegistrationUrl
+                val redirectToPendingClientsPage = appConfig.redirectToPendingClientsPage
+                val redirectToSecureMessagesPage = appConfig.redirectToSecureMessagesPage
+                val leaveThisServiceUrl = appConfig.leaveThisServiceUrl
+                val viewClientsListUrl: String = appConfig.viewClientsListUrl
+                val continueSavedRegUrl = appConfig.continueRegistrationUrl
 
-            case Left(error) =>
-              val exception = new Exception(error.body)
-              logger.error(exception.getMessage, exception)
-              throw exception
-          }
+                Ok(view(
+                  waypoints,
+                  businessName,
+                  intermediaryNumber,
+                  messagesCount,
+                  addClientUrl,
+                  viewClientsListUrl,
+                  changeYourRegistrationUrl,
+                  numberOfAwaitingClients,
+                  redirectToPendingClientsPage,
+                  redirectToSecureMessagesPage,
+                  leaveThisServiceUrl,
+                  cancelYourRequestToLeaveUrl(maybeExclusion),
+                  numberOfSavedUserJourneys,
+                  continueSavedRegUrl
+                )).toFuture
+
+              case Left(errors) =>
+                val message: String = s"Received an unexpected error when trying to retrieve secure messages: $errors."
+                val exception: Exception = new Exception(message)
+                logger.error(exception.getMessage, exception)
+                throw exception
+            }
+
+          case Left(error) =>
+            val exception = new Exception(error.body)
+            logger.error(exception.getMessage, exception)
+            throw exception
         }
       }
   }
+}
 
   private  def cancelYourRequestToLeaveUrl(maybeExclusion: Option[EtmpExclusion]): Option[String] = {
     maybeExclusion match {
