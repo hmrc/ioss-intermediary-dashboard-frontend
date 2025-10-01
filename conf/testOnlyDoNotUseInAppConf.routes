@@ -15,3 +15,4 @@ GET        /test-only/testOnlySecureMessaging                        @controller
 POST       /test-only/testOnlySecureMessaging                        @controllers.test.TestOnlySecureMessagingController.onSubmit()
 
 GET        /test-only/testOnlySecureCustomMessaging                  @controllers.test.TestOnlySecureCustomMessagingController.onPageLoad()
+POST       /test-only/testOnlySecureCustomMessaging                  @controllers.test.TestOnlySecureCustomMessagingController.onSubmit()

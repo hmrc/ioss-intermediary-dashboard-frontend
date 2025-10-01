@@ -19,18 +19,62 @@
 @this(
     layout: templates.Layout,
     formHelper: FormWithCSRF,
-    govukButton: GovukButton
+    govukErrorSummary: GovukErrorSummary,
+    govukButton: GovukButton,
+    govukInput: GovukInput,
+    govukTextarea: GovukTextarea
 )
 
-@(messagesResponse: Option[String] = None)(implicit request: Request[_], messages: Messages)
+@(form: Form[_])(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = messages("testOnly - Create Custom Message")) {
+@layout(pageTitle = title(form, "Create Custom Secure Message")) {
 
-    <h1 class="govuk-heading-l">@messages("Create Custom Secure Message")</h1>
+    @formHelper(action = controllers.test.routes.TestOnlySecureCustomMessagingController.onSubmit()) {
 
-    @formHelper(action = controllers.test.routes.TestOnlySecureMessagingController.onSubmit()) {
+        @if(form.errors.nonEmpty) {
+            @govukErrorSummary(ErrorSummaryViewModel(form))
+        }
+
+        <h1 class="govuk-heading-l">Create Custom Secure Message</h1>
+
+        @govukInput(
+            InputViewModel(
+                field = form("firstName"),
+                label = LabelViewModel("Recipient first name")
+            ).withWidth(Fixed20)
+        )
+
+        @govukInput(
+            InputViewModel(
+                field = form("lastName"),
+                label = LabelViewModel("Recipient last name")
+            ).withWidth(Fixed20)
+        )
+
+        @govukInput(
+            InputViewModel(
+                field = form("emailAddress"),
+                label = LabelViewModel("Sender email address")
+            ).withWidth(Fixed20)
+        )
+
+        @govukInput(
+            InputViewModel(
+                field = form("subject"),
+                label = LabelViewModel("Message Subject")
+            ).withWidth(Fixed20)
+        )
+
+        @govukTextarea(Textarea(
+            id = "body",
+            name = "body",
+            label = Label(
+              content = Text("Message Body")
+            ),
+          ))
+
         @govukButton(
-            ButtonViewModel(messages("site.continue"))
+            ButtonViewModel("Submit")
         )
     }
 }
