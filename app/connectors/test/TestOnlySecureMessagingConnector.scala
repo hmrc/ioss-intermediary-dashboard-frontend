@@ -83,7 +83,6 @@ class TestOnlySecureMessagingConnector @Inject()(
       "language" -> "en"
     )
 
-    logger.info(s"Calling POST to $secureMessageUrl with body: ${Json.prettyPrint(Json.toJson(jsonPayload))}")
     httpClientV2
       .post(url"$secureMessageUrl")
       .withBody(jsonPayload)

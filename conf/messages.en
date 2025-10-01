@@ -101,4 +101,4 @@ testOnlySecureMessaging.Subject.change.hidden = Subject
 testOnlySecureMessaging.Message.change.hidden = Message
 
 secureMessages.title = Messages
-secureMessages.heading = Messages
+secureMessages.subject = {0}

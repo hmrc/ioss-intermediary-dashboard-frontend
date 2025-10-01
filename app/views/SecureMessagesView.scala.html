@@ -21,10 +21,10 @@
     govukTable: GovukTable
 )
 
-@(secureMessages: SecureMessageWithCount)(implicit request: Request[_], messages: Messages)
+@(messagesTable: Table)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("secureMessages.title"))) {
 
-    <h1 class="govuk-heading-xl">@messages("secureMessages.heading")</h1>
+    @govukTable(messagesTable)
 
 }
