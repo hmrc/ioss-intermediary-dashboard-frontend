@@ -24,12 +24,12 @@ case class SecureMessageResponse(
                               messageType: String,
                               id: String,
                               subject: String,
-                              issueDate: LocalDate,
+                              issueDate: String,
                               senderName: String,
                               unreadMessages: Boolean,
                               count: Long,
                               taxpayerName: Option[TaxpayerName] = None,
-                              validFrom: LocalDate,
+                              validFrom: String,
                               sentInError: Boolean,
                               language: Option[String]
                             )
@@ -44,12 +44,12 @@ object SecureMessageResponse {
       (__ \ "messageType").read[String] and
       (__ \ "id").read[String] and
       (__ \ "subject").read[String] and
-      (__ \ "issueDate").read[LocalDate] and
+      (__ \ "issueDate").read[String] and
       (__ \ "senderName").read[String] and
       (__ \ "unreadMessages").read[Boolean] and
       (__ \ "count").read[Long] and
       (__ \ "taxpayerName").readNullable[TaxpayerName] and
-      (__ \ "validFrom").read[LocalDate] and
+      (__ \ "validFrom").read[String] and
       (__ \ "sentInError").read[Boolean] and
       (__ \ "language").readNullable[String]
     )(SecureMessageResponse.apply _)
@@ -63,12 +63,12 @@ object SecureMessageResponse {
       (__ \ "messageType").write[String] and
         (__ \ "id").write[String] and
         (__ \ "subject").write[String] and
-        (__ \ "issueDate").write[LocalDate] and
+        (__ \ "issueDate").write[String] and
         (__ \ "senderName").write[String] and
         (__ \ "unreadMessages").write[Boolean] and
         (__ \ "count").write[Long] and
         (__ \ "taxpayerName").writeNullable[TaxpayerName] and
-        (__ \ "validFrom").write[LocalDate] and
+        (__ \ "validFrom").write[String] and
         (__ \ "sentInError").write[Boolean] and
         (__ \ "language").writeNullable[String]
     )(secureMessageResponse => Tuple.fromProductTyped(secureMessageResponse))

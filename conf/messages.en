@@ -116,4 +116,4 @@ clientList.change.link = <a class="govuk-link" href="{1}"><span class="govuk-vis
 clientList.remove.link = <a class="govuk-link" href="{1}"><span aria-hidden=true>{0}</span><span class="govuk-visually-hidden">{2}</span></a>
 
 secureMessages.title = Messages
-secureMessages.heading = Messages
+secureMessages.subject = {0}
