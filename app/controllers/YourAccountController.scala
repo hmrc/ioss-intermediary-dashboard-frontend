@@ -55,6 +55,7 @@ class YourAccountController @Inject()(
             val changeYourRegistrationUrl = appConfig.changeYourRegistrationUrl
             val redirectToPendingClientsPage = appConfig.redirectToPendingClientsPage
             val leaveThisServiceUrl = appConfig.leaveThisServiceUrl
+            val viewClientsListUrl: String = appConfig.viewClientsListUrl
 
             Ok(view(
               waypoints,
@@ -62,6 +63,7 @@ class YourAccountController @Inject()(
               intermediaryNumber,
               newMessages,
               addClientUrl,
+              viewClientsListUrl,
               changeYourRegistrationUrl,
               numberOfAwaitingClients,
               redirectToPendingClientsPage,

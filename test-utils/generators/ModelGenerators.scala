@@ -16,12 +16,13 @@
 
 package generators
 
-import models.{Country, DesAddress, UserAnswers}
 import models.domain.ModelHelpers.normaliseSpaces
 import models.domain.VatCustomerInfo
+import models.etmp.EtmpClientDetails
+import models.{Country, DesAddress, UserAnswers}
 import org.scalacheck.Arbitrary.arbitrary
-import org.scalacheck.{Arbitrary, Gen}
 import org.scalacheck.Gen.{choose, listOfN}
+import org.scalacheck.{Arbitrary, Gen}
 import org.scalatest.EitherValues
 import play.api.libs.json.{JsObject, Json}
 
@@ -128,6 +129,22 @@ trait ModelGenerators extends EitherValues {
           data = data,
           vatInfo = Some(vatInfo),
           lastUpdated = lastUpdated
+        )
+      }
+    }
+  }
+
+  implicit lazy val arbitraryEtmpClientDetails: Arbitrary[EtmpClientDetails] = {
+    Arbitrary {
+      for {
+        clientName <- Gen.alphaStr
+        clientIossID <- Gen.alphaNumStr
+        clientExcluded <- arbitrary[Boolean]
+      } yield {
+        EtmpClientDetails(
+          clientName = clientName,
+          clientIossID = clientIossID,
+          clientExcluded = clientExcluded
         )
       }
     }

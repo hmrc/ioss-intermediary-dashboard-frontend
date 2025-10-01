@@ -19,6 +19,7 @@ package connectors
 import base.SpecBase
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import models.domain.VatCustomerInfo
+import models.etmp.EtmpClientDetails
 import models.responses.*
 import org.scalacheck.Gen
 import play.api.Application
@@ -32,11 +33,14 @@ class RegistrationConnectorSpec extends SpecBase with WireMockHelper {
 
   implicit private lazy val hc: HeaderCarrier = HeaderCarrier()
 
-  private val vatNumber = "123456789"
+  private val vatNumber: String = "123456789"
+
+  private val etmpClientDetails: Seq[EtmpClientDetails] = Gen.listOfN(3, arbitraryEtmpClientDetails.arbitrary).sample.value
 
   private def application: Application = applicationBuilder()
     .configure(
-      "microservice.services.ioss-intermediary-dashboard.port" -> server.port
+      "microservice.services.ioss-intermediary-dashboard.port" -> server.port,
+      "microservice.services.ioss-intermediary-registration.port" -> server.port
     )
     .build()
 
@@ -103,6 +107,82 @@ class RegistrationConnectorSpec extends SpecBase with WireMockHelper {
           val result = connector.getVatCustomerInfo(vatNumber).futureValue
 
           result `mustBe` Left(UnexpectedResponseStatus(status, s"Received unexpected response code $status"))
+        }
+      }
+    }
+
+    ".getDisplayRegistration" - {
+
+      val getDisplayRegistrationUrl: String = s"/ioss-intermediary-registration/get-registration/$intermediaryNumber"
+
+      "must return Right(ETMP Client Details) when the server returns a successful response and JSON is parsed correctly" in {
+
+        val clientDetailsJson = Json.toJson(etmpClientDetails).toString
+
+        val json =
+          s"""{
+             |  "etmpDisplayRegistration": {
+             |    "clientDetails": $clientDetailsJson
+             |  }
+             |}""".stripMargin
+
+        val connector = application.injector.instanceOf[RegistrationConnector]
+
+        server.stubFor(
+          get(urlEqualTo(getDisplayRegistrationUrl))
+            .willReturn(ok(json))
+        )
+
+        running(application) {
+
+          val result = connector.getDisplayRegistration(intermediaryNumber).futureValue
+
+          result `mustBe` Right(etmpClientDetails)
+        }
+      }
+
+      "must return Left(InvalidJson) when when JSON is not parsed correctly" in {
+
+        val invalidJson =
+          s"""{
+             |  "etmpDisplayRegistration": {
+             |    "clientDetails": "1234"
+             |  }
+             |}""".stripMargin
+
+        val connector = application.injector.instanceOf[RegistrationConnector]
+
+        server.stubFor(
+          get(urlEqualTo(getDisplayRegistrationUrl))
+            .willReturn(ok(invalidJson)
+            )
+        )
+
+        running(application) {
+
+          val result = connector.getDisplayRegistration(intermediaryNumber).futureValue
+
+          result `mustBe` Left(InvalidJson)
+        }
+      }
+
+      "must return Left(InternalServerError) when server responds with an error" in {
+
+        val app = application
+
+        server.stubFor(
+          get(urlEqualTo(getDisplayRegistrationUrl))
+            .willReturn(serverError()
+            )
+        )
+
+        running(application) {
+
+          val connector = app.injector.instanceOf[RegistrationConnector]
+
+          val result = connector.getDisplayRegistration(intermediaryNumber: String).futureValue
+
+          result `mustBe` Left(InternalServerError)
         }
       }
     }
