@@ -25,12 +25,13 @@
     waypoints: Waypoints,
     businessName: String,
     intermediaryNumber: String,
-    newMessage: Int,
+    numberOfMessages: Int,
     addClientUrl: String,
     viewClientsListUrl: String,
     changeYourRegistrationUrl: String,
     numberOfAwaitingClients: Long,
     redirectToPendingClientsPage: String,
+    redirectToSecureMessagesPage: String,
     leaveThisServiceUrl: Option[String],
     cancelYourRequestToLeaveUrl: Option[String],
     numberOfSavedUserJourneys: Long,
@@ -49,9 +50,9 @@
     <span class="govuk-caption-m govuk-!-margin-bottom-5">@messages("yourAccount.intermediaryNumber", intermediaryNumber)</span>
 
     <p class="govuk-body">
-        <a class="govuk-link" href=""
+        <a class="govuk-link" href="@redirectToSecureMessagesPage"
            id="messages">
-            @messages("yourAccount.messages", newMessage)
+        @Html(messages("yourAccount.messages", numberOfMessages))
         </a>
     </p>
 

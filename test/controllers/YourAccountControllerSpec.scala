@@ -22,7 +22,7 @@ import connectors.RegistrationConnector
 import models.etmp.EtmpExclusionReason.TransferringMSID
 import models.etmp.{EtmpExclusion, RegistrationWrapper}
 import models.responses.InternalServerError
-import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentMatchers.{any, any as Seq}
 import org.mockito.Mockito.when
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalatestplus.mockito.MockitoSugar
@@ -90,6 +90,7 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
             appConfig.changeYourRegistrationUrl,
             1,
             appConfig.redirectToPendingClientsPage,
+            appConfig.redirectToSecureMessagesPage,
             leaveThisServiceUrl = Some(appConfig.leaveThisServiceUrl),
             cancelYourRequestToLeaveUrl = None,
             1,
@@ -148,8 +149,9 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
             appConfig.changeYourRegistrationUrl,
             1,
             appConfig.redirectToPendingClientsPage,
-            leaveThisServiceUrl = None,
-            cancelYourRequestToLeaveUrl = Some(appConfig.cancelYourRequestToLeaveUrl),
+            appConfig.redirectToSecureMessagesPage,
+            leaveThisServiceUrl = Some(appConfig.leaveThisServiceUrl),
+            cancelYourRequestToLeaveUrl = None,
             1,
             appConfig.continueRegistrationUrl
           )(request, messages(application)).toString
@@ -158,7 +160,7 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must throw an exception and log the error when an unexpected error is returned" in {
-      
+
       val mockRegistrationConnector = mock[RegistrationConnector]
 
       when(mockRegistrationConnector.getNumberOfPendingRegistrations(any())(any()))
