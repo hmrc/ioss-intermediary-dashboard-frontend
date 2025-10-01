@@ -133,14 +133,14 @@ class RegistrationConnectorSpec extends SpecBase with WireMockHelper {
              |  }
              |}""".stripMargin
 
-        val connector = application.injector.instanceOf[RegistrationConnector]
+        val connector = dashboardApplication.injector.instanceOf[RegistrationConnector]
 
         server.stubFor(
           get(urlEqualTo(getDisplayRegistrationUrl))
             .willReturn(ok(json))
         )
 
-        running(application) {
+        running(dashboardApplication) {
 
           val result = connector.getDisplayRegistration(intermediaryNumber).futureValue
 
@@ -157,7 +157,7 @@ class RegistrationConnectorSpec extends SpecBase with WireMockHelper {
              |  }
              |}""".stripMargin
 
-        val connector = application.injector.instanceOf[RegistrationConnector]
+        val connector = dashboardApplication.injector.instanceOf[RegistrationConnector]
 
         server.stubFor(
           get(urlEqualTo(getDisplayRegistrationUrl))
@@ -165,7 +165,7 @@ class RegistrationConnectorSpec extends SpecBase with WireMockHelper {
             )
         )
 
-        running(application) {
+        running(dashboardApplication) {
 
           val result = connector.getDisplayRegistration(intermediaryNumber).futureValue
 
@@ -175,7 +175,7 @@ class RegistrationConnectorSpec extends SpecBase with WireMockHelper {
 
       "must return Left(InternalServerError) when server responds with an error" in {
 
-        val app = application
+        val app = dashboardApplication
 
         server.stubFor(
           get(urlEqualTo(getDisplayRegistrationUrl))
@@ -183,7 +183,7 @@ class RegistrationConnectorSpec extends SpecBase with WireMockHelper {
             )
         )
 
-        running(application) {
+        running(dashboardApplication) {
 
           val connector = app.injector.instanceOf[RegistrationConnector]
 

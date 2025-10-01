@@ -16,11 +16,10 @@
 
 package generators
 
-import models.{Country, DesAddress, IntermediaryDetails, SavedPendingRegistration, UserAnswers}
 import models.domain.ModelHelpers.normaliseSpaces
 import models.domain.VatCustomerInfo
 import models.etmp.EtmpClientDetails
-import models.{Country, DesAddress, UserAnswers}
+import models.{Country, DesAddress, IntermediaryDetails, SavedPendingRegistration, UserAnswers}
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Gen.{choose, listOfN}
 import org.scalacheck.{Arbitrary, Gen}
@@ -66,7 +65,7 @@ trait ModelGenerators extends EitherValues {
         Instant.ofEpochMilli(millis).atOffset(ZoneOffset.UTC).toLocalDate
     }
   }
-  
+
   implicit lazy val arbitraryDate: Arbitrary[LocalDate] = {
     Arbitrary {
       datesBetween(LocalDate.of(2021, 7, 1), LocalDate.of(2023, 12, 31))

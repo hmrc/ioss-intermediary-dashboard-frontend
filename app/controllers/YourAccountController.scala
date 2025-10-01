@@ -51,33 +51,34 @@ class YourAccountController @Inject()(
               val businessName = vatInfo.organisationName.orElse(vatInfo.individualName).getOrElse("")
               val intermediaryNumber = request.intermediaryNumber
 
-            val newMessages = 0
-            val addClientUrl = appConfig.addClientUrl
-            val changeYourRegistrationUrl = appConfig.changeYourRegistrationUrl
-            val redirectToPendingClientsPage = appConfig.redirectToPendingClientsPage
-            val leaveThisServiceUrl = appConfig.leaveThisServiceUrl
-            val viewClientsListUrl: String = appConfig.viewClientsListUrl
+              val newMessages = 0
+              val addClientUrl = appConfig.addClientUrl
+              val changeYourRegistrationUrl = appConfig.changeYourRegistrationUrl
+              val redirectToPendingClientsPage = appConfig.redirectToPendingClientsPage
+              val leaveThisServiceUrl = appConfig.leaveThisServiceUrl
+              val viewClientsListUrl: String = appConfig.viewClientsListUrl
               val continueSavedRegUrl = appConfig.continueRegistrationUrl
 
               Ok(view(
-              waypoints,
-              businessName,
-              intermediaryNumber,
-              newMessages,
-              addClientUrl,
-              viewClientsListUrl,
-              changeYourRegistrationUrl,
-              numberOfAwaitingClients,
-              redirectToPendingClientsPage,
-              leaveThisServiceUrl,
-              numberOfSavedUserJourneys,
-              continueSavedRegUrl
-            )).toFuture
+                waypoints,
+                businessName,
+                intermediaryNumber,
+                newMessages,
+                addClientUrl,
+                viewClientsListUrl,
+                changeYourRegistrationUrl,
+                numberOfAwaitingClients,
+                redirectToPendingClientsPage,
+                leaveThisServiceUrl,
+                numberOfSavedUserJourneys,
+                continueSavedRegUrl
+              )).toFuture
 
-          case Left(error) =>
-            val exception = new Exception(error.body)
-            logger.error(exception.getMessage, exception)
-            throw exception
+            case Left(error) =>
+              val exception = new Exception(error.body)
+              logger.error(exception.getMessage, exception)
+              throw exception
+          }
         }
       }
   }
