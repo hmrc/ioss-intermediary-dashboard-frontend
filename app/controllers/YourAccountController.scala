@@ -44,36 +44,41 @@ class YourAccountController @Inject()(
     implicit request =>
 
       val vrn = request.vrn.vrn
-      registrationConnector.getNumberOfPendingRegistrations(request.intermediaryNumber).map(_.toInt).flatMap { numberOfAwaitingClients =>
-        registrationConnector.getVatCustomerInfo(vrn).flatMap {
-          case Right(vatInfo) =>
-            val businessName = vatInfo.organisationName.orElse(vatInfo.individualName).getOrElse("")
-            val intermediaryNumber = request.intermediaryNumber
+      registrationConnector.getNumberOfSavedUserAnswers(request.intermediaryNumber).flatMap { numberOfSavedUserJourneys =>
+        registrationConnector.getNumberOfPendingRegistrations(request.intermediaryNumber).map(_.toInt).flatMap { numberOfAwaitingClients =>
+          registrationConnector.getVatCustomerInfo(vrn).flatMap {
+            case Right(vatInfo) =>
+              val businessName = vatInfo.organisationName.orElse(vatInfo.individualName).getOrElse("")
+              val intermediaryNumber = request.intermediaryNumber
 
-            val newMessages = 0
-            val addClientUrl = appConfig.addClientUrl
-            val changeYourRegistrationUrl = appConfig.changeYourRegistrationUrl
-            val redirectToPendingClientsPage = appConfig.redirectToPendingClientsPage
-            val leaveThisServiceUrl = appConfig.leaveThisServiceUrl
-            val viewClientsListUrl: String = appConfig.viewClientsListUrl
+              val newMessages = 0
+              val addClientUrl = appConfig.addClientUrl
+              val changeYourRegistrationUrl = appConfig.changeYourRegistrationUrl
+              val redirectToPendingClientsPage = appConfig.redirectToPendingClientsPage
+              val leaveThisServiceUrl = appConfig.leaveThisServiceUrl
+              val viewClientsListUrl: String = appConfig.viewClientsListUrl
+              val continueSavedRegUrl = appConfig.continueRegistrationUrl
 
-            Ok(view(
-              waypoints,
-              businessName,
-              intermediaryNumber,
-              newMessages,
-              addClientUrl,
-              viewClientsListUrl,
-              changeYourRegistrationUrl,
-              numberOfAwaitingClients,
-              redirectToPendingClientsPage,
-              leaveThisServiceUrl
-            )).toFuture
+              Ok(view(
+                waypoints,
+                businessName,
+                intermediaryNumber,
+                newMessages,
+                addClientUrl,
+                viewClientsListUrl,
+                changeYourRegistrationUrl,
+                numberOfAwaitingClients,
+                redirectToPendingClientsPage,
+                leaveThisServiceUrl,
+                numberOfSavedUserJourneys,
+                continueSavedRegUrl
+              )).toFuture
 
-          case Left(error) =>
-            val exception = new Exception(error.body)
-            logger.error(exception.getMessage, exception)
-            throw exception
+            case Left(error) =>
+              val exception = new Exception(error.body)
+              logger.error(exception.getMessage, exception)
+              throw exception
+          }
         }
       }
   }

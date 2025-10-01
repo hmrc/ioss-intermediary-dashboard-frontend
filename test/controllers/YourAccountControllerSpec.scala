@@ -50,6 +50,8 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
 
         when(mockRegistrationConnector.getNumberOfPendingRegistrations(any())(any()))
           .thenReturn(1.toLong.toFuture)
+        when(mockRegistrationConnector.getNumberOfSavedUserAnswers(any())(any()))
+          .thenReturn(1.toLong.toFuture)
         when(mockRegistrationConnector.getVatCustomerInfo(any())(any()))
           .thenReturn(Right(vatCustomerInfo).toFuture)
 
@@ -76,7 +78,9 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
             appConfig.changeYourRegistrationUrl,
             1,
             appConfig.redirectToPendingClientsPage,
-            appConfig.leaveThisServiceUrl
+            appConfig.leaveThisServiceUrl,
+            1,
+            appConfig.continueRegistrationUrl
           )(request, messages(application)).toString
         }
       }
@@ -88,6 +92,8 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
 
       when(mockRegistrationConnector.getNumberOfPendingRegistrations(any())(any()))
         .thenReturn(0.toLong.toFuture)
+      when(mockRegistrationConnector.getNumberOfSavedUserAnswers(any())(any()))
+        .thenReturn(1.toLong.toFuture)
       when(mockRegistrationConnector.getVatCustomerInfo(any())(any()))
         .thenReturn(Left(InternalServerError).toFuture)
 

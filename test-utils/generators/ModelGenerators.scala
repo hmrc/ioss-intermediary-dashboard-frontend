@@ -19,7 +19,7 @@ package generators
 import models.domain.ModelHelpers.normaliseSpaces
 import models.domain.VatCustomerInfo
 import models.etmp.EtmpClientDetails
-import models.{Country, DesAddress, UserAnswers}
+import models.{Country, DesAddress, IntermediaryDetails, SavedPendingRegistration, UserAnswers}
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Gen.{choose, listOfN}
 import org.scalacheck.{Arbitrary, Gen}
@@ -65,7 +65,7 @@ trait ModelGenerators extends EitherValues {
         Instant.ofEpochMilli(millis).atOffset(ZoneOffset.UTC).toLocalDate
     }
   }
-  
+
   implicit lazy val arbitraryDate: Arbitrary[LocalDate] = {
     Arbitrary {
       datesBetween(LocalDate.of(2021, 7, 1), LocalDate.of(2023, 12, 31))
@@ -146,6 +146,24 @@ trait ModelGenerators extends EitherValues {
           clientIossID = clientIossID,
           clientExcluded = clientExcluded
         )
+      }
+    }
+  }
+
+  implicit lazy val arbitrarySavedPendingRegistration: Arbitrary[SavedPendingRegistration] = {
+    Arbitrary {
+      for {
+        userAnswers <- arbitraryUserAnswers.arbitrary
+        uniqueUrlCode = UUID.randomUUID().toString
+        uniqueActivationCode = UUID.randomUUID().toString
+      } yield {
+        SavedPendingRegistration(
+          journeyId = userAnswers.journeyId,
+          uniqueUrlCode = uniqueUrlCode,
+          userAnswers = userAnswers,
+          lastUpdated = userAnswers.lastUpdated,
+          uniqueActivationCode = uniqueActivationCode,
+          intermediaryDetails = IntermediaryDetails("IM123456789", "IntermediaryName"))
       }
     }
   }
