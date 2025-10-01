@@ -75,6 +75,7 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
             appConfig.changeYourRegistrationUrl,
             1,
             appConfig.redirectToPendingClientsPage,
+            appConfig.redirectToSecureMessagesPage,
             appConfig.leaveThisServiceUrl
           )(request, messages(application)).toString
         }

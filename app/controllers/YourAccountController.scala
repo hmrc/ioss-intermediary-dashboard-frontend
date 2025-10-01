@@ -18,6 +18,7 @@ package controllers
 
 import config.FrontendAppConfig
 import connectors.RegistrationConnector
+import connectors.test.TestOnlySecureMessagingConnector
 import controllers.actions.*
 import logging.Logging
 
@@ -35,6 +36,7 @@ class YourAccountController @Inject()(
                                        cc: AuthenticatedControllerComponents,
                                        view: YourAccountView,
                                        registrationConnector: RegistrationConnector,
+                                       testOnlySecureMessagingConnector: TestOnlySecureMessagingConnector,
                                        appConfig: FrontendAppConfig
                                      )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
 
@@ -50,23 +52,35 @@ class YourAccountController @Inject()(
             val businessName = vatInfo.organisationName.orElse(vatInfo.individualName).getOrElse("")
             val intermediaryNumber = request.intermediaryNumber
 
-            val newMessages = 0
-            val addClientUrl = appConfig.addClientUrl
-            val changeYourRegistrationUrl = appConfig.changeYourRegistrationUrl
-            val redirectToPendingClientsPage = appConfig.redirectToPendingClientsPage
-            val leaveThisServiceUrl = appConfig.leaveThisServiceUrl
+            testOnlySecureMessagingConnector.getMessages(taxIdentifiers = Some("HMRC-IOSS-INT")).flatMap {
+              case Right(secureMessages) =>
 
-            Ok(view(
-              waypoints,
-              businessName,
-              intermediaryNumber,
-              newMessages,
-              addClientUrl,
-              changeYourRegistrationUrl,
-              numberOfAwaitingClients,
-              redirectToPendingClientsPage,
-              leaveThisServiceUrl
-            )).toFuture
+                val messagesCount = secureMessages.count.total.toInt
+                val addClientUrl = appConfig.addClientUrl
+                val changeYourRegistrationUrl = appConfig.changeYourRegistrationUrl
+                val redirectToPendingClientsPage = appConfig.redirectToPendingClientsPage
+                val redirectToSecureMessagesPage = appConfig.redirectToSecureMessagesPage
+                val leaveThisServiceUrl = appConfig.leaveThisServiceUrl
+
+                Ok(view(
+                  waypoints,
+                  businessName,
+                  intermediaryNumber,
+                  messagesCount,
+                  addClientUrl,
+                  changeYourRegistrationUrl,
+                  numberOfAwaitingClients,
+                  redirectToPendingClientsPage,
+                  redirectToSecureMessagesPage,
+                  leaveThisServiceUrl
+                )).toFuture
+
+              case Left(errors) =>
+                val message: String = s"Received an unexpected error when trying to retrieve secure messages: $errors."
+                val exception: Exception = new Exception(message)
+                logger.error(exception.getMessage, exception)
+                throw exception
+            }
 
           case Left(error) =>
             val exception = new Exception(error.body)
