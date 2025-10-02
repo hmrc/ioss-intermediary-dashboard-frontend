@@ -111,8 +111,6 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
           quarantine = false
         )
 
-        println(s"stubClockAtArbitraryDate: $stubClockAtArbitraryDate")
-
         val registrationWrapperEmptyExclusions: RegistrationWrapper =
           registrationWrapper
             .copy(vatInfo = registrationWrapper.vatInfo)

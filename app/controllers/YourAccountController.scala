@@ -96,7 +96,6 @@ class YourAccountController @Inject()(
     maybeExclusion match {
       case Some(exclusion) if Seq(VoluntarilyLeaves, TransferringMSID).contains(exclusion.exclusionReason) &&
         LocalDate.now(clock).isBefore(exclusion.effectiveDate)  =>
-        println(s"clock: ${LocalDate.now(clock)}")
         Some(appConfig.cancelYourRequestToLeaveUrl)
       case _ => None
     }
