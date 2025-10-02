@@ -65,7 +65,8 @@ class YourAccountController @Inject()(
               val addClientUrl = appConfig.addClientUrl
               val changeYourRegistrationUrl = appConfig.changeYourRegistrationUrl
               val redirectToPendingClientsPage = appConfig.redirectToPendingClientsPage
-              val viewClientsListUrl: String = appConfig.viewClientsListUrlval continueSavedRegUrl = appConfig.continueRegistrationUrl
+              val viewClientsListUrl: String = appConfig.viewClientsListUrl
+              val continueSavedRegUrl = appConfig.continueRegistrationUrl
 
               Ok(view(
                 waypoints,
