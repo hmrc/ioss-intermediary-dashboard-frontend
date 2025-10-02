@@ -20,6 +20,8 @@ import config.FrontendAppConfig
 import connectors.RegistrationConnector
 import controllers.actions.*
 import logging.Logging
+import models.etmp.EtmpExclusion
+import models.etmp.EtmpExclusionReason.*
 
 import javax.inject.Inject
 import pages.Waypoints
@@ -29,21 +31,29 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.YourAccountView
 import utils.FutureSyntax.FutureOps
 
+import java.time.{Clock, LocalDate}
 import scala.concurrent.ExecutionContext
 
 class YourAccountController @Inject()(
                                        cc: AuthenticatedControllerComponents,
                                        view: YourAccountView,
                                        registrationConnector: RegistrationConnector,
-                                       appConfig: FrontendAppConfig
+                                       appConfig: FrontendAppConfig,
+                                       clock: Clock
                                      )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
 
   protected val controllerComponents: MessagesControllerComponents = cc
 
-  def onPageLoad(waypoints: Waypoints): Action[AnyContent] = cc.identify.async {
+  def onPageLoad(waypoints: Waypoints): Action[AnyContent] = cc.identifyAndGetRegistration.async {
     implicit request =>
 
       val vrn = request.vrn.vrn
+      val maybeExclusion: Option[EtmpExclusion] = request.registrationWrapper.etmpDisplayRegistration.exclusions.lastOption
+      val leaveThisServiceUrl = if (maybeExclusion.isEmpty || maybeExclusion.exists(_.exclusionReason == Reversal)) {
+        Some(appConfig.leaveThisServiceUrl)
+      } else {
+        None
+      }
       registrationConnector.getNumberOfSavedUserAnswers(request.intermediaryNumber).flatMap { numberOfSavedUserJourneys =>
         registrationConnector.getNumberOfPendingRegistrations(request.intermediaryNumber).map(_.toInt).flatMap { numberOfAwaitingClients =>
           registrationConnector.getVatCustomerInfo(vrn).flatMap {
@@ -55,9 +65,7 @@ class YourAccountController @Inject()(
               val addClientUrl = appConfig.addClientUrl
               val changeYourRegistrationUrl = appConfig.changeYourRegistrationUrl
               val redirectToPendingClientsPage = appConfig.redirectToPendingClientsPage
-              val leaveThisServiceUrl = appConfig.leaveThisServiceUrl
-              val viewClientsListUrl: String = appConfig.viewClientsListUrl
-              val continueSavedRegUrl = appConfig.continueRegistrationUrl
+              val viewClientsListUrl: String = appConfig.viewClientsListUrlval continueSavedRegUrl = appConfig.continueRegistrationUrl
 
               Ok(view(
                 waypoints,
@@ -70,6 +78,7 @@ class YourAccountController @Inject()(
                 numberOfAwaitingClients,
                 redirectToPendingClientsPage,
                 leaveThisServiceUrl,
+                cancelYourRequestToLeaveUrl(maybeExclusion),
                 numberOfSavedUserJourneys,
                 continueSavedRegUrl
               )).toFuture
@@ -81,5 +90,15 @@ class YourAccountController @Inject()(
           }
         }
       }
+  }
+
+  private  def cancelYourRequestToLeaveUrl(maybeExclusion: Option[EtmpExclusion]): Option[String] = {
+    maybeExclusion match {
+      case Some(exclusion) if Seq(VoluntarilyLeaves, TransferringMSID).contains(exclusion.exclusionReason) &&
+        LocalDate.now(clock).isBefore(exclusion.effectiveDate)  =>
+        println(s"clock: ${LocalDate.now(clock)}")
+        Some(appConfig.cancelYourRequestToLeaveUrl)
+      case _ => None
+    }
   }
 }
