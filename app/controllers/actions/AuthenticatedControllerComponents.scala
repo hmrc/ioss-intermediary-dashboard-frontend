@@ -16,7 +16,7 @@
 
 package controllers.actions
 
-import models.requests.{DataRequest, OptionalDataRequest}
+import models.requests.{DataRequest, OptionalDataRequest, RegistrationRequest}
 import play.api.http.FileMimeTypes
 import play.api.i18n.{Langs, MessagesApi}
 import play.api.mvc.{ActionBuilder, AnyContent, DefaultActionBuilder, MessagesActionBuilder, MessagesControllerComponents, PlayBodyParsers}
@@ -37,6 +37,8 @@ trait AuthenticatedControllerComponents extends MessagesControllerComponents {
   
   def requireData: DataRequiredAction
 
+  def getRegistration: GetRegistrationAction
+
   def identifyAndGetData: ActionBuilder[DataRequest, AnyContent] =
     actionBuilder andThen
       identify andThen
@@ -47,6 +49,11 @@ trait AuthenticatedControllerComponents extends MessagesControllerComponents {
     actionBuilder andThen
       identify andThen
       getData
+      
+  def identifyAndGetRegistration: ActionBuilder[RegistrationRequest, AnyContent] = {
+    identify andThen
+      getRegistration
+  }
 }
 
 case class DefaultAuthenticatedControllerComponents @Inject()(
@@ -60,5 +67,6 @@ case class DefaultAuthenticatedControllerComponents @Inject()(
                                                                  sessionRepository: SessionRepository,
                                                                  identify: IdentifierAction,
                                                                  getData: DataRetrievalAction,
-                                                                 requireData: DataRequiredAction
+                                                                 requireData: DataRequiredAction,
+                                                                 getRegistration: GetRegistrationAction
                                                                ) extends AuthenticatedControllerComponents

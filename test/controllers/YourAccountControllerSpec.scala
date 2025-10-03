@@ -19,9 +19,12 @@ package controllers
 import base.SpecBase
 import config.FrontendAppConfig
 import connectors.RegistrationConnector
+import models.etmp.EtmpExclusionReason.TransferringMSID
+import models.etmp.{EtmpExclusion, RegistrationWrapper}
 import models.responses.InternalServerError
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
+import org.scalacheck.Arbitrary.arbitrary
 import org.scalatestplus.mockito.MockitoSugar
 import pages.{EmptyWaypoints, Waypoints}
 import play.api.inject.bind
@@ -29,6 +32,8 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import views.html.YourAccountView
 import utils.FutureSyntax.FutureOps
+
+import java.time.LocalDate
 
 
 class YourAccountControllerSpec extends SpecBase with MockitoSugar {
@@ -46,6 +51,13 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
 
       "must return OK and the correct view for a GET" in {
 
+        val registrationWrapper: RegistrationWrapper = arbitrary[RegistrationWrapper].sample.value
+
+        val registrationWrapperEmptyExclusions: RegistrationWrapper =
+          registrationWrapper
+            .copy(vatInfo = registrationWrapper.vatInfo)
+            .copy(etmpDisplayRegistration = registrationWrapper.etmpDisplayRegistration.copy(exclusions = Seq.empty))
+
         val mockRegistrationConnector = mock[RegistrationConnector]
 
         when(mockRegistrationConnector.getNumberOfPendingRegistrations(any())(any()))
@@ -55,7 +67,7 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
         when(mockRegistrationConnector.getVatCustomerInfo(any())(any()))
           .thenReturn(Right(vatCustomerInfo).toFuture)
 
-        val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        val application = applicationBuilder(userAnswers = Some(emptyUserAnswers), registrationWrapper = registrationWrapperEmptyExclusions)
           .overrides(bind[RegistrationConnector].toInstance(mockRegistrationConnector))
           .build()
         val appConfig = application.injector.instanceOf[FrontendAppConfig]
@@ -78,7 +90,66 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
             appConfig.changeYourRegistrationUrl,
             1,
             appConfig.redirectToPendingClientsPage,
-            appConfig.leaveThisServiceUrl,
+            leaveThisServiceUrl = Some(appConfig.leaveThisServiceUrl),
+            cancelYourRequestToLeaveUrl = None,
+            1,
+            appConfig.continueRegistrationUrl
+          )(request, messages(application)).toString
+        }
+      }
+
+      "must return OK with cancelYourRequestToLeave link and without leaveThisService link when a trader is excluded" in {
+
+        val mockRegistrationConnector = mock[RegistrationConnector]
+
+        val registrationWrapper: RegistrationWrapper = arbitrary[RegistrationWrapper].sample.value
+
+        val exclusion = EtmpExclusion(
+          TransferringMSID,
+          LocalDate.now(stubClockAtArbitraryDate).plusDays(2),
+          LocalDate.now(stubClockAtArbitraryDate).minusDays(1),
+          quarantine = false
+        )
+
+        val registrationWrapperEmptyExclusions: RegistrationWrapper =
+          registrationWrapper
+            .copy(vatInfo = registrationWrapper.vatInfo)
+            .copy(etmpDisplayRegistration = registrationWrapper.etmpDisplayRegistration.copy(exclusions = Seq(exclusion)))
+
+        when(mockRegistrationConnector.getNumberOfPendingRegistrations(any())(any()))
+          .thenReturn(1.toLong.toFuture)
+        when(mockRegistrationConnector.getNumberOfSavedUserAnswers(any())(any()))
+          .thenReturn(1.toLong.toFuture)
+        when(mockRegistrationConnector.getVatCustomerInfo(any())(any()))
+          .thenReturn(Right(vatCustomerInfo).toFuture)
+
+        val application = applicationBuilder(userAnswers = Some(emptyUserAnswers), registrationWrapper = registrationWrapperEmptyExclusions)
+          .overrides(
+            bind[RegistrationConnector].toInstance(mockRegistrationConnector)
+          )
+          .build()
+        val appConfig = application.injector.instanceOf[FrontendAppConfig]
+
+        running(application) {
+          val request = FakeRequest(GET, yourAccountRoute)
+
+          val result = route(application, request).value
+
+          val view = application.injector.instanceOf[YourAccountView]
+
+          status(result) `mustEqual` OK
+          contentAsString(result) mustEqual view(
+            waypoints,
+            businessName,
+            intermediaryNumber,
+            newMessage,
+            appConfig.addClientUrl,
+            appConfig.viewClientsListUrl,
+            appConfig.changeYourRegistrationUrl,
+            1,
+            appConfig.redirectToPendingClientsPage,
+            leaveThisServiceUrl = None,
+            cancelYourRequestToLeaveUrl = Some(appConfig.cancelYourRequestToLeaveUrl),
             1,
             appConfig.continueRegistrationUrl
           )(request, messages(application)).toString
