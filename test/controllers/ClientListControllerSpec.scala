@@ -18,45 +18,21 @@ package controllers
 
 import base.SpecBase
 import config.FrontendAppConfig
-import connectors.RegistrationConnector
-import models.etmp.EtmpClientDetails
-import models.responses.*
-import org.mockito.ArgumentMatchers.{any, eq as eqTo}
-import org.mockito.Mockito
-import org.mockito.Mockito.{times, verify, when}
-import org.scalacheck.Gen
 import org.scalatest.BeforeAndAfterEach
-import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.i18n.Messages
-import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import utils.FutureSyntax.FutureOps
 import viewmodels.clientList.ClientListViewModel
 import views.html.ClientListView
 
 class ClientListControllerSpec extends SpecBase with BeforeAndAfterEach {
-
-  private val mockRegistrationConnector: RegistrationConnector = mock[RegistrationConnector]
-
-  private val etmpClientDetails: Seq[EtmpClientDetails] = Gen
-    .listOfN(6, arbitraryEtmpClientDetails.arbitrary).sample.value
-
-  override def beforeEach(): Unit = {
-    Mockito.reset(
-      mockRegistrationConnector
-    )
-  }
 
   "ClientList Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-        .overrides(bind[RegistrationConnector].toInstance(mockRegistrationConnector))
         .build()
-
-      when(mockRegistrationConnector.getDisplayRegistration(any())(any())) thenReturn Right(etmpClientDetails).toFuture
 
       running(application) {
         implicit val msgs: Messages = messages(application)
@@ -69,40 +45,16 @@ class ClientListControllerSpec extends SpecBase with BeforeAndAfterEach {
 
         val view = application.injector.instanceOf[ClientListView]
 
+        val registration = registrationWrapper.etmpDisplayRegistration
+
         val clientListViewModel: ClientListViewModel = ClientListViewModel(
-          clientList = etmpClientDetails,
+          clientList = registration.clientDetails,
           changeClientRegistrationUrl = config.changeYourNetpRegistrationUrl,
           excludeClientUrl = config.leaveNetpServiceUrl
         )
 
         status(result) `mustBe` OK
         contentAsString(result) `mustBe` view(clientListViewModel)(request).toString
-        verify(mockRegistrationConnector, times(1)).getDisplayRegistration(eqTo(intermediaryNumber))(any())
-      }
-    }
-
-    Seq(NotFound, InvalidJson, InternalServerError, RegistrationNotFound, ConflictFound).foreach { errorResponse =>
-      s"must throw an Exception for a GET when the Registration connector returns the error: $errorResponse" in {
-
-        val errorMessage: String = s"There was a problem retrieving Client Details with error: ${errorResponse.body}"
-
-        val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .overrides(bind[RegistrationConnector].toInstance(mockRegistrationConnector))
-          .build()
-
-        when(mockRegistrationConnector.getDisplayRegistration(any())(any())) thenReturn Left(errorResponse).toFuture
-
-        running(application) {
-          val request = FakeRequest(GET, routes.ClientListController.onPageLoad().url)
-
-          val result = route(application, request).value
-
-          whenReady(result.failed) { exp =>
-            exp `mustBe` a[Exception]
-            exp.getMessage `mustBe` errorMessage
-          }
-          verify(mockRegistrationConnector, times(1)).getDisplayRegistration(eqTo(intermediaryNumber))(any())
-        }
       }
     }
   }

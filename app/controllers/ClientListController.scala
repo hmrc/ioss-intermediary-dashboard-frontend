@@ -17,7 +17,6 @@
 package controllers
 
 import config.FrontendAppConfig
-import connectors.RegistrationConnector
 import controllers.actions.*
 import logging.Logging
 import models.etmp.EtmpClientDetails
@@ -29,40 +28,27 @@ import viewmodels.clientList.ClientListViewModel
 import views.html.ClientListView
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
 
 class ClientListController @Inject()(
                                       override val messagesApi: MessagesApi,
                                       cc: AuthenticatedControllerComponents,
-                                      registrationConnector: RegistrationConnector,
                                       frontendAppConfig: FrontendAppConfig,
                                       view: ClientListView
-                                    )(implicit executionContext: ExecutionContext)
+                                    )
   extends FrontendBaseController with I18nSupport with Logging {
 
   protected val controllerComponents: MessagesControllerComponents = cc
 
-  def onPageLoad(waypoints: Waypoints): Action[AnyContent] = cc.identify.async {
+  def onPageLoad(waypoints: Waypoints): Action[AnyContent] = cc.identifyAndGetRegistration {
     implicit request =>
 
-      for {
-        displayRegistrationResponse <- registrationConnector.getDisplayRegistration(request.intermediaryNumber)
-      } yield {
-        val clientDetailsList: Seq[EtmpClientDetails] = displayRegistrationResponse match {
-          case Right(clientDetails) => clientDetails
+      val clientDetailsList: Seq[EtmpClientDetails] = request.registrationWrapper.etmpDisplayRegistration.clientDetails
 
-          case Left(error) =>
-            val errorMessage: String = s"There was a problem retrieving Client Details with error: ${error.body}"
-            logger.error(errorMessage)
-            throw new Exception(errorMessage)
-        }
+      val changeRegistrationRedirectUrl: String = frontendAppConfig.changeYourNetpRegistrationUrl
+      val excludeClientRedirectUrl: String = frontendAppConfig.leaveNetpServiceUrl
 
-        val changeRegistrationRedirectUrl: String = frontendAppConfig.changeYourNetpRegistrationUrl
-        val excludeClientRedirectUrl: String = frontendAppConfig.leaveNetpServiceUrl
-
-        val viewModel: ClientListViewModel = ClientListViewModel(clientDetailsList, changeRegistrationRedirectUrl, excludeClientRedirectUrl)
+      val viewModel: ClientListViewModel = ClientListViewModel(clientDetailsList, changeRegistrationRedirectUrl, excludeClientRedirectUrl)
         
-        Ok(view(viewModel))
-      }
+      Ok(view(viewModel))
   }
 }
