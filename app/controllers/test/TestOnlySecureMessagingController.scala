@@ -50,7 +50,7 @@ class TestOnlySecureMessagingController @Inject()(
           val isReadMessage = form.isReadMessage
 
           val results: Future[List[HttpResponse]] =
-            Future.sequence((1 to numberOfMessages).map(_ => connector.createSecureMessage(isReadMessage)).toList)
+            Future.sequence((1 to numberOfMessages).map(_ => connector.createBulkMessages(isReadMessage)).toList)
 
           results.flatMap { responses =>
             responses.find(r => r.status != 201) match {
