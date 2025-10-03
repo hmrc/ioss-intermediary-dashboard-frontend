@@ -20,7 +20,7 @@ import base.SpecBase
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import models.SavedPendingRegistration
 import models.domain.VatCustomerInfo
-import models.etmp.EtmpClientDetails
+import models.etmp.{EtmpClientDetails, RegistrationWrapper}
 import models.responses.*
 import org.scalacheck.Gen
 import play.api.Application
@@ -117,83 +117,7 @@ class RegistrationConnectorSpec extends SpecBase with WireMockHelper {
         }
       }
     }
-
-    ".getDisplayRegistration" - {
-
-      val getDisplayRegistrationUrl: String = s"/ioss-intermediary-registration/get-registration/$intermediaryNumber"
-
-      "must return Right(ETMP Client Details) when the server returns a successful response and JSON is parsed correctly" in {
-
-        val clientDetailsJson = Json.toJson(etmpClientDetails).toString
-
-        val json =
-          s"""{
-             |  "etmpDisplayRegistration": {
-             |    "clientDetails": $clientDetailsJson
-             |  }
-             |}""".stripMargin
-
-        val connector = dashboardApplication.injector.instanceOf[RegistrationConnector]
-
-        server.stubFor(
-          get(urlEqualTo(getDisplayRegistrationUrl))
-            .willReturn(ok(json))
-        )
-
-        running(dashboardApplication) {
-
-          val result = connector.getDisplayRegistration(intermediaryNumber).futureValue
-
-          result `mustBe` Right(etmpClientDetails)
-        }
-      }
-
-      "must return Left(InvalidJson) when when JSON is not parsed correctly" in {
-
-        val invalidJson =
-          s"""{
-             |  "etmpDisplayRegistration": {
-             |    "clientDetails": "1234"
-             |  }
-             |}""".stripMargin
-
-        val connector = dashboardApplication.injector.instanceOf[RegistrationConnector]
-
-        server.stubFor(
-          get(urlEqualTo(getDisplayRegistrationUrl))
-            .willReturn(ok(invalidJson)
-            )
-        )
-
-        running(dashboardApplication) {
-
-          val result = connector.getDisplayRegistration(intermediaryNumber).futureValue
-
-          result `mustBe` Left(InvalidJson)
-        }
-      }
-
-      "must return Left(InternalServerError) when server responds with an error" in {
-
-        val app = dashboardApplication
-
-        server.stubFor(
-          get(urlEqualTo(getDisplayRegistrationUrl))
-            .willReturn(serverError()
-            )
-        )
-
-        running(dashboardApplication) {
-
-          val connector = app.injector.instanceOf[RegistrationConnector]
-
-          val result = connector.getDisplayRegistration(intermediaryNumber: String).futureValue
-
-          result `mustBe` Left(InternalServerError)
-        }
-      }
-    }
-
+    
     "getNumberOfPendingRegistrations" - {
 
       val netpPendingRegCountUrl: String = s"/ioss-netp-registration/pending-registrations/count/$intermediaryNumber"
