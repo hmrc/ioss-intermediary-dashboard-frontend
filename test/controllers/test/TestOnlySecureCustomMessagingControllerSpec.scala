@@ -17,7 +17,7 @@
 package controllers.test
 
 import base.SpecBase
-import connectors.test.TestOnlySecureCustomMessagingConnector
+import connectors.test.TestOnlySecureMessagingConnector
 import forms.test.TestOnlySecureCustomMessagingFormProvider
 import org.mockito.Mockito.{times, verify, when}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
@@ -63,12 +63,12 @@ class TestOnlySecureCustomMessagingControllerSpec extends SpecBase with MockitoS
     ".onSubmit" - {
 
       "must create a custom message and return successful HTML response" in {
-        val mockConnector = mock[TestOnlySecureCustomMessagingConnector]
-        when(mockConnector.createSecureCustomMessage(any(), any(), any(), any(), any())(any()))
+        val mockConnector = mock[TestOnlySecureMessagingConnector]
+        when(mockConnector.createCustomMessage(any(), any(), any(), any(), any())(any()))
           .thenReturn(Future.successful(HttpResponse(201, "")))
 
         val application = applicationBuilder()
-          .overrides(bind[TestOnlySecureCustomMessagingConnector].toInstance(mockConnector))
+          .overrides(bind[TestOnlySecureMessagingConnector].toInstance(mockConnector))
           .configure("application.router" -> "testOnlyDoNotUseInAppConf.Routes")
           .build()
 
@@ -91,18 +91,18 @@ class TestOnlySecureCustomMessagingControllerSpec extends SpecBase with MockitoS
           contentAsString(result) must include("Message successfully created!")
 
           verify(mockConnector, times(1))
-            .createSecureCustomMessage(
+            .createCustomMessage(
               eqTo("firstName"), eqTo("lastName"), eqTo("test@email.com"), eqTo("test subject"), eqTo("test body"))(any())
         }
       }
 
       "must return InternalServerError and return HTML response when connector doesn't return a 201" in {
-        val mockConnector = mock[TestOnlySecureCustomMessagingConnector]
-        when(mockConnector.createSecureCustomMessage(any(), any(), any(), any(), any())(any()))
+        val mockConnector = mock[TestOnlySecureMessagingConnector]
+        when(mockConnector.createCustomMessage(any(), any(), any(), any(), any())(any()))
           .thenReturn(Future.successful(HttpResponse(500, "")))
 
         val application = applicationBuilder()
-          .overrides(bind[TestOnlySecureCustomMessagingConnector].toInstance(mockConnector))
+          .overrides(bind[TestOnlySecureMessagingConnector].toInstance(mockConnector))
           .configure("application.router" -> "testOnlyDoNotUseInAppConf.Routes")
           .build()
 

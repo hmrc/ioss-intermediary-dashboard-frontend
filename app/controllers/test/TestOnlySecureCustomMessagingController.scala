@@ -32,7 +32,7 @@
 
 package controllers.test
 
-import connectors.test.TestOnlySecureCustomMessagingConnector
+import connectors.test.TestOnlySecureMessagingConnector
 import forms.test.TestOnlySecureCustomMessagingFormProvider
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -46,7 +46,7 @@ class TestOnlySecureCustomMessagingController @Inject()(
                                                          override val messagesApi: MessagesApi,
                                                          val controllerComponents: MessagesControllerComponents,
                                                          view: TestOnlySecureCustomMessagingView,
-                                                         connector: TestOnlySecureCustomMessagingConnector
+                                                         connector: TestOnlySecureMessagingConnector
                                                        )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   private val form = TestOnlySecureCustomMessagingFormProvider()
@@ -66,10 +66,12 @@ class TestOnlySecureCustomMessagingController @Inject()(
           val emailAddress: String = formData.emailAddress
           val subject: String = formData.subject
           val body: String = formData.body
+          
+          val result = connector.createCustomMessage(firstName, lastName, emailAddress, subject, body)
 
-          connector.createSecureCustomMessage(firstName, lastName, emailAddress, subject, body).map { response =>
+          result.map { response =>
             response.status match {
-              case 200 | 201 =>
+              case 201 =>
                 Ok(
                   s"""
                      |<h1>Message successfully created!</h1>
