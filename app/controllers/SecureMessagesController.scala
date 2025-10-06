@@ -51,10 +51,11 @@ class SecureMessagesController @Inject()(
       testOnlySecureMessagingConnector.getMessages(taxIdentifiers = Some(taxIdentifiers)).flatMap {
         case Right(secureMessages) =>
 
-          val messageSubject = secureMessages.items.map(_.subject)
-          val messageValidFrom = secureMessages.items.map(_.validFrom)
+          val unreadMessages: Seq[Boolean] = secureMessages.items.map(_.unreadMessages)
+          val messageSubject: Seq[String] = secureMessages.items.map(_.subject)
+          val messageValidFrom: Seq[String] = secureMessages.items.map(_.validFrom)
 
-          val messagesTable = buildMessagesTable(messageSubject, messageValidFrom)
+          val messagesTable = buildMessagesTable(messageSubject, messageValidFrom, unreadMessages)
 
           Ok(view(messagesTable)).toFuture
 
@@ -68,17 +69,25 @@ class SecureMessagesController @Inject()(
 
   private def buildMessagesTable(
                                   subject: Seq[String],
-                                  validFrom: Seq[String]
+                                  validFrom: Seq[String],
+                                  unreadMessages: Seq[Boolean]
                                  )(implicit messages: Messages): Table = {
     
     val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("d MMMM yyyy")
 
     val rows: Seq[Seq[TableRow]] = {
-      subject.zip(validFrom)
-        .map { case (sub, dateStr) =>
+      subject
+        .lazyZip(validFrom)
+        .lazyZip(unreadMessages)
+        .map { case (sub, dateStr, unreadMessage) =>
           val formattedDate = LocalDate.parse(dateStr, DateTimeFormatter.ISO_LOCAL_DATE).format(dateFormatter)
 
+          val displayRedDot = if (unreadMessage) HtmlContent(messages("redDot")) else HtmlContent(messages(""))
+          
           Seq(
+            TableRow(
+              content = displayRedDot
+            ),
             TableRow(
               content = HtmlContent(messages("secureMessages.subject", sub))
             ),
@@ -92,6 +101,9 @@ class SecureMessagesController @Inject()(
     Table(
       rows,
       head = Some(Seq(
+        HeadCell(
+          content = Text("")
+        ),
         HeadCell(
           content = Text("Messages")
         ),
