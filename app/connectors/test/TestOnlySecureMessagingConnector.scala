@@ -16,6 +16,8 @@
 
 package connectors.test
 
+import config.Service
+import play.api.Configuration
 import play.api.libs.json.{JsArray, JsObject, Json}
 import play.api.libs.ws.writeableOf_JsValue
 import uk.gov.hmrc.http.HttpReads.Implicits.*
@@ -28,9 +30,12 @@ import scala.util.Random
 
 class TestOnlySecureMessagingConnector @Inject()(
                                                   httpClientV2: HttpClientV2,
+                                                  config: Configuration,
                                                 )(implicit ec: ExecutionContext) {
+  
+  private val baseUrl: Service = config.get[Service]("microservice.services.secure-messaging")
+  private val secureMessageUrl = s"${baseUrl}/v4/message"
 
-  private val secureMessageUrl = "http://localhost:9051/secure-messaging/v4/message"
 
   private def baseJsonPayload: JsObject = Json.obj(
     "externalRef" -> Json.obj(
