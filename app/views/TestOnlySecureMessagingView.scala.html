@@ -44,13 +44,6 @@
             )
         )
 
-        @govukRadios(
-            RadiosViewModel.yesNo(
-                field = form("isReadMessage"),
-                legend = LegendViewModel(messages("Generate unread messages?")).withCssClass("govuk-label--m")
-            )
-        )
-
         @govukInput(
             InputViewModel(
                 field = form("numberOfMessages"),

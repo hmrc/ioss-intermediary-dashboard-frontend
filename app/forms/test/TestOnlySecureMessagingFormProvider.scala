@@ -18,21 +18,19 @@ package forms.test
 
 import forms.mappings.Mappings
 import play.api.data.Form
-import play.api.data.Forms.*
+import play.api.data.Forms._
+
+
 
 object TestOnlySecureMessagingFormProvider extends Mappings {
 
   def apply(): Form[TestOnlySecureMessagingFormProvider] =
-    Form[TestOnlySecureMessagingFormProvider](
+    Form(
       mapping(
-        "isReadMessage" -> boolean("Selection required"),
-        "numberOfMessages" -> optional(int("Must not be blank", "Must be a whole number", "Must be a number"))
-      )(TestOnlySecureMessagingFormProvider.apply)(c => Some(Tuple.fromProductTyped[TestOnlySecureMessagingFormProvider](c)))
-
+        "numberOfMessages" -> int("Must not be blank", "Must be a whole number", "Must be a number")
+      )(n => TestOnlySecureMessagingFormProvider(n))
+        (data => Some(data.numberOfMessages))
     )
 }
 
-case class TestOnlySecureMessagingFormProvider(
-                                              isReadMessage: Boolean,
-                                              numberOfMessages: Option[Int]
-                                      )
+case class TestOnlySecureMessagingFormProvider(numberOfMessages: Int)

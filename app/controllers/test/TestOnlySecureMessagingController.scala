@@ -45,12 +45,11 @@ class TestOnlySecureMessagingController @Inject()(
     implicit request =>
       form.bindFromRequest().fold(
         formWithErrors => Future.successful(BadRequest(view(formWithErrors))),
-        form => {
-          val numberOfMessages = form.numberOfMessages.getOrElse(1)
-          val isReadMessage = form.isReadMessage
+        formData => {
+          val numberOfMessages = formData.numberOfMessages
 
           val results: Future[List[HttpResponse]] =
-            Future.sequence((1 to numberOfMessages).map(_ => connector.createBulkMessages(isReadMessage)).toList)
+            Future.sequence((1 to numberOfMessages).map(_ => connector.createBulkMessages()).toList)
 
           results.flatMap { responses =>
             responses.find(r => r.status != 201) match {
@@ -84,5 +83,3 @@ class TestOnlySecureMessagingController @Inject()(
       )
   }
 }
-
-

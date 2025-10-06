@@ -32,7 +32,7 @@ class TestOnlySecureMessagingConnector @Inject()(
 
   private val secureMessageUrl = "http://localhost:9051/secure-messaging/v4/message"
 
-  private val baseJsonPayload: JsObject = Json.obj(
+  private def baseJsonPayload: JsObject = Json.obj(
     "externalRef" -> Json.obj(
       "id" -> s"AJD${random18Digit()}",
       "source" -> "gmc"
@@ -65,25 +65,11 @@ class TestOnlySecureMessagingConnector @Inject()(
     "language" -> "en"
   )
 
-  def createBulkMessages(isRead: Boolean = false)
+  def createBulkMessages()
                         (implicit hc: HeaderCarrier): Future[HttpResponse] = {
-
-    val jsonPayload = if (isRead) {
-      baseJsonPayload ++ Json.obj(
-        "readTime" -> java.time.Instant.now(),
-        "readBy" -> Json.arr(
-          Json.obj(
-            "id" -> 2,
-            "readTime" -> java.time.Instant.now()
-          )
-        )
-      )
-    } else {
-      baseJsonPayload
-    }
     httpClientV2
       .post(url"$secureMessageUrl")
-      .withBody(jsonPayload)
+      .withBody(baseJsonPayload)
       .execute[HttpResponse]
   }
 
