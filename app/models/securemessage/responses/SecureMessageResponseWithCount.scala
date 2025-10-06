@@ -18,8 +18,8 @@ package models.securemessage.responses
 
 import play.api.libs.json.{Format, Json, OFormat}
 
-case class SecureMessageWithCount(items: Seq[SecureMessageResponse], count: SecureMessageCount)
+case class SecureMessageResponseWithCount(items: Seq[SecureMessageResponse], count: SecureMessageCount)
 
-object SecureMessageWithCount {
-  implicit val format: Format[SecureMessageWithCount] = Json.format[SecureMessageWithCount]
+object SecureMessageResponseWithCount {
+  implicit val format: Format[SecureMessageResponseWithCount] = Json.format[SecureMessageResponseWithCount]
 }

@@ -18,14 +18,14 @@ package connectors
 
 import logging.Logging
 import models.responses.{ErrorResponse, InvalidJson, UnexpectedResponseStatus}
-import models.securemessage.responses.SecureMessageWithCount
+import models.securemessage.responses.SecureMessageResponseWithCount
 import play.api.http.Status.{CREATED, OK}
 import play.api.libs.json.{JsError, JsSuccess}
 import uk.gov.hmrc.http.{HttpReads, HttpResponse}
 
 object SecureMessagesHttpParser extends Logging {
 
-  type SecureMessageResultResponse = Either[ErrorResponse, SecureMessageWithCount]
+  type SecureMessageResultResponse = Either[ErrorResponse, SecureMessageResponseWithCount]
   
   implicit object SecureMessageResultResponseReads extends HttpReads[SecureMessageResultResponse] {
 
@@ -38,7 +38,7 @@ object SecureMessagesHttpParser extends Logging {
     override def read(method: String, url: String, response: HttpResponse): SecureMessageResultResponse = {
 
       response.status match {
-        case OK | CREATED => response.json.validate[SecureMessageWithCount] match {
+        case OK | CREATED => response.json.validate[SecureMessageResponseWithCount] match {
           case JsSuccess(secureMessage, _) => Right(secureMessage)
           case JsError(error) =>
             logger.error(s"Failed trying to parse Secure Message JSON with error: $error")
