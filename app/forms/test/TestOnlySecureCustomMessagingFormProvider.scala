@@ -31,7 +31,7 @@ object TestOnlySecureCustomMessagingFormProvider extends Mappings {
         "lastName" -> text("Last name required"),
         "emailAddress" -> text("Email required").verifying(firstError(
           maxLength(50, "Email address must be 50 characters or less"),
-          regexp(emailPattern, "updateClientEmailAddress.error.invalid")),
+          regexp(emailPattern, "Please enter a valid email address")),
         ),
     "subject" -> text("Subject required"),
     "body" -> text("Email body required"),
