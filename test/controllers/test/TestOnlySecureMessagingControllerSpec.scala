@@ -63,7 +63,7 @@ class TestOnlySecureMessagingControllerSpec extends SpecBase with MockitoSugar {
       "must generate one unread message when form is submitted requesting one message" in {
 
         val mockConnector = mock[TestOnlySecureMessagingConnector]
-        when(mockConnector.createBulkMessages()(any()))
+        when(mockConnector.createMessage()(any()))
           .thenReturn(Future.successful(HttpResponse(201, "")))
 
         val application = applicationBuilder()
@@ -87,14 +87,14 @@ class TestOnlySecureMessagingControllerSpec extends SpecBase with MockitoSugar {
           contentAsString(result) must include("Number of messages created: 1")
 
 
-          verify(mockConnector, times(1)).createBulkMessages()(any())
+          verify(mockConnector, times(1)).createMessage()(any())
         }
       }
 
       "must generate multiple unread messages when form is submitted requesting more than one message" in {
 
         val mockConnector = mock[TestOnlySecureMessagingConnector]
-        when(mockConnector.createBulkMessages()(any()))
+        when(mockConnector.createMessage()(any()))
           .thenReturn(Future.successful(HttpResponse(201, "")))
 
         val application = applicationBuilder()
@@ -119,13 +119,13 @@ class TestOnlySecureMessagingControllerSpec extends SpecBase with MockitoSugar {
           contentAsString(result) must include("Messages successfully created!")
           contentAsString(result) must include(s"Number of messages created: $randomNumberOfMessagesToCreate")
 
-          verify(mockConnector, times(randomNumberOfMessagesToCreate)).createBulkMessages()(any())
+          verify(mockConnector, times(randomNumberOfMessagesToCreate)).createMessage()(any())
         }
       }
 
       "must return InternalServerError when connector doesn't return a 201" in {
         val mockConnector = mock[TestOnlySecureMessagingConnector]
-        when(mockConnector.createBulkMessages()(any()))
+        when(mockConnector.createMessage()(any()))
           .thenReturn(Future.successful(HttpResponse(500, "")))
 
         val application = applicationBuilder()

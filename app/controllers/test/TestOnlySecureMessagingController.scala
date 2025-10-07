@@ -49,7 +49,7 @@ class TestOnlySecureMessagingController @Inject()(
           val numberOfMessages = formData.numberOfMessages
 
           val results: Future[List[HttpResponse]] =
-            Future.sequence((1 to numberOfMessages).map(_ => connector.createBulkMessages()).toList)
+            Future.sequence((1 to numberOfMessages).map(_ => connector.createMessage()).toList)
 
           results.flatMap { responses =>
             responses.find(r => r.status != 201) match {

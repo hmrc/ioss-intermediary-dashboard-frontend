@@ -70,8 +70,8 @@ class TestOnlySecureMessagingConnector @Inject()(
     "language" -> "en"
   )
 
-  def createBulkMessages()
-                        (implicit hc: HeaderCarrier): Future[HttpResponse] = {
+  def createMessage()
+                   (implicit hc: HeaderCarrier): Future[HttpResponse] = {
     httpClientV2
       .post(url"$secureMessageUrl")
       .withBody(baseJsonPayload)
