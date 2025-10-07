@@ -50,28 +50,29 @@ class YourAccountController @Inject()(
     implicit request =>
 
       val vrn = request.vrn.vrn
-      val maybeExclusion: Option[EtmpExclusion] = request.registrationWrapper.etmpDisplayRegistration.exclusions.lastOption
-      val leaveThisServiceUrl = if (maybeExclusion.isEmpty || maybeExclusion.exists(_.exclusionReason == Reversal)) {
-        Some(appConfig.leaveThisServiceUrl)
-      } else {
-        None
-      }
+      
       registrationConnector.getNumberOfSavedUserAnswers(request.intermediaryNumber).flatMap { numberOfSavedUserJourneys =>
         registrationConnector.getNumberOfPendingRegistrations(request.intermediaryNumber).map(_.toInt).flatMap { numberOfAwaitingClients =>
           registrationConnector.getVatCustomerInfo(vrn).flatMap {
             case Right(vatInfo) =>
-              val businessName = vatInfo.organisationName.orElse(vatInfo.individualName).getOrElse("")
-              val intermediaryNumber = request.intermediaryNumber
 
             testOnlySecureMessagingConnector.getMessages(taxIdentifiers = Some("HMRC-IOSS-INT")).flatMap {
               case Right(secureMessages) =>
+                val businessName = vatInfo.organisationName.orElse(vatInfo.individualName).getOrElse("")
+                val intermediaryNumber = request.intermediaryNumber
 
+                val maybeExclusion: Option[EtmpExclusion] = request.registrationWrapper.etmpDisplayRegistration.exclusions.lastOption
+                val leaveThisServiceUrl = if (maybeExclusion.isEmpty || maybeExclusion.exists(_.exclusionReason == Reversal)) {
+                  Some(appConfig.leaveThisServiceUrl)
+                } else {
+                  None
+                }
+                
                 val messagesCount = secureMessages.count.total.toInt
                 val addClientUrl = appConfig.addClientUrl
                 val changeYourRegistrationUrl = appConfig.changeYourRegistrationUrl
                 val redirectToPendingClientsPage = appConfig.redirectToPendingClientsPage
                 val redirectToSecureMessagesPage = appConfig.redirectToSecureMessagesPage
-                val leaveThisServiceUrl = appConfig.leaveThisServiceUrl
                 val viewClientsListUrl: String = appConfig.viewClientsListUrl
                 val continueSavedRegUrl = appConfig.continueRegistrationUrl
 
