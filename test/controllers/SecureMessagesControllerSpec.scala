@@ -17,7 +17,7 @@
 package controllers
 
 import base.SpecBase
-import connectors.test.TestOnlySecureMessagingConnector
+import connectors.SecureMessageConnector
 import models.responses.InternalServerError
 import models.securemessage.responses.{SecureMessageCount, SecureMessageResponse, SecureMessageResponseWithCount, TaxpayerName}
 import org.mockito.ArgumentMatchers.any
@@ -31,7 +31,7 @@ import utils.FutureSyntax.FutureOps
 
 class SecureMessagesControllerSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach {
 
-  val mockTestOnlySecureMessagingConnector: TestOnlySecureMessagingConnector = mock[TestOnlySecureMessagingConnector]
+  val mockSecureMessageConnector: SecureMessageConnector = mock[SecureMessageConnector]
 
   val emptyTaxpayerName = TaxpayerName(
     title = None,
@@ -65,17 +65,17 @@ class SecureMessagesControllerSpec extends SpecBase with MockitoSugar with Befor
     count = testSecureMessageCount
   )
 
-  override def beforeEach(): Unit = reset(mockTestOnlySecureMessagingConnector)
+  override def beforeEach(): Unit = reset(mockSecureMessageConnector)
 
   "SecureMessagesController" - {
 
     "must return OK and the correct for a GET" in {
 
-      when(mockTestOnlySecureMessagingConnector.getMessages(any(), any(), any(), any(), any())(any()))
+      when(mockSecureMessageConnector.getMessages(any(), any(), any(), any(), any())(any()))
         .thenReturn(Right(secureMessageResponseWithCount).toFuture)
 
       val application = applicationBuilder(userAnswers = None)
-        .overrides(bind[TestOnlySecureMessagingConnector].toInstance(mockTestOnlySecureMessagingConnector))
+        .overrides(bind[SecureMessageConnector].toInstance(mockSecureMessageConnector))
         .build()
 
       running(application) {
@@ -84,17 +84,17 @@ class SecureMessagesControllerSpec extends SpecBase with MockitoSugar with Befor
         val result  = route(application, request).value
 
         status(result) mustEqual OK
-        verify(mockTestOnlySecureMessagingConnector, times(1)).getMessages(any(), any(), any(), any(), any())(any())
+        verify(mockSecureMessageConnector, times(1)).getMessages(any(), any(), any(), any(), any())(any())
       }
     }
 
     "must throw an exception when the connector fails to return secure messages" in {
 
-      when(mockTestOnlySecureMessagingConnector.getMessages(any(), any(), any(), any(), any())(any()))
+      when(mockSecureMessageConnector.getMessages(any(), any(), any(), any(), any())(any()))
         .thenReturn(Left(InternalServerError).toFuture)
 
       val application = applicationBuilder(userAnswers = None)
-        .overrides(bind[TestOnlySecureMessagingConnector].toInstance(mockTestOnlySecureMessagingConnector))
+        .overrides(bind[SecureMessageConnector].toInstance(mockSecureMessageConnector))
         .build()
 
       running(application) {
@@ -104,7 +104,7 @@ class SecureMessagesControllerSpec extends SpecBase with MockitoSugar with Befor
           route(application, request).value.futureValue
         }
 
-        verify(mockTestOnlySecureMessagingConnector, times(1)).getMessages(any(), any(), any(), any(), any())(any())
+        verify(mockSecureMessageConnector, times(1)).getMessages(any(), any(), any(), any(), any())(any())
       }
     }
   }

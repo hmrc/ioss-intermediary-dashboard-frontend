@@ -17,8 +17,7 @@
 package controllers
 
 import config.FrontendAppConfig
-import connectors.RegistrationConnector
-import connectors.test.TestOnlySecureMessagingConnector
+import connectors.{RegistrationConnector, SecureMessageConnector}
 import controllers.actions.*
 import logging.Logging
 import models.etmp.EtmpExclusion
@@ -39,7 +38,7 @@ class YourAccountController @Inject()(
                                        cc: AuthenticatedControllerComponents,
                                        view: YourAccountView,
                                        registrationConnector: RegistrationConnector,
-                                       testOnlySecureMessagingConnector: TestOnlySecureMessagingConnector,
+                                       secureMessageConnector: SecureMessageConnector,
                                        appConfig: FrontendAppConfig,
                                        clock: Clock
                                      )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
@@ -50,13 +49,14 @@ class YourAccountController @Inject()(
     implicit request =>
 
       val vrn = request.vrn.vrn
-      
+      val intermediaryEnrolment = appConfig.intermediaryEnrolment
+
       registrationConnector.getNumberOfSavedUserAnswers(request.intermediaryNumber).flatMap { numberOfSavedUserJourneys =>
         registrationConnector.getNumberOfPendingRegistrations(request.intermediaryNumber).map(_.toInt).flatMap { numberOfAwaitingClients =>
           registrationConnector.getVatCustomerInfo(vrn).flatMap {
             case Right(vatInfo) =>
 
-            testOnlySecureMessagingConnector.getMessages(taxIdentifiers = Some("HMRC-IOSS-INT")).flatMap {
+            secureMessageConnector.getMessages(taxIdentifiers = Some(intermediaryEnrolment)).flatMap {
               case Right(secureMessages) =>
                 val businessName = vatInfo.organisationName.orElse(vatInfo.individualName).getOrElse("")
                 val intermediaryNumber = request.intermediaryNumber
@@ -67,7 +67,7 @@ class YourAccountController @Inject()(
                 } else {
                   None
                 }
-                
+
                 val messagesCount = secureMessages.count.total.toInt
                 val addClientUrl = appConfig.addClientUrl
                 val changeYourRegistrationUrl = appConfig.changeYourRegistrationUrl
