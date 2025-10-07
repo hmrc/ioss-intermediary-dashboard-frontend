@@ -32,12 +32,10 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Random
 
 class TestOnlySecureMessagingConnector @Inject()(
-                                                  httpClientV2: HttpClientV2,
-                                                  config: Configuration
+                                                  httpClientV2: HttpClientV2
                                                 )(implicit ec: ExecutionContext)  extends Logging {
 
   private val secureMessageUrl = "http://localhost:9051/secure-messaging/v4/message"
-  private val baseUrl: Service = config.get[Service]("microservice.services.secure-message")
 
   private def random18Digit(): BigInt = {
     val part1 = Random.between(100000, 999999)
@@ -87,26 +85,5 @@ class TestOnlySecureMessagingConnector @Inject()(
       .post(url"$secureMessageUrl")
       .withBody(jsonPayload)
       .execute[HttpResponse]
-  }
-
-  def getMessages(
-                   enrolmentKey: Option[String] = None,
-                   enrolment: Option[CustomerEnrolment] = None,
-                   messageFilter: Option[MessageFilter] = None,
-                   language: Option[String] = None,
-                   taxIdentifiers: Option[String] = None
-                 )(implicit hc: HeaderCarrier): Future[SecureMessageResultResponse] = {
-
-    val queryParams = Seq(
-      enrolmentKey.map("enrolmentKey" -> _),
-      enrolment.map(e => "enrolment" -> e.toQueryParam),
-      messageFilter.map(e => "messageFilter" -> e.toQueryParam),
-      language.map("language" -> _),
-      taxIdentifiers.map("taxIdentifiers" -> _)
-    ).flatten
-
-    httpClientV2.get(url"$baseUrl/messages")
-      .transform(_.addQueryStringParameters(queryParams: _*))
-      .execute[SecureMessageResultResponse]
   }
 }

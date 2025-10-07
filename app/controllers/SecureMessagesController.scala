@@ -18,7 +18,7 @@ package controllers
 
 import com.google.inject.Inject
 import config.FrontendAppConfig
-import connectors.test.TestOnlySecureMessagingConnector
+import connectors.SecureMessageConnector
 import controllers.actions.AuthenticatedControllerComponents
 import logging.Logging
 import models.securemessage.{CustomerEnrolment, MessageFilter}
@@ -37,12 +37,12 @@ import java.time.format.DateTimeFormatter
 import scala.concurrent.ExecutionContext
 
 class SecureMessagesController @Inject()(
-                                        override val messagesApi: MessagesApi,
-                                        val controllerComponents: MessagesControllerComponents,
-                                        cc: AuthenticatedControllerComponents,
-                                        testOnlySecureMessagingConnector: TestOnlySecureMessagingConnector,
-                                        frontendAppConfig: FrontendAppConfig,
-                                        view: SecureMessagesView
+                                          override val messagesApi: MessagesApi,
+                                          val controllerComponents: MessagesControllerComponents,
+                                          cc: AuthenticatedControllerComponents,
+                                          secureMessageConnector: SecureMessageConnector,
+                                          frontendAppConfig: FrontendAppConfig,
+                                          view: SecureMessagesView
                                         )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
 
   def onPageLoad(waypoints: Waypoints): Action[AnyContent] = cc.actionBuilder.async {
@@ -50,7 +50,7 @@ class SecureMessagesController @Inject()(
 
       val intermediaryEnrolment = frontendAppConfig.intermediaryEnrolment
 
-      testOnlySecureMessagingConnector.getMessages(taxIdentifiers = Some(intermediaryEnrolment)).flatMap {
+      secureMessageConnector.getMessages(taxIdentifiers = Some(intermediaryEnrolment)).flatMap {
         case Right(secureMessages) =>
 
           val unreadMessages: Seq[Boolean] = secureMessages.items.map(_.unreadMessages)
