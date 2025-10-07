@@ -16,10 +16,12 @@
 
 package base
 
-import controllers.actions.*
+import controllers.actions.{FakeGetRegistrationAction, *}
 import generators.Generators
 import models.UserAnswers
 import models.domain.VatCustomerInfo
+import models.etmp.*
+import org.scalacheck.Arbitrary
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
@@ -76,13 +78,34 @@ trait SpecBase
     )
   }
 
+  val registrationWrapper: RegistrationWrapper = {
+    val etmpDisplayRegistration = Arbitrary.arbitrary[EtmpDisplayRegistration].sample.value
+    RegistrationWrapper(vatCustomerInfo, etmpDisplayRegistration = etmpDisplayRegistration)
+  }
+
   def emptyUserAnswersWithVatInfo: UserAnswers = emptyUserAnswers.copy(vatInfo = Some(vatCustomerInfo))
 
-  protected def applicationBuilder(userAnswers: Option[UserAnswers] = None): GuiceApplicationBuilder =
+  protected def applicationBuilder(
+                                    userAnswers: Option[UserAnswers] = None,
+                                    clock: Option[Clock] = None,
+                                    registrationWrapper: RegistrationWrapper = registrationWrapper,
+                                    getRegistrationAction: Option[GetRegistrationAction] = None
+                                  ): GuiceApplicationBuilder = {
+
+    val clockToBind = clock.getOrElse(stubClockAtArbitraryDate)
+    val getRegistrationActionBind = if (getRegistrationAction.nonEmpty) {
+      bind[GetRegistrationAction].toInstance(getRegistrationAction.get)
+    } else {
+      bind[GetRegistrationAction].toInstance(new FakeGetRegistrationAction(registrationWrapper))
+    }
+
     new GuiceApplicationBuilder()
       .overrides(
         bind[DataRequiredAction].to[DataRequiredActionImpl],
         bind[IdentifierAction].to[FakeIdentifierAction],
-        bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers))
+        bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers)),
+        getRegistrationActionBind,
+        bind[Clock].toInstance(clockToBind),
       )
+  }
 }

@@ -27,10 +27,14 @@
     intermediaryNumber: String,
     newMessage: Int,
     addClientUrl: String,
+    viewClientsListUrl: String,
     changeYourRegistrationUrl: String,
     numberOfAwaitingClients: Long,
     redirectToPendingClientsPage: String,
-    leaveThisServiceUrl: String
+    leaveThisServiceUrl: Option[String],
+    cancelYourRequestToLeaveUrl: Option[String],
+    numberOfSavedUserJourneys: Long,
+    continueSavedRegUrl: String
 )(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("yourAccount.title")),
@@ -98,6 +102,15 @@
             <div id="clients" class="tile-body">
                 <h2 class="govuk-heading-m push--top">@messages("yourAccount.clients.heading")</h2>
 
+                @if(numberOfSavedUserJourneys >= 1) {
+                <p class="govuk-body">
+                    <a class="govuk-link" href="@continueSavedRegUrl"
+                       id="continue-saved-answers">
+                        @messages("yourAccount.clients.continueRegistration")
+                    </a>
+                </p>
+                }
+
                 <p class="govuk-body">
                     <a class="govuk-link" href="@addClientUrl"
                        id="add-client">
@@ -106,7 +119,7 @@
                 </p>
 
                 <p class="govuk-body">
-                    <a class="govuk-link" href=""
+                    <a class="govuk-link" href="@viewClientsListUrl"
                        id="edit-client">
                         @messages("yourAccount.clients.editClient")
                     </a>
@@ -142,12 +155,23 @@
                     </a>
                 </p>
 
-                <p class="govuk-body">
-                    <a class="govuk-link" href="@leaveThisServiceUrl"
-                       id="leave-scheme">
-                        @messages("yourAccount.details.leaveThisService")
-                    </a>
-                </p>
+                @leaveThisServiceUrl.map { url =>
+                    <p class="govuk-body">
+                        <a class="govuk-link" href="@url"
+                           id="leave-scheme">
+                            @messages("yourAccount.details.leaveThisService")
+                        </a>
+                    </p>
+                }
+
+                @cancelYourRequestToLeaveUrl.map { url =>
+                    <p class="govuk-body">
+                        <a class="govuk-link" href="@url"
+                           id="cancel-your-request-to-leave">
+                            @messages("yourAccount.details.cancelYourRequestToLeave")
+                        </a>
+                    </p>
+                }
             </div>
         </div>
     </div>

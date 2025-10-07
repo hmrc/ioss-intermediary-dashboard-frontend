@@ -59,6 +59,7 @@ yourAccount.returns.previousReturn = View submitted returns
 yourAccount.payment.heading = Payments
 yourAccount.payment.makeAPayment = Make a payment
 yourAccount.clients.heading = Your clients
+yourAccount.clients.continueRegistration = Continue a registration in progress
 yourAccount.clients.addClient = Add a new client
 yourAccount.clients.editClient = View, edit or remove a client
 yourAccount.clients.pendingClient.singular = {0} client awaiting activation
@@ -67,6 +68,7 @@ yourAccount.clients.clientAwaitingActivation.warn = You have clients awaiting ac
 yourAccount.details.heading = Your details
 yourAccount.details.changeYourRegistration = Change your registration
 yourAccount.details.leaveThisService = Leave this service
+yourAccount.details.cancelYourRequestToLeave = Cancel your request to leave
 
 cannotUseNotAnIntermediary.title = You cannot use this service
 cannotUseNotAnIntermediary.heading = You cannot use this service
@@ -99,3 +101,16 @@ testOnlySecureMessaging.error.Subject.length = Subject must be 100 characters or
 testOnlySecureMessaging.error.Message.length = Message must be 100 characters or less
 testOnlySecureMessaging.Subject.change.hidden = Subject
 testOnlySecureMessaging.Message.change.hidden = Message
+
+clientList.title = View or update your clients
+clientList.heading = View or update your clients
+clientList.warning = If your client does not appear on this list, they may not have activated their registration in time. You''ll need to register them again.
+clientList.active.heading = Active clients
+clientList.table.header.clientName = Client name
+clientList.table.header.iossNumber = IOSS number
+clientList.excluded.heading = Previous clients that have left the service
+clientList.noActiveClients = You have no active clients
+clientList.change.hidden = Change client details for
+clientList.remove.hidden = Remove client details for {0}
+clientList.change.link = <a class="govuk-link" href="{1}"><span class="govuk-visually-hidden">{2}</span>{0}</a>
+clientList.remove.link = <a class="govuk-link" href="{1}"><span aria-hidden=true>{0}</span><span class="govuk-visually-hidden">{2}</span></a>

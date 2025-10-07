@@ -20,6 +20,7 @@ import config.Service
 import connectors.SavedPendingRegistrationHttpParser.{SavedPendingRegistrationResponse, SavedPendingRegistrationResultResponseReads}
 import connectors.VatCustomerInfoHttpParser.{VatCustomerInfoResponse, VatCustomerInfoResponseReads}
 import logging.Logging
+import models.etmp.RegistrationWrapper
 import play.api.Configuration
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpErrorFunctions, StringContextOps}
@@ -34,7 +35,9 @@ class RegistrationConnector @Inject()(config: Configuration, httpClientV2: HttpC
   private val baseUrl: Service = config.get[Service]("microservice.services.ioss-intermediary-dashboard")
   private val netpUrl: Service = config.get[Service]("microservice.services.ioss-netp-registration")
 
-  def getVatCustomerInfo(vrn:String)(implicit hc: HeaderCarrier): Future[VatCustomerInfoResponse] = {
+  private val displayRegistrationUrl: Service = config.get[Service]("microservice.services.ioss-intermediary-registration")
+
+  def getVatCustomerInfo(vrn: String)(implicit hc: HeaderCarrier): Future[VatCustomerInfoResponse] = {
     httpClientV2.get(url"$baseUrl/vat-information/$vrn").execute[VatCustomerInfoResponse]
   }
 
@@ -45,5 +48,13 @@ class RegistrationConnector @Inject()(config: Configuration, httpClientV2: HttpC
   def getPendingRegistrations(intermediaryNumber: String)(implicit hc: HeaderCarrier): Future[SavedPendingRegistrationResponse] = {
     httpClientV2.get(url"$netpUrl/pending-registrations/$intermediaryNumber")
       .execute[SavedPendingRegistrationResponse]
+  }
+
+  def getRegistration(intermediaryNumber: String)(implicit hc: HeaderCarrier): Future[RegistrationWrapper] = {
+    httpClientV2.get(url"$displayRegistrationUrl/get-registration/$intermediaryNumber").execute[RegistrationWrapper]
+  }
+
+  def getNumberOfSavedUserAnswers(intermediaryNumber: String)(implicit hc: HeaderCarrier): Future[Long] = {
+    httpClientV2.get(url"$netpUrl/save-for-later/count/$intermediaryNumber").execute[Long]
   }
 }
