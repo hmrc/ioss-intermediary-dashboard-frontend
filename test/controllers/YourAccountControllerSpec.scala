@@ -19,9 +19,11 @@ package controllers
 import base.SpecBase
 import config.FrontendAppConfig
 import connectors.RegistrationConnector
+import connectors.test.TestOnlySecureMessagingConnector
 import models.etmp.EtmpExclusionReason.TransferringMSID
 import models.etmp.{EtmpExclusion, RegistrationWrapper}
 import models.responses.InternalServerError
+import models.securemessage.responses.{SecureMessageCount, SecureMessageResponse, SecureMessageResponseWithCount, TaxpayerName}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalacheck.Arbitrary.arbitrary
@@ -42,6 +44,40 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
   private val businessName = "Company name"
   private val intermediaryNumber = "IN9001234567"
   private val newMessage = 0
+
+  val emptyTaxpayerName = TaxpayerName(
+    title = None,
+    forename = None,
+    secondForename = None,
+    surname = None,
+    honours = None,
+    line1 = None,
+    line2 = None,
+    line3 = None
+  )
+
+  val testSecureMessageResponse = SecureMessageResponse(
+    messageType = "messageType",
+    id = "secureId",
+    subject = "subject",
+    issueDate = "2025-10-06",
+    senderName = "senderName",
+    unreadMessages = true,
+    count = 3,
+    taxpayerName = Some(emptyTaxpayerName),
+    validFrom = "2025-10-06",
+    sentInError = false,
+    language = Some("en")
+  )
+
+  val testSecureMessageCount = SecureMessageCount(total = 3, unread = 3)
+
+  val secureMessageResponseWithCount = SecureMessageResponseWithCount(
+    items = Seq(testSecureMessageResponse),
+    count = testSecureMessageCount
+  )
+
+  val mockTestOnlySecureMessagingConnector: TestOnlySecureMessagingConnector = mock[TestOnlySecureMessagingConnector]
 
   lazy val yourAccountRoute: String = routes.YourAccountController.onPageLoad(waypoints).url
 
@@ -66,9 +102,12 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
           .thenReturn(1.toLong.toFuture)
         when(mockRegistrationConnector.getVatCustomerInfo(any())(any()))
           .thenReturn(Right(vatCustomerInfo).toFuture)
+        when(mockTestOnlySecureMessagingConnector.getMessages(any(), any(), any(), any(), any())(any()))
+          .thenReturn(Right(secureMessageResponseWithCount).toFuture)
 
         val application = applicationBuilder(userAnswers = Some(emptyUserAnswers), registrationWrapper = registrationWrapperEmptyExclusions)
           .overrides(bind[RegistrationConnector].toInstance(mockRegistrationConnector))
+          .overrides(bind[TestOnlySecureMessagingConnector].toInstance(mockTestOnlySecureMessagingConnector))
           .build()
         val appConfig = application.injector.instanceOf[FrontendAppConfig]
 
@@ -84,7 +123,7 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
             waypoints,
             businessName,
             intermediaryNumber,
-            newMessage,
+            numberOfMessages = secureMessageResponseWithCount.count.total.toInt,
             appConfig.addClientUrl,
             appConfig.viewClientsListUrl,
             appConfig.changeYourRegistrationUrl,
@@ -123,11 +162,12 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
           .thenReturn(1.toLong.toFuture)
         when(mockRegistrationConnector.getVatCustomerInfo(any())(any()))
           .thenReturn(Right(vatCustomerInfo).toFuture)
+        when(mockTestOnlySecureMessagingConnector.getMessages(any(), any(), any(), any(), any())(any()))
+          .thenReturn(Right(secureMessageResponseWithCount).toFuture)
 
         val application = applicationBuilder(userAnswers = Some(emptyUserAnswers), registrationWrapper = registrationWrapperEmptyExclusions)
-          .overrides(
-            bind[RegistrationConnector].toInstance(mockRegistrationConnector)
-          )
+          .overrides(bind[RegistrationConnector].toInstance(mockRegistrationConnector))
+          .overrides(bind[TestOnlySecureMessagingConnector].toInstance(mockTestOnlySecureMessagingConnector))
           .build()
         val appConfig = application.injector.instanceOf[FrontendAppConfig]
 
@@ -143,7 +183,7 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
             waypoints,
             businessName,
             intermediaryNumber,
-            newMessage,
+            numberOfMessages = secureMessageResponseWithCount.count.total.toInt,
             appConfig.addClientUrl,
             appConfig.viewClientsListUrl,
             appConfig.changeYourRegistrationUrl,
