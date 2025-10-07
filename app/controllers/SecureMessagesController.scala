@@ -105,14 +105,14 @@ class SecureMessagesController @Inject()(
           content = Text("")
         ),
         HeadCell(
-          content = Text("Messages")
+          content = Text(messages("secureMessages.table.headContent.column1"))
         ),
         HeadCell(
-          content = Text("Date"),
+          content = Text(messages("secureMessages.table.headContent.column2")),
           classes = "govuk-!-width-one-quarter"
         )
       )),
-      caption = Some("Messages"),
+      caption = Some(messages("secureMessages.table.caption")),
       captionClasses = "govuk-table__caption--l"
     )
   }

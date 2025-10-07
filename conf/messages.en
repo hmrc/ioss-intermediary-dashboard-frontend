@@ -117,4 +117,7 @@ clientList.remove.link = <a class="govuk-link" href="{1}"><span aria-hidden=true
 
 secureMessages.title = Messages
 secureMessages.subject = <a class="govuk-link" href=""><span class="govuk-visually-hidden">Unread message</span>{0}</a>
+secureMessages.table.headContent.column1 = Messages
+secureMessages.table.headContent.column2 = Date
+secureMessages.table.caption = Messages
 redDot = <span class="dot-unread"></span>
