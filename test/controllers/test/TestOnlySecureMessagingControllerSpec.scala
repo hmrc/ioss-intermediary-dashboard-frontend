@@ -58,9 +58,8 @@ class TestOnlySecureMessagingControllerSpec extends SpecBase with MockitoSugar {
         }
       }
     }
-
     ".onSubmit" - {
-      "must generate one unread message when form is submitted requesting one message" in {
+      "must create one unread message and return a successful HTML response" in {
 
         val mockConnector = mock[TestOnlySecureMessagingConnector]
         when(mockConnector.createMessage()(any()))
@@ -91,7 +90,7 @@ class TestOnlySecureMessagingControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "must generate multiple unread messages when form is submitted requesting more than one message" in {
+      "must create multiple unread messages and return a successful HTML response" in {
 
         val mockConnector = mock[TestOnlySecureMessagingConnector]
         when(mockConnector.createMessage()(any()))

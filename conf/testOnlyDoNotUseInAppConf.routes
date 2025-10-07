@@ -11,8 +11,8 @@
 
 # Add all the application routes to the prod.routes file
 ->         /                          prod.Routes
-GET        /test-only/createMessage                                  @controllers.test.TestOnlySecureMessagingController.onPageLoad()
-POST       /test-only/createCustomMessage                            @controllers.test.TestOnlySecureMessagingController.onSubmit()
+GET        /test-only/createMessage                       @controllers.test.TestOnlySecureMessagingController.onPageLoad()
+POST       /test-only/createMessage                       @controllers.test.TestOnlySecureMessagingController.onSubmit()
 
-GET        /test-only/testOnlySecureCustomMessaging                  @controllers.test.TestOnlySecureCustomMessagingController.onPageLoad()
-POST       /test-only/testOnlySecureCustomMessaging                  @controllers.test.TestOnlySecureCustomMessagingController.onSubmit()
+GET        /test-only/createCustomMessage                 @controllers.test.TestOnlySecureCustomMessagingController.onPageLoad()
+POST       /test-only/createCustomMessage                 @controllers.test.TestOnlySecureCustomMessagingController.onSubmit()
