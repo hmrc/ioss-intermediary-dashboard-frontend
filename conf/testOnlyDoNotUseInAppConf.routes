@@ -11,8 +11,8 @@
 
 # Add all the application routes to the prod.routes file
 ->         /                          prod.Routes
-GET        /test-only/createMessage                       @controllers.test.TestOnlySecureMessagingController.onPageLoad()
-POST       /test-only/createMessage                       @controllers.test.TestOnlySecureMessagingController.onSubmit()
+GET        /pay-clients-vat-on-eu-sales/manage-ioss-returns-payments-clients/test-only/createMessage                       @controllers.test.TestOnlySecureMessagingController.onPageLoad()
+POST       /pay-clients-vat-on-eu-sales/manage-ioss-returns-payments-clients/test-only/createMessage                       @controllers.test.TestOnlySecureMessagingController.onSubmit()
 
-GET        /test-only/createCustomMessage                 @controllers.test.TestOnlySecureCustomMessagingController.onPageLoad()
-POST       /test-only/createCustomMessage                 @controllers.test.TestOnlySecureCustomMessagingController.onSubmit()
+GET        /pay-clients-vat-on-eu-sales/manage-ioss-returns-payments-clients/test-only/createCustomMessage                 @controllers.test.TestOnlySecureCustomMessagingController.onPageLoad()
+POST       /pay-clients-vat-on-eu-sales/manage-ioss-returns-payments-clients/test-only/createCustomMessage                 @controllers.test.TestOnlySecureCustomMessagingController.onSubmit()
