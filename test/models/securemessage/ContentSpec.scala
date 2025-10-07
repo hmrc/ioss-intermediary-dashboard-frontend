@@ -16,13 +16,26 @@
 
 package models.securemessage
 
-import play.api.libs.json.{Json, OFormat, Reads}
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.must.Matchers
+import play.api.libs.json.{JsSuccess, Json}
 
-case class MessageFilter(taxIdentifiers: Seq[String] = List(), regimes: Seq[String] = List()) {
-  
-  def toQueryParam: String = s"$taxIdentifiers~$regimes"
-}
+class ContentSpec extends AnyFreeSpec with Matchers {
 
-object MessageFilter {
-  implicit val formats: OFormat[MessageFilter] = Json.format[MessageFilter]
+  "Content" - {
+
+    "must serialise and deserialise correctly from and to a Content" in {
+
+      val content: Content = Content(lang = "lang", subject = "subject", body = "body")
+
+      val expectedJson = Json.obj(
+        "lang" -> "lang",
+        "subject" -> "subject",
+        "body" -> "body"
+      )
+
+      Json.toJson(content) mustBe expectedJson
+      expectedJson.validate[Content] mustBe JsSuccess(content)
+    }
+  }
 }
