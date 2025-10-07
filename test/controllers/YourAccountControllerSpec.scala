@@ -22,7 +22,7 @@ import connectors.RegistrationConnector
 import models.etmp.EtmpExclusionReason.TransferringMSID
 import models.etmp.{EtmpExclusion, RegistrationWrapper}
 import models.responses.InternalServerError
-import org.mockito.ArgumentMatchers.{any, any as Seq}
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalatestplus.mockito.MockitoSugar
@@ -150,8 +150,8 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
             1,
             appConfig.redirectToPendingClientsPage,
             appConfig.redirectToSecureMessagesPage,
-            leaveThisServiceUrl = Some(appConfig.leaveThisServiceUrl),
-            cancelYourRequestToLeaveUrl = None,
+            leaveThisServiceUrl = None,
+            cancelYourRequestToLeaveUrl = Some(appConfig.cancelYourRequestToLeaveUrl),
             1,
             appConfig.continueRegistrationUrl
           )(request, messages(application)).toString
