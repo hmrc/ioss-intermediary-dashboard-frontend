@@ -17,6 +17,7 @@
 package controllers
 
 import com.google.inject.Inject
+import config.FrontendAppConfig
 import connectors.test.TestOnlySecureMessagingConnector
 import controllers.actions.AuthenticatedControllerComponents
 import logging.Logging
@@ -40,15 +41,16 @@ class SecureMessagesController @Inject()(
                                         val controllerComponents: MessagesControllerComponents,
                                         cc: AuthenticatedControllerComponents,
                                         testOnlySecureMessagingConnector: TestOnlySecureMessagingConnector,
+                                        frontendAppConfig: FrontendAppConfig,
                                         view: SecureMessagesView
                                         )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
 
   def onPageLoad(waypoints: Waypoints): Action[AnyContent] = cc.actionBuilder.async {
     implicit request =>
 
-      val taxIdentifiers = "HMRC-IOSS-INT"
+      val intermediaryEnrolment = frontendAppConfig.intermediaryEnrolment
 
-      testOnlySecureMessagingConnector.getMessages(taxIdentifiers = Some(taxIdentifiers)).flatMap {
+      testOnlySecureMessagingConnector.getMessages(taxIdentifiers = Some(intermediaryEnrolment)).flatMap {
         case Right(secureMessages) =>
 
           val unreadMessages: Seq[Boolean] = secureMessages.items.map(_.unreadMessages)
