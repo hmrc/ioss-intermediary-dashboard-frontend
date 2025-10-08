@@ -27,6 +27,7 @@
     businessName: String,
     intermediaryNumber: String,
     numberOfMessages: Int,
+    unreadMessage: Boolean,
     numberOfAwaitingClients: Long,
     cancelYourRequestToLeaveUrl: Option[String],
     numberOfSavedUserJourneys: Long,
@@ -47,7 +48,13 @@
     <p class="govuk-body">
         <a class="govuk-link" href="@urls.secureMessagesUrl"
            id="messages">
-        @Html(messages("yourAccount.messages", numberOfMessages))
+            @if(unreadMessage && numberOfMessages == 1) {
+                @Html(messages("yourAccount.messages.unread.singular", numberOfMessages))
+            } else if (unreadMessage && numberOfMessages > 1) {
+                @Html(messages("yourAccount.messages.unread.plural", numberOfMessages))
+            } else {
+                @Html(messages("yourAccount.messages.read"))
+            }
         </a>
     </p>
 
