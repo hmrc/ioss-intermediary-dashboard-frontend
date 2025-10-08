@@ -30,6 +30,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.YourAccountView
 import utils.FutureSyntax.FutureOps
+import viewmodels.dashboard.DashboardUrlsViewModel
 
 import java.time.{Clock, LocalDate}
 import scala.concurrent.ExecutionContext
@@ -69,28 +70,26 @@ class YourAccountController @Inject()(
                 }
 
                 val messagesCount = secureMessages.count.total.toInt
-                val addClientUrl = appConfig.addClientUrl
-                val changeYourRegistrationUrl = appConfig.changeYourRegistrationUrl
-                val redirectToPendingClientsPage = appConfig.redirectToPendingClientsPage
-                val redirectToSecureMessagesPage = appConfig.redirectToSecureMessagesPage
-                val viewClientsListUrl: String = appConfig.viewClientsListUrl
-                val continueSavedRegUrl = appConfig.continueRegistrationUrl
+
+                val urls = DashboardUrlsViewModel(
+                  addClientUrl = appConfig.addClientUrl,
+                  viewClientsListUrl = appConfig.viewClientsListUrl,
+                  changeYourRegistrationUrl = appConfig.changeYourRegistrationUrl,
+                  pendingClientsUrl = appConfig.pendingClientsUrl,
+                  secureMessagesUrl = appConfig.secureMessagesUrl,
+                  leaveThisServiceUrl = leaveThisServiceUrl,
+                  continueSavedRegUrl = appConfig.continueRegistrationUrl
+                )
 
                 Ok(view(
                   waypoints,
                   businessName,
                   intermediaryNumber,
                   messagesCount,
-                  addClientUrl,
-                  viewClientsListUrl,
-                  changeYourRegistrationUrl,
                   numberOfAwaitingClients,
-                  redirectToPendingClientsPage,
-                  redirectToSecureMessagesPage,
-                  leaveThisServiceUrl,
                   cancelYourRequestToLeaveUrl(maybeExclusion),
                   numberOfSavedUserJourneys,
-                  continueSavedRegUrl
+                  urls
                 )).toFuture
 
               case Left(errors) =>

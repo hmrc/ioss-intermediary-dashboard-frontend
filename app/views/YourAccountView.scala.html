@@ -15,6 +15,7 @@
  *@
 
 @import viewmodels.InputWidth._
+@import viewmodels.dashboard.DashboardUrlsViewModel
 
 @this(
     layout: templates.Layout,
@@ -26,16 +27,10 @@
     businessName: String,
     intermediaryNumber: String,
     numberOfMessages: Int,
-    addClientUrl: String,
-    viewClientsListUrl: String,
-    changeYourRegistrationUrl: String,
     numberOfAwaitingClients: Long,
-    redirectToPendingClientsPage: String,
-    redirectToSecureMessagesPage: String,
-    leaveThisServiceUrl: Option[String],
     cancelYourRequestToLeaveUrl: Option[String],
     numberOfSavedUserJourneys: Long,
-    continueSavedRegUrl: String
+    urls: DashboardUrlsViewModel
 )(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("yourAccount.title")),
@@ -50,7 +45,7 @@
     <span class="govuk-caption-m govuk-!-margin-bottom-5">@messages("yourAccount.intermediaryNumber", intermediaryNumber)</span>
 
     <p class="govuk-body">
-        <a class="govuk-link" href="@redirectToSecureMessagesPage"
+        <a class="govuk-link" href="@urls.secureMessagesUrl"
            id="messages">
         @Html(messages("yourAccount.messages", numberOfMessages))
         </a>
@@ -105,7 +100,7 @@
 
                 @if(numberOfSavedUserJourneys >= 1) {
                 <p class="govuk-body">
-                    <a class="govuk-link" href="@continueSavedRegUrl"
+                    <a class="govuk-link" href="@urls.continueSavedRegUrl"
                        id="continue-saved-answers">
                         @messages("yourAccount.clients.continueRegistration")
                     </a>
@@ -113,14 +108,14 @@
                 }
 
                 <p class="govuk-body">
-                    <a class="govuk-link" href="@addClientUrl"
+                    <a class="govuk-link" href="@urls.addClientUrl"
                        id="add-client">
                         @messages("yourAccount.clients.addClient")
                     </a>
                 </p>
 
                 <p class="govuk-body">
-                    <a class="govuk-link" href="@viewClientsListUrl"
+                    <a class="govuk-link" href="@urls.viewClientsListUrl"
                        id="edit-client">
                         @messages("yourAccount.clients.editClient")
                     </a>
@@ -128,14 +123,14 @@
 
                 @if(numberOfAwaitingClients == 1) {
                     <p class="govuk-body">
-                        <a class="govuk-link" href="@redirectToPendingClientsPage"
+                        <a class="govuk-link" href="@urls.pendingClientsUrl"
                            id="pending-client-singular">
                             @messages("yourAccount.clients.pendingClient.singular", numberOfAwaitingClients)
                         </a>
                     </p>
                 } else if (numberOfAwaitingClients > 1) {
                     <p class="govuk-body">
-                        <a class="govuk-link" href="@redirectToPendingClientsPage"
+                        <a class="govuk-link" href="@urls.pendingClientsUrl"
                            id="pending-client-plural">
                             @messages("yourAccount.clients.pendingClient.plural", numberOfAwaitingClients)
                         </a>
@@ -150,13 +145,13 @@
                 <h2 class="govuk-heading-m">@messages("yourAccount.details.heading")</h2>
 
                 <p class="govuk-body">
-                    <a class="govuk-link" href="@changeYourRegistrationUrl"
+                    <a class="govuk-link" href="@urls.changeYourRegistrationUrl"
                        id="change-your-registration">
                         @messages("yourAccount.details.changeYourRegistration")
                     </a>
                 </p>
 
-                @leaveThisServiceUrl.map { url =>
+                @urls.leaveThisServiceUrl.map { url =>
                     <p class="govuk-body">
                         <a class="govuk-link" href="@url"
                            id="leave-scheme">
