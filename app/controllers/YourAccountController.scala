@@ -69,7 +69,12 @@ class YourAccountController @Inject()(
                   None
                 }
 
-                val messagesCount = secureMessages.count.total.toInt
+                val messageCount = secureMessages.count.unread match {
+                  case unread if unread > 0 => unread.toInt
+                  case _ => secureMessages.count.total.toInt
+                }
+
+                val hasUnreadMessages = if (secureMessages.count.unread > 0) true else false
 
                 val urls = DashboardUrlsViewModel(
                   addClientUrl = appConfig.addClientUrl,
@@ -85,7 +90,8 @@ class YourAccountController @Inject()(
                   waypoints,
                   businessName,
                   intermediaryNumber,
-                  messagesCount,
+                  messageCount,
+                  hasUnreadMessages,
                   numberOfAwaitingClients,
                   cancelYourRequestToLeaveUrl(maybeExclusion),
                   numberOfSavedUserJourneys,
