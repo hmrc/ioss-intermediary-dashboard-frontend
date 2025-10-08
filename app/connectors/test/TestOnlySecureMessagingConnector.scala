@@ -16,9 +16,14 @@
 
 package connectors.test
 
+import config.Service
+import connectors.SecureMessagesHttpParser.{SecureMessageResultResponse, SecureMessageResultResponseReads}
+import logging.Logging
+import models.securemessage.{CustomerEnrolment, MessageFilter}
+import play.api.Configuration
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.writeableOf_JsValue
-import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
 
@@ -27,8 +32,8 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Random
 
 class TestOnlySecureMessagingConnector @Inject()(
-                                                  httpClientV2: HttpClientV2,
-                                                )(implicit ec: ExecutionContext) {
+                                                  httpClientV2: HttpClientV2
+                                                )(implicit ec: ExecutionContext)  extends Logging {
 
   private val secureMessageUrl = "http://localhost:9051/secure-messaging/v4/message"
 

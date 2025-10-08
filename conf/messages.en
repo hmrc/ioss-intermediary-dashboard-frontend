@@ -51,7 +51,9 @@ unauthorised.heading = You can’t access this service with this account
 yourAccount.title = Your Import One Stop Shop intermediary account
 yourAccount.heading = Your Import One Stop Shop intermediary account
 yourAccount.intermediaryNumber = IOSS intermediary number: {0}
-yourAccount.messages = {0} new messages
+yourAccount.messages.read = View your secure messages
+yourAccount.messages.unread.singular = <span class="dot-unread"></span> <span class="govuk-!-font-weight-bold">{0} unread secure message</span>
+yourAccount.messages.unread.plural = <span class="dot-unread"></span> <span class="govuk-!-font-weight-bold">{0} unread secure messages</span>
 yourAccount.paragraph = You can correct a previous return when you submit your next one.
 yourAccount.returns.heading = Returns
 yourAccount.returns.startReturn = Start a return
@@ -114,3 +116,11 @@ clientList.change.hidden = Change client details for
 clientList.remove.hidden = Remove client details for {0}
 clientList.change.link = <a class="govuk-link" href="{1}"><span class="govuk-visually-hidden">{2}</span>{0}</a>
 clientList.remove.link = <a class="govuk-link" href="{1}"><span aria-hidden=true>{0}</span><span class="govuk-visually-hidden">{2}</span></a>
+
+secureMessages.title = Messages
+secureMessages.subject.read = <a class="govuk-link" href="">{0}</a>
+secureMessages.subject.unread = <a class="govuk-link" href=""><span class="govuk-visually-hidden">Unread message</span><span class="govuk-!-font-weight-bold">{0}</span></a>
+secureMessages.table.headContent.column1 = Messages
+secureMessages.table.headContent.column2 = Date
+secureMessages.table.caption = Messages
+redDot = <span class="dot-unread"></span>
