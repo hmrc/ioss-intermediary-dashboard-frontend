@@ -74,30 +74,31 @@ class SecureMessagesController @Inject()(
                                   validFrom: Seq[String],
                                   unreadMessages: Seq[Boolean]
                                  )(implicit messages: Messages): Table = {
-    
+
     val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("d MMMM yyyy")
 
     val rows: Seq[Seq[TableRow]] = {
-      subject
-        .lazyZip(validFrom)
-        .lazyZip(unreadMessages)
-        .map { case (sub, dateStr, unreadMessage) =>
-          val formattedDate = LocalDate.parse(dateStr, DateTimeFormatter.ISO_LOCAL_DATE).format(dateFormatter)
 
-          val displayRedDot = if (unreadMessage) HtmlContent(messages("redDot")) else HtmlContent(messages(""))
-          
-          Seq(
-            TableRow(
-              content = displayRedDot
-            ),
-            TableRow(
-              content = HtmlContent(messages("secureMessages.subject", sub))
-            ),
-            TableRow(
-              content = Text(formattedDate)
-            )
-          )
-        }
+      val combinedList = subject.lazyZip(validFrom).lazyZip(unreadMessages).toList
+
+      val sortedList = combinedList.sortBy { case (_, dateStr, _) =>
+        LocalDate.parse(dateStr, DateTimeFormatter.ISO_LOCAL_DATE)
+      }(Ordering[LocalDate].reverse)
+
+      sortedList.map { case (sub, dateStr, unreadMessage) =>
+        val formattedDate = LocalDate.parse(dateStr, DateTimeFormatter.ISO_LOCAL_DATE).format(dateFormatter)
+
+        val displayRedDot = if (unreadMessage) HtmlContent(messages("redDot")) else HtmlContent(messages(""))
+
+        val displayCorrectMessage =
+          if (unreadMessage) HtmlContent(messages("secureMessages.subject.unread", sub)) else HtmlContent(messages("secureMessages.subject.read", sub))
+
+        Seq(
+          TableRow(content = displayRedDot),
+          TableRow(content = displayCorrectMessage),
+          TableRow(content = Text(formattedDate))
+        )
+      }
     }
 
     Table(
