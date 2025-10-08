@@ -33,6 +33,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import views.html.YourAccountView
 import utils.FutureSyntax.FutureOps
+import viewmodels.dashboard.DashboardUrlsViewModel
 
 import java.time.LocalDate
 
@@ -108,6 +109,16 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
           .build()
         val appConfig = application.injector.instanceOf[FrontendAppConfig]
 
+        val urls = DashboardUrlsViewModel(
+          addClientUrl = appConfig.addClientUrl,
+          viewClientsListUrl = appConfig.viewClientsListUrl,
+          changeYourRegistrationUrl = appConfig.changeYourRegistrationUrl,
+          pendingClientsUrl = appConfig.pendingClientsUrl,
+          secureMessagesUrl = appConfig.secureMessagesUrl,
+          leaveThisServiceUrl = Some(appConfig.leaveThisServiceUrl),
+          continueSavedRegUrl = appConfig.continueRegistrationUrl
+        )
+
         running(application) {
           val request = FakeRequest(GET, yourAccountRoute)
 
@@ -121,16 +132,10 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
             businessName,
             intermediaryNumber,
             numberOfMessages = secureMessageResponseWithCount.count.total.toInt,
-            appConfig.addClientUrl,
-            appConfig.viewClientsListUrl,
-            appConfig.changeYourRegistrationUrl,
             1,
-            appConfig.redirectToPendingClientsPage,
-            appConfig.redirectToSecureMessagesPage,
-            leaveThisServiceUrl = Some(appConfig.leaveThisServiceUrl),
             cancelYourRequestToLeaveUrl = None,
             1,
-            appConfig.continueRegistrationUrl
+            urls
           )(request, messages(application)).toString
         }
       }
@@ -168,6 +173,17 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
           .build()
         val appConfig = application.injector.instanceOf[FrontendAppConfig]
 
+        val urls = DashboardUrlsViewModel(
+          addClientUrl = appConfig.addClientUrl,
+          viewClientsListUrl = appConfig.viewClientsListUrl,
+          changeYourRegistrationUrl = appConfig.changeYourRegistrationUrl,
+          pendingClientsUrl = appConfig.pendingClientsUrl,
+          secureMessagesUrl = appConfig.secureMessagesUrl,
+          leaveThisServiceUrl = None,
+          continueSavedRegUrl = appConfig.continueRegistrationUrl
+        )
+
+
         running(application) {
           val request = FakeRequest(GET, yourAccountRoute)
 
@@ -181,16 +197,10 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
             businessName,
             intermediaryNumber,
             numberOfMessages = secureMessageResponseWithCount.count.total.toInt,
-            appConfig.addClientUrl,
-            appConfig.viewClientsListUrl,
-            appConfig.changeYourRegistrationUrl,
             1,
-            appConfig.redirectToPendingClientsPage,
-            appConfig.redirectToSecureMessagesPage,
-            leaveThisServiceUrl = None,
             cancelYourRequestToLeaveUrl = Some(appConfig.cancelYourRequestToLeaveUrl),
             1,
-            appConfig.continueRegistrationUrl
+            urls
           )(request, messages(application)).toString
         }
       }
