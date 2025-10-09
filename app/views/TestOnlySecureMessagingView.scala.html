@@ -19,18 +19,41 @@
 @this(
     layout: templates.Layout,
     formHelper: FormWithCSRF,
-    govukButton: GovukButton
+    govukErrorSummary: GovukErrorSummary,
+    govukButton: GovukButton,
+    govukInput: GovukInput,
+    govukRadios: GovukRadios,
+    govukInsetText: GovukInsetText
 )
 
-@(messagesResponse: Option[String] = None)(implicit request: Request[_], messages: Messages)
+@(form: Form[_])(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = messages("testOnlySecureMessaging.title")) {
-
-    <h1 class="govuk-heading-xl">@messages("Select continue to create message")</h1>
+@layout(pageTitle = title(form, messages("Create Secure Messages"))) {
 
     @formHelper(action = controllers.test.routes.TestOnlySecureMessagingController.onSubmit()) {
+        
+        @if(form.errors.nonEmpty) {
+            @govukErrorSummary(ErrorSummaryViewModel(form))
+        }
+
+        <h1 class="govuk-heading-xl">@messages("Create Secure Messages")</h1>
+
+        @govukInsetText(
+            InsetText(
+                content = HtmlContent("Create a custom message <a href=http://localhost:10179/pay-clients-vat-on-eu-sales/manage-ioss-returns-payments-clients/test-only/createCustomMessage>here</a>")
+            )
+        )
+
+        @govukInput(
+            InputViewModel(
+                field = form("numberOfMessages"),
+                label = LabelViewModel("Number of random messages to create").withCssClass("govuk-label--m")
+            ).withWidth(Fixed5)
+                .withHint(HintViewModel(messages("If left blank, will default to 1")))
+        )
+
         @govukButton(
-            ButtonViewModel(messages("site.continue"))
+            ButtonViewModel(messages("Submit")).withAttribute("id", "submit")
         )
     }
 }

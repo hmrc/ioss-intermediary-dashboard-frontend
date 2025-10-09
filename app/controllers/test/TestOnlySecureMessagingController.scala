@@ -17,13 +17,15 @@
 package controllers.test
 
 import connectors.test.TestOnlySecureMessagingConnector
+import forms.test.TestOnlySecureMessagingFormProvider
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.TestOnlySecureMessagingView
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class TestOnlySecureMessagingController @Inject()(
                                                    override val messagesApi: MessagesApi,
@@ -32,41 +34,52 @@ class TestOnlySecureMessagingController @Inject()(
                                                    connector: TestOnlySecureMessagingConnector,
                                                  )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
+  private val form = TestOnlySecureMessagingFormProvider()
 
   def onPageLoad(): Action[AnyContent] = Action {
     implicit request =>
-      Ok(view())
+      Ok(view(form))
   }
 
   def onSubmit(): Action[AnyContent] = Action.async {
     implicit request =>
-      connector.sendSecureMessage().map { response =>
-        response.status match {
-          case 200 | 201 =>
-            Ok(
+      form.bindFromRequest().fold(
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors))),
+        formData => {
+          val numberOfMessages = formData.numberOfMessages
+
+          val results: Future[List[HttpResponse]] =
+            Future.sequence((1 to numberOfMessages).map(_ => connector.createMessage()).toList)
+
+          results.flatMap { responses =>
+            responses.find(r => r.status != 201) match {
+              case Some(failure) =>
+                Future.failed(
+                  new RuntimeException(s"Message creation failed with status ${failure.status}")
+                )
+
+              case None =>
+                Future.successful(
+                  Ok(
+                    s"""
+                       |<h1>Messages successfully created!</h1>
+                       |<p>Number of messages created: $numberOfMessages</p>
+                       |<p><a href="${controllers.test.routes.TestOnlySecureMessagingController.onPageLoad()}">Create more messages</a></p>
+                       |""".stripMargin
+                  ).as("text/html")
+                )
+            }
+          }.recover { ex =>
+            InternalServerError(
               s"""
-                 |<h1>Message sent successfully</h1>
-                 |<p>Response status: ${response.status}</p>
-                 |<p>Response body: ${response.body}</p>
-                 |</div>
-                 |</div>""".stripMargin).as("text/html")
-          case _ =>
-            Ok(
-              s"""
-                 |<h1>Failed to send message</h1>
-                 |<p>Status: ${response.status}</p>
-                 |<p>Response body: ${response.body}</p>
-                 |""".stripMargin).as("text/html")
+                 |<h1>Error creating messages</h1>
+                 |<p>Requested: $numberOfMessages</p>
+                 |<p>Error: ${ex.getMessage}</p>
+                 |<p><a href="${controllers.test.routes.TestOnlySecureMessagingController.onPageLoad()}">Go back</a></p>
+                 |""".stripMargin
+            ).as("text/html")
+          }
         }
-      }.recover {
-        case ex =>
-          Ok(
-            s"""
-               |<h1>Error sending message</h1>
-               |<p>Error: ${ex.getMessage}</p>
-               """.stripMargin).as("text/html")
-      }
+      )
   }
 }
-
-

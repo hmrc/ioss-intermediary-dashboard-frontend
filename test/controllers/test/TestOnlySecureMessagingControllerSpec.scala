@@ -17,35 +17,137 @@
 package controllers.test
 
 import base.SpecBase
+import connectors.test.TestOnlySecureMessagingConnector
+import forms.test.TestOnlySecureMessagingFormProvider
+import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
+import play.api.data.Form
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import views.html.TestOnlySecureMessagingView
+import org.mockito.ArgumentMatchers.any
+import uk.gov.hmrc.http.HttpResponse
+import play.api.inject.bind
+
+import scala.concurrent.Future
+import scala.util.Random
 
 
 class TestOnlySecureMessagingControllerSpec extends SpecBase with MockitoSugar {
 
   lazy val testOnlySecureMessagingRoute: String = routes.TestOnlySecureMessagingController.onPageLoad().url
-
+  val form: Form[TestOnlySecureMessagingFormProvider] = TestOnlySecureMessagingFormProvider()
   "TestOnlySecureMessaging Controller" - {
 
-    "must return OK and the correct view for a GET" in {
+    ".onPageLoad" - {
+      "must return OK and the correct view for a GET" in {
 
-      val application = applicationBuilder()
-        .configure("application.router" -> "testOnlyDoNotUseInAppConf.Routes")
-        .build()
+        val application = applicationBuilder()
+          .configure("application.router" -> "testOnlyDoNotUseInAppConf.Routes")
+          .build()
 
-      running(application) {
-        val request = FakeRequest(GET, testOnlySecureMessagingRoute)
+        running(application) {
+          val request = FakeRequest(GET, testOnlySecureMessagingRoute)
 
-        val view = application.injector.instanceOf[TestOnlySecureMessagingView]
+          val view = application.injector.instanceOf[TestOnlySecureMessagingView]
 
-        val result = route(application, request).value
+          val result = route(application, request).value
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view()(request, messages(application)).toString
+          status(result) mustEqual OK
+          contentAsString(result) mustEqual view(form)(request, messages(application)).toString
+        }
+      }
+    }
+    ".onSubmit" - {
+      "must create one unread message and return a successful HTML response" in {
+
+        val mockConnector = mock[TestOnlySecureMessagingConnector]
+        when(mockConnector.createMessage()(any()))
+          .thenReturn(Future.successful(HttpResponse(201, "")))
+
+        val application = applicationBuilder()
+          .overrides(bind[TestOnlySecureMessagingConnector].toInstance(mockConnector))
+          .configure("application.router" -> "testOnlyDoNotUseInAppConf.Routes")
+          .build()
+
+        running(application) {
+          val request = FakeRequest(
+            POST,
+            routes.TestOnlySecureMessagingController.onSubmit().url
+          ).withFormUrlEncodedBody(
+            "numberOfMessages" -> "1",
+            "isReadMessage" -> "false"
+          )
+
+          val result = route(application, request).value
+
+          status(result) mustEqual OK
+          contentAsString(result) must include("Messages successfully created!")
+          contentAsString(result) must include("Number of messages created: 1")
+
+
+          verify(mockConnector, times(1)).createMessage()(any())
+        }
+      }
+
+      "must create multiple unread messages and return a successful HTML response" in {
+
+        val mockConnector = mock[TestOnlySecureMessagingConnector]
+        when(mockConnector.createMessage()(any()))
+          .thenReturn(Future.successful(HttpResponse(201, "")))
+
+        val application = applicationBuilder()
+          .overrides(bind[TestOnlySecureMessagingConnector].toInstance(mockConnector))
+          .configure("application.router" -> "testOnlyDoNotUseInAppConf.Routes")
+          .build()
+
+        val randomNumberOfMessagesToCreate: Int = Random.between(2, 51)
+
+        running(application) {
+          val request = FakeRequest(
+            POST,
+            routes.TestOnlySecureMessagingController.onSubmit().url
+          ).withFormUrlEncodedBody(
+            "numberOfMessages" -> s"$randomNumberOfMessagesToCreate",
+            "isReadMessage" -> "false"
+          )
+
+          val result = route(application, request).value
+
+          status(result) mustEqual OK
+          contentAsString(result) must include("Messages successfully created!")
+          contentAsString(result) must include(s"Number of messages created: $randomNumberOfMessagesToCreate")
+
+          verify(mockConnector, times(randomNumberOfMessagesToCreate)).createMessage()(any())
+        }
+      }
+
+      "must return InternalServerError when connector doesn't return a 201" in {
+        val mockConnector = mock[TestOnlySecureMessagingConnector]
+        when(mockConnector.createMessage()(any()))
+          .thenReturn(Future.successful(HttpResponse(500, "")))
+
+        val application = applicationBuilder()
+          .overrides(bind[TestOnlySecureMessagingConnector].toInstance(mockConnector))
+          .configure("application.router" -> "testOnlyDoNotUseInAppConf.Routes")
+          .build()
+
+        running(application) {
+          val request = FakeRequest(
+            POST,
+            routes.TestOnlySecureMessagingController.onSubmit().url
+          ).withFormUrlEncodedBody(
+            "numberOfMessages" -> "1",
+            "isReadMessage" -> "false"
+          )
+
+          val result = route(application, request).value
+
+          status(result) mustEqual INTERNAL_SERVER_ERROR
+          contentAsString(result) must include("Error creating messages")
+        }
+
       }
     }
   }
-
 }
