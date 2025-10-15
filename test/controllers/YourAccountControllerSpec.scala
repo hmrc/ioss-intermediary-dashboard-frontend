@@ -18,10 +18,11 @@ package controllers
 
 import base.SpecBase
 import config.FrontendAppConfig
-import connectors.RegistrationConnector
+import connectors.{RegistrationConnector, SecureMessageConnector}
 import models.etmp.EtmpExclusionReason.TransferringMSID
 import models.etmp.{EtmpExclusion, RegistrationWrapper}
 import models.responses.InternalServerError
+import models.securemessage.responses.{SecureMessageCount, SecureMessageResponse, SecureMessageResponseWithCount, TaxpayerName}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalacheck.Arbitrary.arbitrary
@@ -32,16 +33,49 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import views.html.YourAccountView
 import utils.FutureSyntax.FutureOps
+import viewmodels.dashboard.DashboardUrlsViewModel
 
 import java.time.LocalDate
-
 
 class YourAccountControllerSpec extends SpecBase with MockitoSugar {
 
   private val waypoints: Waypoints = EmptyWaypoints
   private val businessName = "Company name"
   private val intermediaryNumber = "IN9001234567"
-  private val newMessage = 0
+
+  val emptyTaxpayerName = TaxpayerName(
+    title = None,
+    forename = None,
+    secondForename = None,
+    surname = None,
+    honours = None,
+    line1 = None,
+    line2 = None,
+    line3 = None
+  )
+
+  val testSecureMessageResponse = SecureMessageResponse(
+    messageType = "messageType",
+    id = "secureId",
+    subject = "subject",
+    issueDate = "2025-10-06",
+    senderName = "senderName",
+    unreadMessages = true,
+    count = 3,
+    taxpayerName = Some(emptyTaxpayerName),
+    validFrom = "2025-10-06",
+    sentInError = false,
+    language = Some("en")
+  )
+
+  val testSecureMessageCount = SecureMessageCount(total = 3, unread = 3)
+
+  val secureMessageResponseWithCount = SecureMessageResponseWithCount(
+    items = Seq(testSecureMessageResponse),
+    count = testSecureMessageCount
+  )
+
+  val mockSecureMessageConnector: SecureMessageConnector = mock[SecureMessageConnector]
 
   lazy val yourAccountRoute: String = routes.YourAccountController.onPageLoad(waypoints).url
 
@@ -66,11 +100,24 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
           .thenReturn(1.toLong.toFuture)
         when(mockRegistrationConnector.getVatCustomerInfo(any())(any()))
           .thenReturn(Right(vatCustomerInfo).toFuture)
+        when(mockSecureMessageConnector.getMessages(any(), any(), any(), any(), any())(any()))
+          .thenReturn(Right(secureMessageResponseWithCount).toFuture)
 
         val application = applicationBuilder(userAnswers = Some(emptyUserAnswers), registrationWrapper = registrationWrapperEmptyExclusions)
           .overrides(bind[RegistrationConnector].toInstance(mockRegistrationConnector))
+          .overrides(bind[SecureMessageConnector].toInstance(mockSecureMessageConnector))
           .build()
         val appConfig = application.injector.instanceOf[FrontendAppConfig]
+
+        val urls = DashboardUrlsViewModel(
+          addClientUrl = appConfig.addClientUrl,
+          viewClientsListUrl = appConfig.viewClientsListUrl,
+          changeYourRegistrationUrl = appConfig.changeYourRegistrationUrl,
+          pendingClientsUrl = appConfig.pendingClientsUrl,
+          secureMessagesUrl = appConfig.secureMessagesUrl,
+          leaveThisServiceUrl = Some(appConfig.leaveThisServiceUrl),
+          continueSavedRegUrl = appConfig.continueRegistrationUrl
+        )
 
         running(application) {
           val request = FakeRequest(GET, yourAccountRoute)
@@ -84,16 +131,12 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
             waypoints,
             businessName,
             intermediaryNumber,
-            newMessage,
-            appConfig.addClientUrl,
-            appConfig.viewClientsListUrl,
-            appConfig.changeYourRegistrationUrl,
+            numberOfMessages = secureMessageResponseWithCount.count.total.toInt,
+            true,
             1,
-            appConfig.redirectToPendingClientsPage,
-            leaveThisServiceUrl = Some(appConfig.leaveThisServiceUrl),
             cancelYourRequestToLeaveUrl = None,
             1,
-            appConfig.continueRegistrationUrl
+            urls
           )(request, messages(application)).toString
         }
       }
@@ -122,13 +165,25 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
           .thenReturn(1.toLong.toFuture)
         when(mockRegistrationConnector.getVatCustomerInfo(any())(any()))
           .thenReturn(Right(vatCustomerInfo).toFuture)
+        when(mockSecureMessageConnector.getMessages(any(), any(), any(), any(), any())(any()))
+          .thenReturn(Right(secureMessageResponseWithCount).toFuture)
 
         val application = applicationBuilder(userAnswers = Some(emptyUserAnswers), registrationWrapper = registrationWrapperEmptyExclusions)
-          .overrides(
-            bind[RegistrationConnector].toInstance(mockRegistrationConnector)
-          )
+          .overrides(bind[RegistrationConnector].toInstance(mockRegistrationConnector))
+          .overrides(bind[SecureMessageConnector].toInstance(mockSecureMessageConnector))
           .build()
         val appConfig = application.injector.instanceOf[FrontendAppConfig]
+
+        val urls = DashboardUrlsViewModel(
+          addClientUrl = appConfig.addClientUrl,
+          viewClientsListUrl = appConfig.viewClientsListUrl,
+          changeYourRegistrationUrl = appConfig.changeYourRegistrationUrl,
+          pendingClientsUrl = appConfig.pendingClientsUrl,
+          secureMessagesUrl = appConfig.secureMessagesUrl,
+          leaveThisServiceUrl = None,
+          continueSavedRegUrl = appConfig.continueRegistrationUrl
+        )
+
 
         running(application) {
           val request = FakeRequest(GET, yourAccountRoute)
@@ -142,23 +197,19 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
             waypoints,
             businessName,
             intermediaryNumber,
-            newMessage,
-            appConfig.addClientUrl,
-            appConfig.viewClientsListUrl,
-            appConfig.changeYourRegistrationUrl,
+            numberOfMessages = secureMessageResponseWithCount.count.total.toInt,
+            true,
             1,
-            appConfig.redirectToPendingClientsPage,
-            leaveThisServiceUrl = None,
             cancelYourRequestToLeaveUrl = Some(appConfig.cancelYourRequestToLeaveUrl),
             1,
-            appConfig.continueRegistrationUrl
+            urls
           )(request, messages(application)).toString
         }
       }
     }
 
     "must throw an exception and log the error when an unexpected error is returned" in {
-      
+
       val mockRegistrationConnector = mock[RegistrationConnector]
 
       when(mockRegistrationConnector.getNumberOfPendingRegistrations(any())(any()))

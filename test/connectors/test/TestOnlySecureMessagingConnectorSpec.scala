@@ -35,7 +35,7 @@ class TestOnlySecureMessagingConnectorSpec extends SpecBase with WireMockHelper 
 
   private def application: Application = applicationBuilder()
     .configure(
-      "microservice.services.secure-messaging.port" -> server.port(),
+      "microservice.services.secure-message.port" -> server.port(),
     )
     .build()
 

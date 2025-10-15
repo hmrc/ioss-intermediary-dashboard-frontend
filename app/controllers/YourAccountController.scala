@@ -17,7 +17,7 @@
 package controllers
 
 import config.FrontendAppConfig
-import connectors.RegistrationConnector
+import connectors.{RegistrationConnector, SecureMessageConnector}
 import controllers.actions.*
 import logging.Logging
 import models.etmp.EtmpExclusion
@@ -30,6 +30,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.YourAccountView
 import utils.FutureSyntax.FutureOps
+import viewmodels.dashboard.DashboardUrlsViewModel
 
 import java.time.{Clock, LocalDate}
 import scala.concurrent.ExecutionContext
@@ -38,6 +39,7 @@ class YourAccountController @Inject()(
                                        cc: AuthenticatedControllerComponents,
                                        view: YourAccountView,
                                        registrationConnector: RegistrationConnector,
+                                       secureMessageConnector: SecureMessageConnector,
                                        appConfig: FrontendAppConfig,
                                        clock: Clock
                                      )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
@@ -48,50 +50,69 @@ class YourAccountController @Inject()(
     implicit request =>
 
       val vrn = request.vrn.vrn
-      val maybeExclusion: Option[EtmpExclusion] = request.registrationWrapper.etmpDisplayRegistration.exclusions.lastOption
-      val leaveThisServiceUrl = if (maybeExclusion.isEmpty || maybeExclusion.exists(_.exclusionReason == Reversal)) {
-        Some(appConfig.leaveThisServiceUrl)
-      } else {
-        None
-      }
+      val intermediaryEnrolment = appConfig.intermediaryEnrolment
+
       registrationConnector.getNumberOfSavedUserAnswers(request.intermediaryNumber).flatMap { numberOfSavedUserJourneys =>
         registrationConnector.getNumberOfPendingRegistrations(request.intermediaryNumber).map(_.toInt).flatMap { numberOfAwaitingClients =>
           registrationConnector.getVatCustomerInfo(vrn).flatMap {
             case Right(vatInfo) =>
-              val businessName = vatInfo.organisationName.orElse(vatInfo.individualName).getOrElse("")
-              val intermediaryNumber = request.intermediaryNumber
 
-              val newMessages = 0
-              val addClientUrl = appConfig.addClientUrl
-              val changeYourRegistrationUrl = appConfig.changeYourRegistrationUrl
-              val redirectToPendingClientsPage = appConfig.redirectToPendingClientsPage
-              val viewClientsListUrl: String = appConfig.viewClientsListUrl
-              val continueSavedRegUrl = appConfig.continueRegistrationUrl
+            secureMessageConnector.getMessages(taxIdentifiers = Some(intermediaryEnrolment)).flatMap {
+              case Right(secureMessages) =>
+                val businessName = vatInfo.organisationName.orElse(vatInfo.individualName).getOrElse("")
+                val intermediaryNumber = request.intermediaryNumber
 
-              Ok(view(
-                waypoints,
-                businessName,
-                intermediaryNumber,
-                newMessages,
-                addClientUrl,
-                viewClientsListUrl,
-                changeYourRegistrationUrl,
-                numberOfAwaitingClients,
-                redirectToPendingClientsPage,
-                leaveThisServiceUrl,
-                cancelYourRequestToLeaveUrl(maybeExclusion),
-                numberOfSavedUserJourneys,
-                continueSavedRegUrl
-              )).toFuture
+                val maybeExclusion: Option[EtmpExclusion] = request.registrationWrapper.etmpDisplayRegistration.exclusions.lastOption
+                val leaveThisServiceUrl = if (maybeExclusion.isEmpty || maybeExclusion.exists(_.exclusionReason == Reversal)) {
+                  Some(appConfig.leaveThisServiceUrl)
+                } else {
+                  None
+                }
 
-            case Left(error) =>
-              val exception = new Exception(error.body)
-              logger.error(exception.getMessage, exception)
-              throw exception
-          }
+                val messageCount = secureMessages.count.unread match {
+                  case unread if unread > 0 => unread.toInt
+                  case _ => secureMessages.count.total.toInt
+                }
+
+                val hasUnreadMessages = if (secureMessages.count.unread > 0) true else false
+
+                val urls = DashboardUrlsViewModel(
+                  addClientUrl = appConfig.addClientUrl,
+                  viewClientsListUrl = appConfig.viewClientsListUrl,
+                  changeYourRegistrationUrl = appConfig.changeYourRegistrationUrl,
+                  pendingClientsUrl = appConfig.pendingClientsUrl,
+                  secureMessagesUrl = appConfig.secureMessagesUrl,
+                  leaveThisServiceUrl = leaveThisServiceUrl,
+                  continueSavedRegUrl = appConfig.continueRegistrationUrl
+                )
+
+                Ok(view(
+                  waypoints,
+                  businessName,
+                  intermediaryNumber,
+                  messageCount,
+                  hasUnreadMessages,
+                  numberOfAwaitingClients,
+                  cancelYourRequestToLeaveUrl(maybeExclusion),
+                  numberOfSavedUserJourneys,
+                  urls
+                )).toFuture
+
+              case Left(errors) =>
+                val message: String = s"Received an unexpected error when trying to retrieve secure messages: $errors."
+                val exception: Exception = new Exception(message)
+                logger.error(exception.getMessage, exception)
+                throw exception
+            }
+
+          case Left(error) =>
+            val exception = new Exception(error.body)
+            logger.error(exception.getMessage, exception)
+            throw exception
         }
       }
   }
+}
 
   private  def cancelYourRequestToLeaveUrl(maybeExclusion: Option[EtmpExclusion]): Option[String] = {
     maybeExclusion match {

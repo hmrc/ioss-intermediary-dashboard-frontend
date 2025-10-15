@@ -32,8 +32,8 @@ class TestOnlySecureMessagingConnector @Inject()(
                                                   httpClientV2: HttpClientV2,
                                                   config: Configuration,
                                                 )(implicit ec: ExecutionContext) {
-  
-  private val baseUrl: Service = config.get[Service]("microservice.services.secure-messaging")
+
+  private val baseUrl: Service = config.get[Service]("microservice.services.secure-message")
   private val secureMessageUrl = s"${baseUrl}/v4/message"
 
 
