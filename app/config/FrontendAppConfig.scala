@@ -48,6 +48,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   val changeYourNetpRegistrationUrl: String = configuration.get[String]("urls.changeNetpRegistrationUrl")
   val cancelYourRequestToLeaveUrl: String = configuration.get[String]("urls.cancelYourRequestToLeaveUrl")
   val continueRegistrationUrl:String = configuration.get[String]("urls.continueRegistrationUrl")
+  val rejoinSchemeUrl: String = configuration.get[String]("urls.rejoinSchemeUrl")
 
   val allowedRedirectUrls: Seq[String] = configuration.get[Seq[String]]("urls.allowedRedirects")
 

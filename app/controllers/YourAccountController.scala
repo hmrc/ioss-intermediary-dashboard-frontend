@@ -59,44 +59,61 @@ class YourAccountController @Inject()(
 
             secureMessageConnector.getMessages(taxIdentifiers = Some(intermediaryEnrolment)).flatMap {
               case Right(secureMessages) =>
-                val businessName = vatInfo.organisationName.orElse(vatInfo.individualName).getOrElse("")
-                val intermediaryNumber = request.intermediaryNumber
+                
+                registrationConnector.displayRegistration(request.intermediaryNumber).flatMap {
+                  case Right(registrationWrapper) =>
+                    
+                    val businessName = vatInfo.organisationName.orElse(vatInfo.individualName).getOrElse("")
+                    val intermediaryNumber = request.intermediaryNumber
 
-                val maybeExclusion: Option[EtmpExclusion] = request.registrationWrapper.etmpDisplayRegistration.exclusions.lastOption
-                val leaveThisServiceUrl = if (maybeExclusion.isEmpty || maybeExclusion.exists(_.exclusionReason == Reversal)) {
-                  Some(appConfig.leaveThisServiceUrl)
-                } else {
-                  None
+                    val maybeExclusion: Option[EtmpExclusion] = request.registrationWrapper.etmpDisplayRegistration.exclusions.lastOption
+                    val leaveThisServiceUrl = if (maybeExclusion.isEmpty || maybeExclusion.exists(_.exclusionReason == Reversal)) {
+                      Some(appConfig.leaveThisServiceUrl)
+                    } else {
+                      None
+                    }
+
+                    val messageCount = secureMessages.count.unread match {
+                      case unread if unread > 0 => unread.toInt
+                      case _ => secureMessages.count.total.toInt
+                    }
+
+                    val hasUnreadMessages = if (secureMessages.count.unread > 0) true else false
+
+                    val currentDate: LocalDate = LocalDate.now(clock)
+                    val canRejoin = registrationWrapper.etmpDisplayRegistration.canRejoinScheme(currentDate)
+                    
+                    val urls = DashboardUrlsViewModel(
+                      addClientUrl = appConfig.addClientUrl,
+                      viewClientsListUrl = appConfig.viewClientsListUrl,
+                      changeYourRegistrationUrl = appConfig.changeYourRegistrationUrl,
+                      pendingClientsUrl = appConfig.pendingClientsUrl,
+                      secureMessagesUrl = appConfig.secureMessagesUrl,
+                      leaveThisServiceUrl = leaveThisServiceUrl,
+                      continueSavedRegUrl = appConfig.continueRegistrationUrl,
+                      rejoinSchemeUrl = appConfig.rejoinSchemeUrl
+                    )
+
+                    Ok(view(
+                      waypoints,
+                      businessName,
+                      intermediaryNumber,
+                      messageCount,
+                      hasUnreadMessages,
+                      numberOfAwaitingClients,
+                      cancelYourRequestToLeaveUrl(maybeExclusion),
+                      numberOfSavedUserJourneys,
+                      urls,
+                      canRejoin
+                    )).toFuture
+
+                  case Left(error) =>
+                    val message: String = s"Received an unexpected error when trying to retrieve registration details: $error."
+                    val exception: Exception = new Exception(message)
+                    logger.error(exception.getMessage, exception)
+                    throw exception
+                  
                 }
-
-                val messageCount = secureMessages.count.unread match {
-                  case unread if unread > 0 => unread.toInt
-                  case _ => secureMessages.count.total.toInt
-                }
-
-                val hasUnreadMessages = if (secureMessages.count.unread > 0) true else false
-
-                val urls = DashboardUrlsViewModel(
-                  addClientUrl = appConfig.addClientUrl,
-                  viewClientsListUrl = appConfig.viewClientsListUrl,
-                  changeYourRegistrationUrl = appConfig.changeYourRegistrationUrl,
-                  pendingClientsUrl = appConfig.pendingClientsUrl,
-                  secureMessagesUrl = appConfig.secureMessagesUrl,
-                  leaveThisServiceUrl = leaveThisServiceUrl,
-                  continueSavedRegUrl = appConfig.continueRegistrationUrl
-                )
-
-                Ok(view(
-                  waypoints,
-                  businessName,
-                  intermediaryNumber,
-                  messageCount,
-                  hasUnreadMessages,
-                  numberOfAwaitingClients,
-                  cancelYourRequestToLeaveUrl(maybeExclusion),
-                  numberOfSavedUserJourneys,
-                  urls
-                )).toFuture
 
               case Left(errors) =>
                 val message: String = s"Received an unexpected error when trying to retrieve secure messages: $errors."

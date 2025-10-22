@@ -17,7 +17,7 @@
 package connectors
 
 import logging.Logging
-import models.etmp.EtmpClientDetails
+import models.etmp.{EtmpClientDetails, EtmpDisplayRegistration, RegistrationWrapper}
 import models.responses.{ErrorResponse, InternalServerError, InvalidJson}
 import play.api.http.Status.OK
 import play.api.libs.json.{JsError, JsSuccess}
@@ -26,6 +26,7 @@ import uk.gov.hmrc.http.{HttpReads, HttpResponse}
 object RegistrationConnectorHttpParser extends Logging {
 
   type EtmpDisplayRegistrationResponse = Either[ErrorResponse, Seq[EtmpClientDetails]]
+  type EtmpDisplayRegistrationResponseWithWrapper = Either[ErrorResponse, RegistrationWrapper]
 
   implicit object EtmpDisplayRegistrationResponseReads extends HttpReads[EtmpDisplayRegistrationResponse] {
 
@@ -42,6 +43,27 @@ object RegistrationConnectorHttpParser extends Logging {
 
         case status =>
           logger.error(s"An unknown error occurred when trying to retrieve ETMP Client Details with status: $status " +
+            s"and response body: ${response.body}")
+          Left(InternalServerError)
+      }
+    }
+  }
+
+  implicit object EtmpDisplayRegistrationResponseWithWrapperReads extends HttpReads[EtmpDisplayRegistrationResponseWithWrapper] {
+
+    override def read(method: String, url: String, response: HttpResponse): EtmpDisplayRegistrationResponseWithWrapper = {
+      response.status match {
+        case OK =>
+          response.json.validate[RegistrationWrapper] match {
+            case JsSuccess(registrationWrapper, _) => Right(registrationWrapper)
+            case JsError(errors) =>
+              logger.error(s"Failed trying to parse Registration Wrapper JSON with status: ${response.status} " +
+                s"and response body: ${response.body} with errors: $errors.")
+              Left(InvalidJson)
+          }
+
+        case status =>
+          logger.error(s"An unknown error occurred when trying to retrieve Registration Wrapper with status: $status " +
             s"and response body: ${response.body}")
           Left(InternalServerError)
       }

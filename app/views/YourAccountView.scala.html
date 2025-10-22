@@ -31,7 +31,8 @@
     numberOfAwaitingClients: Long,
     cancelYourRequestToLeaveUrl: Option[String],
     numberOfSavedUserJourneys: Long,
-    urls: DashboardUrlsViewModel
+    urls: DashboardUrlsViewModel,
+    canRejoin: Boolean
 )(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("yourAccount.title")),
@@ -172,6 +173,15 @@
                         <a class="govuk-link" href="@url"
                            id="cancel-your-request-to-leave">
                             @messages("yourAccount.details.cancelYourRequestToLeave")
+                        </a>
+                    </p>
+                }
+
+                @if(canRejoin) {
+                    <p class="govuk-body">
+                        <a class="govuk-link" href="@urls.rejoinSchemeUrl"
+                           id="rejoin-scheme">
+                            @messages("yourAccount.details.rejoinScheme")
                         </a>
                     </p>
                 }

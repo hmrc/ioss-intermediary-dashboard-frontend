@@ -19,8 +19,9 @@ package controllers
 import base.SpecBase
 import config.FrontendAppConfig
 import connectors.{RegistrationConnector, SecureMessageConnector}
+import models.domain.VatCustomerInfo
 import models.etmp.EtmpExclusionReason.TransferringMSID
-import models.etmp.{EtmpExclusion, RegistrationWrapper}
+import models.etmp.{EtmpDisplayRegistration, EtmpExclusion, RegistrationWrapper}
 import models.responses.InternalServerError
 import models.securemessage.responses.{SecureMessageCount, SecureMessageResponse, SecureMessageResponseWithCount, TaxpayerName}
 import org.mockito.ArgumentMatchers.any
@@ -75,6 +76,14 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
     count = testSecureMessageCount
   )
 
+  private val etmpDisplayRegistration: EtmpDisplayRegistration = arbitraryEtmpDisplayRegistration.arbitrary.sample.value
+
+  private val registrationWrapper: RegistrationWrapper = RegistrationWrapper(
+    vatInfo = vatCustomerInfo,
+    etmpDisplayRegistration = etmpDisplayRegistration
+  )
+
+
   val mockSecureMessageConnector: SecureMessageConnector = mock[SecureMessageConnector]
 
   lazy val yourAccountRoute: String = routes.YourAccountController.onPageLoad(waypoints).url
@@ -102,6 +111,8 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
           .thenReturn(Right(vatCustomerInfo).toFuture)
         when(mockSecureMessageConnector.getMessages(any(), any(), any(), any(), any())(any()))
           .thenReturn(Right(secureMessageResponseWithCount).toFuture)
+        when(mockRegistrationConnector.displayRegistration(any())(any()))
+          .thenReturn(Right(registrationWrapper).toFuture)
 
         val application = applicationBuilder(userAnswers = Some(emptyUserAnswers), registrationWrapper = registrationWrapperEmptyExclusions)
           .overrides(bind[RegistrationConnector].toInstance(mockRegistrationConnector))
@@ -116,7 +127,8 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
           pendingClientsUrl = appConfig.pendingClientsUrl,
           secureMessagesUrl = appConfig.secureMessagesUrl,
           leaveThisServiceUrl = Some(appConfig.leaveThisServiceUrl),
-          continueSavedRegUrl = appConfig.continueRegistrationUrl
+          continueSavedRegUrl = appConfig.continueRegistrationUrl,
+          rejoinSchemeUrl = appConfig.rejoinSchemeUrl
         )
 
         running(application) {
@@ -136,7 +148,8 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
             1,
             cancelYourRequestToLeaveUrl = None,
             1,
-            urls
+            urls,
+            false
           )(request, messages(application)).toString
         }
       }
@@ -167,6 +180,8 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
           .thenReturn(Right(vatCustomerInfo).toFuture)
         when(mockSecureMessageConnector.getMessages(any(), any(), any(), any(), any())(any()))
           .thenReturn(Right(secureMessageResponseWithCount).toFuture)
+        when(mockRegistrationConnector.displayRegistration(any())(any()))
+          .thenReturn(Right(registrationWrapperEmptyExclusions).toFuture)
 
         val application = applicationBuilder(userAnswers = Some(emptyUserAnswers), registrationWrapper = registrationWrapperEmptyExclusions)
           .overrides(bind[RegistrationConnector].toInstance(mockRegistrationConnector))
@@ -181,7 +196,8 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
           pendingClientsUrl = appConfig.pendingClientsUrl,
           secureMessagesUrl = appConfig.secureMessagesUrl,
           leaveThisServiceUrl = None,
-          continueSavedRegUrl = appConfig.continueRegistrationUrl
+          continueSavedRegUrl = appConfig.continueRegistrationUrl,
+          rejoinSchemeUrl = appConfig.rejoinSchemeUrl
         )
 
 
@@ -202,7 +218,8 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
             1,
             cancelYourRequestToLeaveUrl = Some(appConfig.cancelYourRequestToLeaveUrl),
             1,
-            urls
+            urls,
+            false
           )(request, messages(application)).toString
         }
       }
