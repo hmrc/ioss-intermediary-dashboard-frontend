@@ -94,8 +94,6 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
 
       "must return OK and the correct view for a GET" in {
 
-        val registrationWrapper: RegistrationWrapper = arbitrary[RegistrationWrapper].sample.value
-
         val registrationWrapperEmptyExclusions: RegistrationWrapper =
           registrationWrapper
             .copy(vatInfo = registrationWrapper.vatInfo)
@@ -112,7 +110,7 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
         when(mockSecureMessageConnector.getMessages(any(), any(), any(), any(), any())(any()))
           .thenReturn(Right(secureMessageResponseWithCount).toFuture)
         when(mockRegistrationConnector.displayRegistration(any())(any()))
-          .thenReturn(Right(registrationWrapper).toFuture)
+          .thenReturn(Right(registrationWrapperEmptyExclusions).toFuture)
 
         val application = applicationBuilder(userAnswers = Some(emptyUserAnswers), registrationWrapper = registrationWrapperEmptyExclusions)
           .overrides(bind[RegistrationConnector].toInstance(mockRegistrationConnector))
