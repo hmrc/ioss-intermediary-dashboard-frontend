@@ -17,6 +17,7 @@
 package connectors
 
 import config.Service
+import connectors.RegistrationConnectorHttpParser.{EtmpDisplayRegistrationResponseWithWrapper, EtmpDisplayRegistrationResponseWithWrapperReads}
 import connectors.SavedPendingRegistrationHttpParser.{SavedPendingRegistrationResponse, SavedPendingRegistrationResultResponseReads}
 import connectors.VatCustomerInfoHttpParser.{VatCustomerInfoResponse, VatCustomerInfoResponseReads}
 import logging.Logging
@@ -56,5 +57,9 @@ class RegistrationConnector @Inject()(config: Configuration, httpClientV2: HttpC
 
   def getNumberOfSavedUserAnswers(intermediaryNumber: String)(implicit hc: HeaderCarrier): Future[Long] = {
     httpClientV2.get(url"$netpUrl/save-for-later/count/$intermediaryNumber").execute[Long]
+  }
+
+  def displayRegistration(intermediaryNumber: String)(implicit hc: HeaderCarrier): Future[EtmpDisplayRegistrationResponseWithWrapper] = {
+    httpClientV2.get(url"$displayRegistrationUrl/get-registration/$intermediaryNumber").execute[EtmpDisplayRegistrationResponseWithWrapper]
   }
 }

@@ -71,6 +71,7 @@ yourAccount.details.heading = Your details
 yourAccount.details.changeYourRegistration = Change your registration
 yourAccount.details.leaveThisService = Leave this service
 yourAccount.details.cancelYourRequestToLeave = Cancel your request to leave
+yourAccount.details.rejoinScheme = Rejoin this service
 
 cannotUseNotAnIntermediary.title = You cannot use this service
 cannotUseNotAnIntermediary.heading = You cannot use this service
