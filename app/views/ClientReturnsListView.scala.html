@@ -16,7 +16,8 @@
 
 @this(
         layout: templates.Layout,
-        govukButton: GovukButton
+        govukButton: GovukButton,
+        govukInsetText : GovukInsetText
 )
 
 @()(implicit request: Request[_], messages: Messages)
@@ -24,4 +25,8 @@
 @layout(pageTitle = titleNoForm(messages("clientReturnsList.title"))) {
 
     <h1 class="govuk-heading-xl">@messages("clientReturnsList.heading")</h1>
+
+    @govukInsetText(InsetText(
+        content = Text(messages("clientReturnsList.insetText"))
+      ))
 }
