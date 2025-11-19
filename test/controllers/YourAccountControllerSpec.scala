@@ -120,6 +120,7 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
 
         val urls = DashboardUrlsViewModel(
           addClientUrl = appConfig.addClientUrl,
+          viewClientReturnsListUrl = appConfig.viewClientReturnsListUrl,
           viewClientsListUrl = appConfig.viewClientsListUrl,
           changeYourRegistrationUrl = appConfig.changeYourRegistrationUrl,
           pendingClientsUrl = appConfig.pendingClientsUrl,
@@ -189,6 +190,7 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
 
         val urls = DashboardUrlsViewModel(
           addClientUrl = appConfig.addClientUrl,
+          viewClientReturnsListUrl = appConfig.viewClientReturnsListUrl,
           viewClientsListUrl = appConfig.viewClientsListUrl,
           changeYourRegistrationUrl = appConfig.changeYourRegistrationUrl,
           pendingClientsUrl = appConfig.pendingClientsUrl,

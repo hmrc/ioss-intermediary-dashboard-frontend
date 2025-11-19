@@ -18,6 +18,7 @@ package viewmodels.dashboard
 
 case class DashboardUrlsViewModel(
                                    addClientUrl: String,
+                                   viewClientReturnsListUrl: String,
                                    viewClientsListUrl: String,
                                    changeYourRegistrationUrl: String,
                                    pendingClientsUrl: String,
