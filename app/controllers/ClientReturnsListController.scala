@@ -39,5 +39,3 @@ class ClientReturnsListController @Inject()(
       Ok(view())
   }
 }
-
-// TODO Fix failing test, add link above insetText
