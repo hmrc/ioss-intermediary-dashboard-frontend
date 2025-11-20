@@ -39,6 +39,8 @@ trait AuthenticatedControllerComponents extends MessagesControllerComponents {
 
   def getRegistration: GetRegistrationAction
 
+  def checkNiBasedAddress: CheckNiBasedAddressFilterProvider
+
   def identifyAndGetData: ActionBuilder[DataRequest, AnyContent] =
     actionBuilder andThen
       identify andThen
@@ -52,7 +54,8 @@ trait AuthenticatedControllerComponents extends MessagesControllerComponents {
       
   def identifyAndGetRegistration: ActionBuilder[RegistrationRequest, AnyContent] = {
     identify andThen
-      getRegistration
+      getRegistration andThen
+      checkNiBasedAddress()
   }
 }
 
@@ -68,5 +71,6 @@ case class DefaultAuthenticatedControllerComponents @Inject()(
                                                                  identify: IdentifierAction,
                                                                  getData: DataRetrievalAction,
                                                                  requireData: DataRequiredAction,
-                                                                 getRegistration: GetRegistrationAction
+                                                                 getRegistration: GetRegistrationAction,
+                                                                 checkNiBasedAddress: CheckNiBasedAddressFilterProvider
                                                                ) extends AuthenticatedControllerComponents
