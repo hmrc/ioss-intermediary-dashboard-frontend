@@ -130,4 +130,12 @@ clientReturnsList.title = Which client''s returns do you want to view?
 clientReturnsList.heading = Which client''s returns do you want to view?
 clientReturnsList.insetText = If your client does not appear on this list, then you have not completed any returns for them.
 clientReturnsList.previousIossReturnsLink = View clients and returns from your previous IOSS registrations
+clientReturnsList.active.heading = Active clients
+clientReturnsList.table.header.clientName = Client name
+clientReturnsList.table.header.iossNumber = IOSS number
+clientReturnsList.excluded.heading = Previous clients that have left the service
+clientReturnsList.noActiveClients = You have no active clients
+clientReturnsList.change.link = <a class="govuk-link" href="{1}"><span class="govuk-visually-hidden">{2}</span>{0}</a>
+clientReturnsList.remove.link = <a class="govuk-link" href="{1}"><span aria-hidden=true>{0}</span><span class="govuk-visually-hidden">{2}</span></a>
+clientReturnsList.noActiveClients = You have no active clients
 

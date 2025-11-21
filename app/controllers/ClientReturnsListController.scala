@@ -16,26 +16,30 @@
 
 package controllers
 
-import config.FrontendAppConfig
 import controllers.actions.*
+import models.etmp.EtmpClientDetails
 
 import javax.inject.Inject
 import pages.Waypoints
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import viewmodels.clientList.ClientReturnsListViewModel
 import views.html.ClientReturnsListView
 
 class ClientReturnsListController @Inject()(
                                        override val messagesApi: MessagesApi,
                                        cc: AuthenticatedControllerComponents,
-                                       frontendAppConfig: FrontendAppConfig,
                                        val controllerComponents: MessagesControllerComponents,
                                        view: ClientReturnsListView
                                      ) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad(waypoints: Waypoints): Action[AnyContent] = cc.identifyAndGetRegistration {
     implicit request =>
-      Ok(view())
+      val clientDetailsList: Seq[EtmpClientDetails] = request.registrationWrapper.etmpDisplayRegistration.clientDetails
+
+      val viewModel: ClientReturnsListViewModel = ClientReturnsListViewModel(clientDetailsList)
+
+      Ok(view(viewModel))
   }
 }

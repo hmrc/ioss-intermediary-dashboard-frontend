@@ -14,13 +14,16 @@
  * limitations under the License.
  *@
 
+@import viewmodels.clientList.ClientReturnsListViewModel
+
 @this(
         layout: templates.Layout,
         govukButton: GovukButton,
-        govukInsetText : GovukInsetText
+        govukInsetText : GovukInsetText,
+        govukTable: GovukTable
 )
 
-@()(implicit request: Request[_], messages: Messages)
+@(clientReturnsListViewModel: ClientReturnsListViewModel)( implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("clientReturnsList.title"))) {
 
@@ -31,4 +34,15 @@
     @govukInsetText(InsetText(
         content = Text(messages("clientReturnsList.insetText"))
       ))
+
+        @if(clientReturnsListViewModel.activeClients.rows.nonEmpty) {
+        @govukTable(clientReturnsListViewModel.activeClients)
+    } else {
+        <p class="govuk-body">@messages("clientReturnsList.noActiveClients")</p>
+    }
+
+    @if(clientReturnsListViewModel.excludedClients.rows.nonEmpty) {
+        @govukTable(clientReturnsListViewModel.excludedClients)
+    } else {}
+
 }
