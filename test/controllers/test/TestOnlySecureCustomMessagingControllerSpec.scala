@@ -64,7 +64,7 @@ class TestOnlySecureCustomMessagingControllerSpec extends SpecBase with MockitoS
 
       "must create a custom message and return successful HTML response" in {
         val mockConnector = mock[TestOnlySecureMessagingConnector]
-        when(mockConnector.createCustomMessage(any(), any(), any(), any(), any())(any()))
+        when(mockConnector.createCustomMessage(any(), any(), any(), any(), any(), any(), any())(any()))
           .thenReturn(Future.successful(HttpResponse(201, "")))
 
         val application = applicationBuilder()
@@ -78,6 +78,8 @@ class TestOnlySecureCustomMessagingControllerSpec extends SpecBase with MockitoS
             POST,
             routes.TestOnlySecureCustomMessagingController.onSubmit().url
           ).withFormUrlEncodedBody(
+            "enrolmentKey" -> enrolmentKey,
+            "identifierValue" -> identifierValue,
             "firstName" -> "firstName",
             "lastName" -> "lastName",
             "emailAddress" -> "test@email.com",
@@ -92,13 +94,13 @@ class TestOnlySecureCustomMessagingControllerSpec extends SpecBase with MockitoS
 
           verify(mockConnector, times(1))
             .createCustomMessage(
-              eqTo("firstName"), eqTo("lastName"), eqTo("test@email.com"), eqTo("test subject"), eqTo("test body"))(any())
+              eqTo(enrolmentKey), eqTo(identifierValue), eqTo("firstName"), eqTo("lastName"), eqTo("test@email.com"), eqTo("test subject"), eqTo("test body"))(any())
         }
       }
 
       "must return InternalServerError and return HTML response when connector doesn't return a 201" in {
         val mockConnector = mock[TestOnlySecureMessagingConnector]
-        when(mockConnector.createCustomMessage(any(), any(), any(), any(), any())(any()))
+        when(mockConnector.createCustomMessage(any(), any(), any(), any(), any(), any(), any())(any()))
           .thenReturn(Future.successful(HttpResponse(500, "")))
 
         val application = applicationBuilder()
@@ -111,6 +113,8 @@ class TestOnlySecureCustomMessagingControllerSpec extends SpecBase with MockitoS
             POST,
             routes.TestOnlySecureCustomMessagingController.onSubmit().url
           ).withFormUrlEncodedBody(
+            "enrolmentKey" -> enrolmentKey,
+            "identifierValue" -> identifierValue,
             "firstName" -> "firstName",
             "lastName" -> "lastName",
             "emailAddress" -> "test@email.com",

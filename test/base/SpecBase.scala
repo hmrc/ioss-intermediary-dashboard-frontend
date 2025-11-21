@@ -51,6 +51,8 @@ trait SpecBase
   val userAnswersId: String = "id"
   val intermediaryNumber = "IN9001234567"
   val intermediaryName = "Intermediary Company Name"
+  val enrolmentKey = "HMRC-IOSS-INT"
+  val identifierValue = "IM9001234569"
   val vrn: Vrn = Vrn("123456789")
 
   val journeyId: String = UUID.randomUUID().toString
