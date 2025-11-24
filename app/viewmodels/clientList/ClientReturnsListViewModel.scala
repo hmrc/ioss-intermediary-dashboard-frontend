@@ -101,11 +101,11 @@ object ClientReturnsListViewModel {
       head = Some(Seq(
         HeadCell(
           content = Text(messages("clientReturnsList.table.header.clientName")),
-          classes = "govuk-!-width-two-thirds"
+          classes = "govuk-!-width-three-quarters"
         ),
         HeadCell(
           content = Text(messages("clientReturnsList.table.header.iossNumber")),
-          classes = "govuk-!-width-one-third"
+          classes = "govuk-!-width-one-quarter"
         ),
         HeadCell(
           classes = "govuk-table__header--numeric"
@@ -129,14 +129,14 @@ object ClientReturnsListViewModel {
       head = Some(Seq(
         HeadCell(
           content = Text(messages("clientReturnsList.table.header.clientName")),
-          classes = "govuk-!-width-two-thirds"
+          classes = "govuk-!-width-three-quarters"
         ),
         HeadCell(
           content = Text(messages("clientReturnsList.table.header.iossNumber")),
-          classes = "govuk-!-width-one-third"
+          classes = "govuk-!-width-one-quarter"
         ),
         HeadCell(
-          classes = "govuk-table__header--numeric govuk-!-width-one-third"
+          classes = "govuk-table__header--numeric govuk-!-width-one-quarter"
         )
       )),
       caption = Some(messages("clientReturnsList.excluded.heading")),

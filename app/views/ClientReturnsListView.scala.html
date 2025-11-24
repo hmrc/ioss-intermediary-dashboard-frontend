@@ -25,11 +25,13 @@
 
 @(clientReturnsListViewModel: ClientReturnsListViewModel)( implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("clientReturnsList.title"))) {
+@layout(pageTitle = titleNoForm(messages("clientReturnsList.title")), fullWidth = true) {
 
-    <h1 class="govuk-heading-xl">@messages("clientReturnsList.heading")</h1>
+    <h1 class="govuk-heading-l">@messages("clientReturnsList.heading")</h1>
 
-    <a class="govuk-link" href="" id="messages">@Html(messages("clientReturnsList.previousIossReturnsLink")) </a>
+   <p class="govuk-body">
+       <a class="govuk-link" href="" id="messages">@messages("clientReturnsList.previousIossReturnsLink") </a>
+   </p>
 
     @govukInsetText(InsetText(
         content = Text(messages("clientReturnsList.insetText"))
