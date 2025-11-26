@@ -61,13 +61,15 @@ class TestOnlySecureCustomMessagingController @Inject()(
       form.bindFromRequest().fold(
         formWithErrors => Future.successful(BadRequest(view(formWithErrors))),
         formData => {
+          val enrolmentKey = formData.enrolmentKey
+          val identifierValue = formData.identifierValue
           val firstName: String = formData.firstName
           val lastName: String = formData.lastName
           val emailAddress: String = formData.emailAddress
           val subject: String = formData.subject
           val body: String = formData.body
           
-          val result = connector.createCustomMessage(firstName, lastName, emailAddress, subject, body)
+          val result = connector.createCustomMessage(enrolmentKey, identifierValue, firstName, lastName, emailAddress, subject, body)
 
           result.map { response =>
             response.status match {

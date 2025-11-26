@@ -53,7 +53,7 @@ class TestOnlySecureMessagingConnectorSpec extends SpecBase with WireMockHelper 
                 .withStatus(CREATED))
           )
 
-          val result = connector.createMessage().futureValue
+          val result = connector.createMessage(enrolmentKey, identifierValue).futureValue
 
           result.status mustBe CREATED
         }
@@ -68,7 +68,7 @@ class TestOnlySecureMessagingConnectorSpec extends SpecBase with WireMockHelper 
               .willReturn(aResponse().withStatus(INTERNAL_SERVER_ERROR))
           )
 
-          val result = connector.createMessage().futureValue
+          val result = connector.createMessage(enrolmentKey, identifierValue).futureValue
 
           result.status mustBe INTERNAL_SERVER_ERROR
         }
@@ -83,8 +83,8 @@ class TestOnlySecureMessagingConnectorSpec extends SpecBase with WireMockHelper 
               .willReturn(aResponse().withStatus(CREATED))
           )
 
-          connector.createMessage().futureValue
-          connector.createMessage().futureValue
+          connector.createMessage(enrolmentKey, identifierValue).futureValue
+          connector.createMessage(enrolmentKey, identifierValue).futureValue
 
           val requests = server.findAll(postRequestedFor(urlEqualTo(url))).asScala
 
@@ -122,7 +122,7 @@ class TestOnlySecureMessagingConnectorSpec extends SpecBase with WireMockHelper 
           )
 
           val result = connector.createCustomMessage(
-            "firstName", "lastName", "test@mail.com", "subject", "body"
+            enrolmentKey, identifierValue, "firstName", "lastName", "test@mail.com", "subject", "body"
           ).futureValue
 
           result.status mustBe CREATED
@@ -143,7 +143,7 @@ class TestOnlySecureMessagingConnectorSpec extends SpecBase with WireMockHelper 
           )
 
           val result = connector.createCustomMessage(
-            "firstName", "lastName", "test@mail.com", "subject", "body"
+            enrolmentKey, identifierValue, "firstName", "lastName", "test@mail.com", "subject", "body"
           ).futureValue
 
           result.status mustBe BAD_REQUEST
