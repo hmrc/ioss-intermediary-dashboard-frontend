@@ -52,7 +52,7 @@ object ClientReturnsListViewModel {
           messages(
             "clientReturnsList.change.link",
             activeClient.clientName,
-            s"", // INSERT SUBMIT RETURNS LINK HERE
+            s"", // TODO VEI-661: INSERT SUBMIT RETURNS LINK HERE
             messages("clientReturnsList.change.hidden", activeClient.clientName)
           )
         ),
@@ -73,7 +73,7 @@ object ClientReturnsListViewModel {
           messages(
             "clientReturnsList.change.link",
             excludedClient.clientName,
-            s"#", // INSERT SUBMIT RETURNS LINK HERE
+            s"#", // TODO VEI-661: INSERT SUBMIT RETURNS LINK HERE
             messages("clientReturnsList.change.hidden", excludedClient.clientName)
           )
         ),
