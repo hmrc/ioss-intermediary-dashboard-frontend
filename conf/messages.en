@@ -127,5 +127,4 @@ secureMessages.table.headContent.column2 = Date
 secureMessages.table.caption = Messages
 redDot = <span class="dot-unread"></span>
 
-individualSecureMessage.title = individualSecureMessage
-individualSecureMessage.heading = individualSecureMessage
+individualSecureMessage.title = Message Details
