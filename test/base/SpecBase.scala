@@ -34,6 +34,7 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.CSRFTokenHelper.CSRFRequest
 import play.api.test.FakeRequest
+import uk.gov.hmrc.auth.core.{Enrolment, EnrolmentIdentifier, Enrolments}
 import uk.gov.hmrc.domain.Vrn
 
 import java.time.{Clock, Instant, LocalDate, ZoneId}
@@ -54,6 +55,15 @@ trait SpecBase
   val enrolmentKey = "HMRC-IOSS-INT"
   val identifierValue = "IM9001234569"
   val vrn: Vrn = Vrn("123456789")
+
+  val intermediaryEnrolmentKey = "HMRC-IOSS-INT"
+  val enrolments: Enrolments = Enrolments(Set(
+    Enrolment(
+      intermediaryEnrolmentKey,
+      Seq(EnrolmentIdentifier("IntNumber", intermediaryNumber)),
+      "test",
+      None)
+  ))
 
   val journeyId: String = UUID.randomUUID().toString
 

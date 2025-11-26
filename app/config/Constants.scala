@@ -19,5 +19,5 @@ package config
 object Constants {
 
   val pendingRegistrationTTL: Int = 28
-
+  val niPostCodeAreaPrefix: String = "BT"
 }
