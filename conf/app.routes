@@ -34,3 +34,5 @@ GET        /client-awaiting-activation                   controllers.ClientAwait
 GET        /client-list                                  controllers.ClientListController.onPageLoad(waypoints: Waypoints ?= EmptyWaypoints)
 
 GET        /secure-messages                              controllers.SecureMessagesController.onPageLoad(waypoints: Waypoints ?= EmptyWaypoints)
+
+GET        /individual-secure-message/:id                controllers.IndividualSecureMessageController.onPageLoad(id: String)
