@@ -27,10 +27,12 @@ object TestOnlySecureMessagingFormProvider extends Mappings {
   def apply(): Form[TestOnlySecureMessagingFormProvider] =
     Form(
       mapping(
+        "enrolmentKey"     -> text("Enrolment Key must not be blank"),
+        "identifierValue"  -> text("Identifier Value must not be blank"),
         "numberOfMessages" -> int("Must not be blank", "Must be a whole number", "Must be a number")
-      )(n => TestOnlySecureMessagingFormProvider(n))
-        (data => Some(data.numberOfMessages))
+      )((ek, iv, n) => TestOnlySecureMessagingFormProvider(ek, iv, n))
+        (data => Some((data.enrolmentKey, data.identifierValue, data.numberOfMessages)))
     )
 }
 
-case class TestOnlySecureMessagingFormProvider(numberOfMessages: Int)
+case class TestOnlySecureMessagingFormProvider(enrolmentKey: String, identifierValue: String, numberOfMessages: Int)

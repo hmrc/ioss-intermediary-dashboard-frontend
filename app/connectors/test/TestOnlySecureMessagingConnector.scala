@@ -17,6 +17,7 @@
 package connectors.test
 
 import config.Service
+import logging.Logging
 import play.api.Configuration
 import play.api.libs.json.{JsArray, JsObject, Json}
 import play.api.libs.ws.writeableOf_JsValue
@@ -24,6 +25,8 @@ import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
 
+import java.nio.charset.StandardCharsets
+import java.util.Base64
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Random
@@ -37,74 +40,105 @@ class TestOnlySecureMessagingConnector @Inject()(
   private val secureMessageUrl = s"${baseUrl}/v4/message"
 
 
-  private def baseJsonPayload: JsObject = Json.obj(
-    "externalRef" -> Json.obj(
-      "id" -> s"AJD${random18Digit()}",
-      "source" -> "gmc"
-    ),
-    "recipient" -> Json.obj(
-      "taxIdentifier" -> Json.obj(
-        "name" -> "HMRC-IOSS-INT",
-        "value" -> "IN9001234567"
+  private def baseJsonPayload(enrolmentKey: String, identifierValue: String): JsObject = {
+    val rawBody = s"test email - unique ID ${random18Digit()}"
+    val encodedBody = Base64.getEncoder.encodeToString(rawBody.getBytes(StandardCharsets.UTF_8))
+    Json.obj(
+      "externalRef" -> Json.obj(
+        "id" -> s"AJD${random18Digit()}",
+        "source" -> "gmc"
       ),
-      "name" -> Json.obj(
-        "line1" -> "Bob",
-        "line2" -> "Jones"
+      "recipient" -> Json.obj(
+        "taxIdentifier" -> Json.obj(
+          "name" -> enrolmentKey,
+          "value" -> identifierValue
+        ),
+        "name" -> Json.obj(
+          "line1" -> "Bob",
+          "line2" -> "Jones"
+        ),
+        "email" -> "test@mail.com",
+        "regime" -> "ioss"
       ),
-      "email" -> "test@mail.com",
-      "regime" -> "ioss"
-    ),
-    "messageType" -> "mailout-batch",
-    "details" -> Json.obj(
-      "formId" -> "M08aGIOSS",
-      "sourceData" -> "test-source-data",
-      "batchId" -> "IOSSMessage",
-    ),
-    "content" -> Json.arr(
-      Json.obj(
-        "lang" -> "en",
-        "subject" -> "Import One Stop Shop (IOSS)",
-        "body" -> s"test email - unique ID: ${random18Digit()}"
-      )
-    ),
-    "language" -> "en"
-  )
+      "messageType" -> "mailout-batch",
+      "details" -> Json.obj(
+        "formId" -> "M08aGIOSS",
+        "sourceData" -> "test-source-data",
+        "batchId" -> "IOSSMessage",
+      ),
+      "content" -> Json.arr(
+        Json.obj(
+          "lang" -> "en",
+          "subject" -> "Import One Stop Shop (IOSS)",
+          "body" -> encodedBody
+        )
+      ),
+      "language" -> "en"
+    )
+  }
 
-  def createMessage()
+  def createMessage(enrolmentKey: String, identifierValue: String)
                    (implicit hc: HeaderCarrier): Future[HttpResponse] = {
+
+    val base = baseJsonPayload(enrolmentKey, identifierValue)
+
+    val updatedTaxIdentifier = (base \ "recipient" \ "taxIdentifier").as[JsObject] ++ Json.obj(
+      "name" -> enrolmentKey,
+      "value" -> identifierValue
+    )
+
+    val updatedRecipient = (base \ "recipient").as[JsObject] ++ Json.obj(
+      "taxIdentifier" -> updatedTaxIdentifier
+    )
+
+    val jsonPayload: JsObject = base ++ Json.obj(
+      "recipient" -> updatedRecipient,
+    )
+
+
     httpClientV2
       .post(url"$secureMessageUrl")
-      .withBody(baseJsonPayload)
+      .withBody(jsonPayload)
       .execute[HttpResponse]
   }
 
   def createCustomMessage(
-      firstName: String,
-      lastName: String,
-      emailAddress: String,
-      subject: String,
-      body: String
-  )(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+                           enrolmentKey: String,
+                           identifierValue: String,
+                           firstName: String,
+                           lastName: String,
+                           emailAddress: String,
+                           subject: String,
+                           body: String
+                         )(implicit hc: HeaderCarrier): Future[HttpResponse] = {
 
-    val updatedName = (baseJsonPayload \ "recipient" \ "name").as[JsObject] ++ Json.obj(
+    val base = baseJsonPayload(enrolmentKey, identifierValue)
+
+    val updatedTaxIdentifier = (base \ "recipient" \ "taxIdentifier").as[JsObject] ++ Json.obj(
+      "name" -> enrolmentKey,
+      "value" -> identifierValue
+    )
+
+    val updatedName = (base \ "recipient" \ "name").as[JsObject] ++ Json.obj(
       "line1" -> firstName,
       "line2" -> lastName
     )
 
-    val updatedRecipient = (baseJsonPayload \ "recipient").as[JsObject] ++ Json.obj(
+    val updatedRecipient = (base \ "recipient").as[JsObject] ++ Json.obj(
+      "taxIdentifier" -> updatedTaxIdentifier,
       "name" -> updatedName,
       "email" -> emailAddress
     )
 
-    val originalContent = (baseJsonPayload \ "content").as[JsArray]
+    val originalContent = (base \ "content").as[JsArray]
     val updatedFirstContent = originalContent.head.as[JsObject] ++ Json.obj(
       "subject" -> subject,
-      "body" -> body
+      "body" -> Base64.getEncoder.encodeToString(body.getBytes(StandardCharsets.UTF_8))
     )
 
     val updatedContent = Json.arr(updatedFirstContent)
 
-    val jsonPayload: JsObject = baseJsonPayload ++ Json.obj(
+    val jsonPayload: JsObject = base ++ Json.obj(
       "recipient" -> updatedRecipient,
       "content" -> updatedContent
     )

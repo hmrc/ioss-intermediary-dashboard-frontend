@@ -1,4 +1,4 @@
-/*
+@*
  * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,12 +12,16 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *@
 
-package config
+@this(
+        layout: templates.Layout,
+        govukButton: GovukButton
+)
 
-object Constants {
+@(id: String, message: String)(implicit request: Request[_], messages: Messages)
 
-  val pendingRegistrationTTL: Int = 28
-  val niPostCodeAreaPrefix: String = "BT"
+@layout(pageTitle = titleNoForm(messages("individualSecureMessage.title"))) {
+
+    @Html(message)
 }

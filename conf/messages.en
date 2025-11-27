@@ -120,11 +120,14 @@ clientList.remove.link = <a class="govuk-link" href="{1}"><span aria-hidden=true
 
 secureMessages.title = Messages
 secureMessages.subject.read = <a class="govuk-link" href="">{0}</a>
-secureMessages.subject.unread = <a class="govuk-link" href=""><span class="govuk-visually-hidden">Unread message</span><span class="govuk-!-font-weight-bold">{0}</span></a>
+secureMessages.subject.unread = <a class="govuk-link" href="{1}"><span class="govuk-visually-hidden">Unread message</span><span class="govuk-!-font-weight-bold">{0}</span></a>
+secureMessages.subject.read   = <a class="govuk-link" href="{1}">{0}</a>
 secureMessages.table.headContent.column1 = Messages
 secureMessages.table.headContent.column2 = Date
 secureMessages.table.caption = Messages
 redDot = <span class="dot-unread"></span>
+
+individualSecureMessage.title = Message Details
 
 clientReturnsList.title = Which client''s returns do you want to view?
 clientReturnsList.heading = Which client''s returns do you want to view?

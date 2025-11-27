@@ -25,7 +25,7 @@ import play.api.data.Form
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import views.html.TestOnlySecureMessagingView
-import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import uk.gov.hmrc.http.HttpResponse
 import play.api.inject.bind
 
@@ -62,7 +62,9 @@ class TestOnlySecureMessagingControllerSpec extends SpecBase with MockitoSugar {
       "must create one unread message and return a successful HTML response" in {
 
         val mockConnector = mock[TestOnlySecureMessagingConnector]
-        when(mockConnector.createMessage()(any()))
+        when(mockConnector.createMessage(
+          eqTo(enrolmentKey),
+          eqTo(identifierValue))(any()))
           .thenReturn(Future.successful(HttpResponse(201, "")))
 
         val application = applicationBuilder()
@@ -75,6 +77,8 @@ class TestOnlySecureMessagingControllerSpec extends SpecBase with MockitoSugar {
             POST,
             routes.TestOnlySecureMessagingController.onSubmit().url
           ).withFormUrlEncodedBody(
+            "enrolmentKey" -> enrolmentKey,
+            "identifierValue" -> identifierValue,
             "numberOfMessages" -> "1",
             "isReadMessage" -> "false"
           )
@@ -86,14 +90,14 @@ class TestOnlySecureMessagingControllerSpec extends SpecBase with MockitoSugar {
           contentAsString(result) must include("Number of messages created: 1")
 
 
-          verify(mockConnector, times(1)).createMessage()(any())
+          verify(mockConnector, times(1)).createMessage(eqTo(enrolmentKey), eqTo(identifierValue))(any())
         }
       }
 
       "must create multiple unread messages and return a successful HTML response" in {
 
         val mockConnector = mock[TestOnlySecureMessagingConnector]
-        when(mockConnector.createMessage()(any()))
+        when(mockConnector.createMessage(eqTo(enrolmentKey), eqTo(identifierValue))(any()))
           .thenReturn(Future.successful(HttpResponse(201, "")))
 
         val application = applicationBuilder()
@@ -108,6 +112,8 @@ class TestOnlySecureMessagingControllerSpec extends SpecBase with MockitoSugar {
             POST,
             routes.TestOnlySecureMessagingController.onSubmit().url
           ).withFormUrlEncodedBody(
+            "enrolmentKey" -> enrolmentKey,
+            "identifierValue" -> identifierValue,
             "numberOfMessages" -> s"$randomNumberOfMessagesToCreate",
             "isReadMessage" -> "false"
           )
@@ -118,13 +124,13 @@ class TestOnlySecureMessagingControllerSpec extends SpecBase with MockitoSugar {
           contentAsString(result) must include("Messages successfully created!")
           contentAsString(result) must include(s"Number of messages created: $randomNumberOfMessagesToCreate")
 
-          verify(mockConnector, times(randomNumberOfMessagesToCreate)).createMessage()(any())
+          verify(mockConnector, times(randomNumberOfMessagesToCreate)).createMessage(eqTo(enrolmentKey), eqTo(identifierValue))(any())
         }
       }
 
       "must return InternalServerError when connector doesn't return a 201" in {
         val mockConnector = mock[TestOnlySecureMessagingConnector]
-        when(mockConnector.createMessage()(any()))
+        when(mockConnector.createMessage(eqTo(enrolmentKey), eqTo(identifierValue))(any()))
           .thenReturn(Future.successful(HttpResponse(500, "")))
 
         val application = applicationBuilder()
@@ -137,6 +143,8 @@ class TestOnlySecureMessagingControllerSpec extends SpecBase with MockitoSugar {
             POST,
             routes.TestOnlySecureMessagingController.onSubmit().url
           ).withFormUrlEncodedBody(
+            "enrolmentKey" -> enrolmentKey,
+            "identifierValue" -> identifierValue,
             "numberOfMessages" -> "1",
             "isReadMessage" -> "false"
           )

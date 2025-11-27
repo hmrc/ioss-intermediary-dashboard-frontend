@@ -19,6 +19,7 @@ package controllers
 import base.SpecBase
 import config.FrontendAppConfig
 import connectors.{RegistrationConnector, SecureMessageConnector}
+import models.DesAddress
 import models.domain.VatCustomerInfo
 import models.etmp.EtmpExclusionReason.TransferringMSID
 import models.etmp.{EtmpDisplayRegistration, EtmpExclusion, RegistrationWrapper}
@@ -94,10 +95,25 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
 
       "must return OK and the correct view for a GET" in {
 
-        val registrationWrapperEmptyExclusions: RegistrationWrapper =
-          registrationWrapper
-            .copy(vatInfo = registrationWrapper.vatInfo)
-            .copy(etmpDisplayRegistration = registrationWrapper.etmpDisplayRegistration.copy(exclusions = Seq.empty))
+        val niVatInfo = vatCustomerInfo.copy(
+          desAddress = DesAddress(
+            line1 = "1 The Street",
+            line2 = None,
+            line3 = None,
+            line4 = None,
+            line5 = None,
+            postCode = Some("BT11 1AA"),
+            countryCode = "GB"
+          )
+        )
+
+        val registrationWrapperEmptyExclusionsAndEmptyOtherAddress = registrationWrapper.copy(
+          vatInfo = niVatInfo,
+          etmpDisplayRegistration = arbitraryEtmpDisplayRegistration.arbitrary.sample.value.copy(
+            exclusions = Seq.empty,
+            otherAddress = None
+          )
+        )
 
         val mockRegistrationConnector = mock[RegistrationConnector]
 
@@ -110,9 +126,9 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
         when(mockSecureMessageConnector.getMessages(any(), any(), any(), any(), any())(any()))
           .thenReturn(Right(secureMessageResponseWithCount).toFuture)
         when(mockRegistrationConnector.displayRegistration(any())(any()))
-          .thenReturn(Right(registrationWrapperEmptyExclusions).toFuture)
+          .thenReturn(Right(registrationWrapperEmptyExclusionsAndEmptyOtherAddress).toFuture)
 
-        val application = applicationBuilder(userAnswers = Some(emptyUserAnswers), registrationWrapper = registrationWrapperEmptyExclusions)
+        val application = applicationBuilder(userAnswers = Some(emptyUserAnswers), registrationWrapper = registrationWrapperEmptyExclusionsAndEmptyOtherAddress)
           .overrides(bind[RegistrationConnector].toInstance(mockRegistrationConnector))
           .overrides(bind[SecureMessageConnector].toInstance(mockSecureMessageConnector))
           .build()

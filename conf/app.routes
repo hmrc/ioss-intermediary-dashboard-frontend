@@ -35,4 +35,6 @@ GET        /client-list                                  controllers.ClientListC
 
 GET        /secure-messages                              controllers.SecureMessagesController.onPageLoad(waypoints: Waypoints ?= EmptyWaypoints)
 
+GET        /individual-secure-message/:id                controllers.IndividualSecureMessageController.onPageLoad(id: String)
+
 GET        /client-returns-list                          controllers.ClientReturnsListController.onPageLoad(waypoints: Waypoints ?= EmptyWaypoints)

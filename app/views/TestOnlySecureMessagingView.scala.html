@@ -44,6 +44,26 @@
             )
         )
 
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-one-half">
+                @govukInput(
+                    InputViewModel(
+                        field = form("enrolmentKey"),
+                        label = LabelViewModel("Enrolment Key").withCssClass("govuk-label--m")
+                    )
+                )
+            </div>
+
+            <div class="govuk-grid-column-one-half">
+                @govukInput(
+                    InputViewModel(
+                        field = form("identifierValue"),
+                        label = LabelViewModel("Identifier Value").withCssClass("govuk-label--m")
+                    )
+                )
+            </div>
+        </div>
+
         @govukInput(
             InputViewModel(
                 field = form("numberOfMessages"),

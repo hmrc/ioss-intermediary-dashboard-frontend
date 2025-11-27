@@ -17,6 +17,7 @@
 package forms.test
 
 import forms.mappings.Mappings
+import forms.test.TestOnlySecureMessagingFormProvider.text
 import play.api.data.Form
 import play.api.data.Forms.*
 
@@ -27,6 +28,8 @@ object TestOnlySecureCustomMessagingFormProvider extends Mappings {
   def apply(): Form[TestOnlySecureCustomMessagingFormProvider] =
     Form[TestOnlySecureCustomMessagingFormProvider](
       mapping(
+        "enrolmentKey"     -> text("Enrolment Key must not be blank"),
+        "identifierValue"  -> text("Identifier Value must not be blank"),
         "firstName" -> text("First name required"),
         "lastName" -> text("Last name required"),
         "emailAddress" -> text("Email required").verifying(firstError(
@@ -43,6 +46,8 @@ object TestOnlySecureCustomMessagingFormProvider extends Mappings {
 }
 
 case class TestOnlySecureCustomMessagingFormProvider(
+                                                      enrolmentKey: String,
+                                                      identifierValue: String,
                                                       firstName: String,
                                                       lastName: String,
                                                       emailAddress: String,
