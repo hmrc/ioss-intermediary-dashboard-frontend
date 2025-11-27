@@ -120,8 +120,8 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
 
         val urls = DashboardUrlsViewModel(
           addClientUrl = appConfig.addClientUrl,
-          viewClientReturnsListUrl = appConfig.viewClientReturnsListUrl,
-          viewClientsListUrl = appConfig.viewClientsListUrl,
+          viewClientReturnsListUrl = controllers.routes.ClientReturnsListController.onPageLoad().url,
+          viewClientsListUrl = controllers.routes.ClientListController.onPageLoad().url,
           changeYourRegistrationUrl = appConfig.changeYourRegistrationUrl,
           pendingClientsUrl = appConfig.pendingClientsUrl,
           secureMessagesUrl = appConfig.secureMessagesUrl,
@@ -190,8 +190,8 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
 
         val urls = DashboardUrlsViewModel(
           addClientUrl = appConfig.addClientUrl,
-          viewClientReturnsListUrl = appConfig.viewClientReturnsListUrl,
-          viewClientsListUrl = appConfig.viewClientsListUrl,
+          viewClientReturnsListUrl = controllers.routes.ClientReturnsListController.onPageLoad().url,
+          viewClientsListUrl = controllers.routes.ClientListController.onPageLoad().url,
           changeYourRegistrationUrl = appConfig.changeYourRegistrationUrl,
           pendingClientsUrl = appConfig.pendingClientsUrl,
           secureMessagesUrl = appConfig.secureMessagesUrl,
