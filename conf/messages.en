@@ -136,5 +136,5 @@ clientReturnsList.excluded.heading = Previous clients that have left the service
 clientReturnsList.noActiveClients = You have no active clients
 clientReturnsList.change.link = <a class="govuk-link" href="{1}"><span class="govuk-visually-hidden">{2}</span>{0}</a>
 clientReturnsList.remove.link = <a class="govuk-link" href="{1}"><span aria-hidden=true>{0}</span><span class="govuk-visually-hidden">{2}</span></a>
-clientReturnsList.noActiveClients = You have no active clients
+clientReturnsList.noSubmittedReturns = You have not completed any returns.
 

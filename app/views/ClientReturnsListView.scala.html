@@ -33,7 +33,12 @@
         content = Text(messages("clientReturnsList.insetText"))
       ))
 
-        @if(clientReturnsListViewModel.activeClients.rows.nonEmpty) {
+    @if(
+      clientReturnsListViewModel.activeClients.rows.isEmpty &&
+      clientReturnsListViewModel.excludedClients.rows.isEmpty) {
+        <p class="govuk-body">@messages("clientReturnsList.noSubmittedReturns")</p>
+
+       } else if(clientReturnsListViewModel.activeClients.rows.nonEmpty) {
         @govukTable(clientReturnsListViewModel.activeClients)
     } else {
         <p class="govuk-body">@messages("clientReturnsList.noActiveClients")</p>
@@ -41,6 +46,6 @@
 
     @if(clientReturnsListViewModel.excludedClients.rows.nonEmpty) {
         @govukTable(clientReturnsListViewModel.excludedClients)
-    } else {}
+    }
 
 }
