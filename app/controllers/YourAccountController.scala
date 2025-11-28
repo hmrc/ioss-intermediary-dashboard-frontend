@@ -88,7 +88,7 @@ class YourAccountController @Inject()(
                       viewClientReturnsListUrl = controllers.routes.ClientReturnsListController.onPageLoad().url,
                       viewClientsListUrl = controllers.routes.ClientListController.onPageLoad().url,
                       changeYourRegistrationUrl = appConfig.changeYourRegistrationUrl,
-                      pendingClientsUrl = appConfig.pendingClientsUrl,
+                      pendingClientsUrl = controllers.routes.ClientAwaitingActivationController.onPageLoad().url,
                       secureMessagesUrl = appConfig.secureMessagesUrl,
                       leaveThisServiceUrl = leaveThisServiceUrl,
                       continueSavedRegUrl = appConfig.continueRegistrationUrl,
