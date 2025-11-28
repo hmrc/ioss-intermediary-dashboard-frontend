@@ -26,7 +26,7 @@ import models.etmp.{EtmpDisplayRegistration, EtmpExclusion, RegistrationWrapper}
 import models.responses.InternalServerError
 import models.securemessage.responses.{SecureMessageCount, SecureMessageResponse, SecureMessageResponseWithCount, TaxpayerName}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{times, verify, when}
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalatestplus.mockito.MockitoSugar
 import pages.{EmptyWaypoints, Waypoints}
@@ -258,10 +258,6 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
       when(mockRegistrationConnector.getNumberOfSavedUserAnswers(any())(any()))
         .thenReturn(1.toLong.toFuture)
       when(mockRegistrationConnector.getVatCustomerInfo(any())(any()))
-        .thenReturn(Right(vatCustomerInfo).toFuture)
-      when(mockSecureMessageConnector.getMessages(any(), any(), any(), any(), any())(any()))
-        .thenReturn(Right(secureMessageResponseWithCount).toFuture)
-      when(mockRegistrationConnector.displayRegistration(any())(any()))
         .thenReturn(Left(InternalServerError).toFuture)
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
@@ -271,11 +267,11 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val request = FakeRequest(GET, yourAccountRoute)
 
-        val thrown = intercept[Exception] {
-          await(route(application, request).value)
+        assertThrows[Exception] {
+          route(application, request).value.futureValue
         }
 
-        thrown.getMessage must include("Received an unexpected error when trying to retrieve registration details")
+        verify(mockRegistrationConnector, times(1)).getVatCustomerInfo(any())(any())
       }
     }
   }
