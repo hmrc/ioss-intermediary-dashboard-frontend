@@ -111,7 +111,10 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
           vatInfo = niVatInfo,
           etmpDisplayRegistration = arbitraryEtmpDisplayRegistration.arbitrary.sample.value.copy(
             exclusions = Seq.empty,
-            otherAddress = None
+            otherAddress = None,
+            schemeDetails = registrationWrapper.etmpDisplayRegistration.schemeDetails.copy(
+              unusableStatus = false
+            )
           )
         )
 
@@ -185,7 +188,12 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
         val registrationWrapperEmptyExclusions: RegistrationWrapper =
           registrationWrapper
             .copy(vatInfo = registrationWrapper.vatInfo)
-            .copy(etmpDisplayRegistration = registrationWrapper.etmpDisplayRegistration.copy(exclusions = Seq(exclusion)))
+            .copy(etmpDisplayRegistration = registrationWrapper.etmpDisplayRegistration.copy(
+              exclusions = Seq(exclusion),
+              schemeDetails = registrationWrapper.etmpDisplayRegistration.schemeDetails.copy(
+                unusableStatus = false
+              )
+            ))
 
         when(mockRegistrationConnector.getNumberOfPendingRegistrations(any())(any()))
           .thenReturn(1.toLong.toFuture)
@@ -250,6 +258,10 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
       when(mockRegistrationConnector.getNumberOfSavedUserAnswers(any())(any()))
         .thenReturn(1.toLong.toFuture)
       when(mockRegistrationConnector.getVatCustomerInfo(any())(any()))
+        .thenReturn(Right(vatCustomerInfo).toFuture)
+      when(mockSecureMessageConnector.getMessages(any(), any(), any(), any(), any())(any()))
+        .thenReturn(Right(secureMessageResponseWithCount).toFuture)
+      when(mockRegistrationConnector.displayRegistration(any())(any()))
         .thenReturn(Left(InternalServerError).toFuture)
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
@@ -263,7 +275,7 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
           await(route(application, request).value)
         }
 
-        thrown.getMessage must include("Internal server error")
+        thrown.getMessage must include("Received an unexpected error when trying to retrieve registration details")
       }
     }
   }
