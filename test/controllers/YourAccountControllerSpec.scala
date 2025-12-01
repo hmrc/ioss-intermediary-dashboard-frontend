@@ -140,7 +140,7 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
           viewClientsListUrl = controllers.routes.ClientListController.onPageLoad().url,
           changeYourRegistrationUrl = appConfig.changeYourRegistrationUrl,
           pendingClientsUrl = controllers.routes.ClientAwaitingActivationController.onPageLoad().url,
-          secureMessagesUrl = controllers.test.routes.TestOnlySecureMessagingController.onPageLoad().url,
+          secureMessagesUrl = controllers.routes.SecureMessagesController.onPageLoad().url,
           leaveThisServiceUrl = Some(appConfig.leaveThisServiceUrl),
           continueSavedRegUrl = appConfig.continueRegistrationUrl,
           rejoinSchemeUrl = appConfig.rejoinSchemeUrl
