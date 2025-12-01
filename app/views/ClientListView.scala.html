@@ -30,6 +30,10 @@
 
     <h1 class="govuk-heading-l">@messages("clientList.heading")</h1>
 
+    <p class="govuk-body">
+        <a class="govuk-link" href="" id="messages">@messages("clientList.viewPrevRegistrationsLink") </a>
+    </p>
+
     @govukWarningText(WarningText(
         iconFallbackText = Option(messages("site.warning")),
         content = Text(messages("clientList.warning"))
