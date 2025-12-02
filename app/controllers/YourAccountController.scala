@@ -85,10 +85,11 @@ class YourAccountController @Inject()(
                     
                     val urls = DashboardUrlsViewModel(
                       addClientUrl = appConfig.addClientUrl,
-                      viewClientsListUrl = appConfig.viewClientsListUrl,
+                      viewClientReturnsListUrl = controllers.routes.ClientReturnsListController.onPageLoad().url,
+                      viewClientsListUrl = controllers.routes.ClientListController.onPageLoad().url,
                       changeYourRegistrationUrl = appConfig.changeYourRegistrationUrl,
-                      pendingClientsUrl = appConfig.pendingClientsUrl,
-                      secureMessagesUrl = appConfig.secureMessagesUrl,
+                      pendingClientsUrl = controllers.routes.ClientAwaitingActivationController.onPageLoad().url,
+                      secureMessagesUrl = controllers.routes.SecureMessagesController.onPageLoad().url,
                       leaveThisServiceUrl = leaveThisServiceUrl,
                       continueSavedRegUrl = appConfig.continueRegistrationUrl,
                       rejoinSchemeUrl = appConfig.rejoinSchemeUrl
