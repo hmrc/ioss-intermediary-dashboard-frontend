@@ -43,4 +43,6 @@ GET        /client-returns-list                          controllers.ClientRetur
 
 GET        /start-client-return                          controllers.returns.StartClientOutstandingReturnController.onPageLoad(waypoints: Waypoints ?= EmptyWaypoints)
 
+GET        /start-client-return                          controllers.returns.StartClientOutstandingReturnController.onPageLoad(waypoints: Waypoints ?= EmptyWaypoints)
+
 GET         /client-payments-list                        controllers.PaymentsClientListController.onPageLoad(waypoints: Waypoints ?= EmptyWaypoints)

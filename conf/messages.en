@@ -159,3 +159,6 @@ paymentsClientList.table.header.iossNumber = IOSS number
 paymentsClientList.paymentDetails.link = <a class="govuk-link" href="{1}"><span class="govuk-visually-hidden">{2}</span>{0}</a>
 paymentsClientList.paymentDetails.hidden = Payment details for {0}
 paymentsClientList.paymentDetails.noClientPayments = You do not have any clients on your account
+
+startClientOutstandingReturn.title = startClientOutstandingReturn
+startClientOutstandingReturn.heading = startClientOutstandingReturn
