@@ -26,8 +26,9 @@ import models.etmp.{EtmpDisplayRegistration, EtmpExclusion, RegistrationWrapper}
 import models.responses.InternalServerError
 import models.securemessage.responses.{SecureMessageCount, SecureMessageResponse, SecureMessageResponseWithCount, TaxpayerName}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{times, verify, when}
+import org.mockito.Mockito.{reset, times, verify, when}
 import org.scalacheck.Arbitrary.arbitrary
+import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import pages.{EmptyWaypoints, Waypoints}
 import play.api.inject.bind
@@ -39,7 +40,7 @@ import viewmodels.dashboard.DashboardUrlsViewModel
 
 import java.time.LocalDate
 
-class YourAccountControllerSpec extends SpecBase with MockitoSugar {
+class YourAccountControllerSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach {
 
   private val waypoints: Waypoints = EmptyWaypoints
   private val businessName = "Company name"
@@ -84,10 +85,15 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
     etmpDisplayRegistration = etmpDisplayRegistration
   )
 
-
+  val mockRegistrationConnector: RegistrationConnector = mock[RegistrationConnector]
   val mockSecureMessageConnector: SecureMessageConnector = mock[SecureMessageConnector]
 
   lazy val yourAccountRoute: String = routes.YourAccountController.onPageLoad(waypoints).url
+
+  override def beforeEach(): Unit = reset(
+    mockRegistrationConnector,
+    mockSecureMessageConnector
+  )
 
   "YourAccount Controller" - {
 
@@ -117,8 +123,6 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
             )
           )
         )
-
-        val mockRegistrationConnector = mock[RegistrationConnector]
 
         when(mockRegistrationConnector.getNumberOfPendingRegistrations(any())(any()))
           .thenReturn(1.toLong.toFuture)
@@ -173,8 +177,6 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
       }
 
       "must return OK with cancelYourRequestToLeave link and without leaveThisService link when a trader is excluded" in {
-
-        val mockRegistrationConnector = mock[RegistrationConnector]
 
         val registrationWrapper: RegistrationWrapper = arbitrary[RegistrationWrapper].sample.value
 
@@ -251,8 +253,6 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
 
     "must throw an exception and log the error when an unexpected error is returned" in {
 
-      val mockRegistrationConnector = mock[RegistrationConnector]
-
       when(mockRegistrationConnector.getNumberOfPendingRegistrations(any())(any()))
         .thenReturn(0.toLong.toFuture)
       when(mockRegistrationConnector.getNumberOfSavedUserAnswers(any())(any()))
@@ -262,6 +262,7 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
         .overrides(bind[RegistrationConnector].toInstance(mockRegistrationConnector))
+        .overrides(bind[SecureMessageConnector].toInstance(mockSecureMessageConnector))
         .build()
 
       running(application) {
