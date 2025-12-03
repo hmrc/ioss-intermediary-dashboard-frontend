@@ -91,8 +91,9 @@ class YourAccountController @Inject()(
                         secureMessagesUrl = controllers.routes.SecureMessagesController.onPageLoad().url,
                         leaveThisServiceUrl = leaveThisServiceUrl,
                         continueSavedRegUrl = appConfig.continueRegistrationUrl,
-                        rejoinSchemeUrl = appConfig.rejoinSchemeUrl
-                      )
+                        rejoinSchemeUrl = appConfig.rejoinSchemeUrl,
+                      makeAPaymentUrl = controllers.routes.PaymentsClientListController.onPageLoad().url
+                    )
 
                       Ok(view(
                         waypoints,
@@ -104,7 +105,7 @@ class YourAccountController @Inject()(
                         cancelYourRequestToLeaveUrl(maybeExclusion),
                         numberOfSavedUserJourneys,
                         urls,
-                        canRejoin
+                        canRejoin,
                       )).toFuture
 
                     case Left(error) =>

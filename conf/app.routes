@@ -42,3 +42,5 @@ GET        /intercept-unusable-email                     controllers.InterceptUn
 GET        /client-returns-list                          controllers.ClientReturnsListController.onPageLoad(waypoints: Waypoints ?= EmptyWaypoints)
 
 GET        /start-client-return                          controllers.returns.StartClientOutstandingReturnController.onPageLoad(waypoints: Waypoints ?= EmptyWaypoints)
+
+GET         /client-payments-list                        controllers.PaymentsClientListController.onPageLoad()

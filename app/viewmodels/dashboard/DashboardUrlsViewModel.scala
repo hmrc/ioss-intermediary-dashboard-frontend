@@ -25,5 +25,6 @@ case class DashboardUrlsViewModel(
                                    secureMessagesUrl: String,
                                    leaveThisServiceUrl: Option[String],
                                    continueSavedRegUrl: String,
-                                   rejoinSchemeUrl: String
+                                   rejoinSchemeUrl: String,
+                                   makeAPaymentUrl: String
                                  )

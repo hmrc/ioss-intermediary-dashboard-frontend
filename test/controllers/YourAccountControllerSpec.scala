@@ -146,7 +146,8 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
           secureMessagesUrl = controllers.routes.SecureMessagesController.onPageLoad().url,
           leaveThisServiceUrl = Some(appConfig.leaveThisServiceUrl),
           continueSavedRegUrl = appConfig.continueRegistrationUrl,
-          rejoinSchemeUrl = appConfig.rejoinSchemeUrl
+          rejoinSchemeUrl = appConfig.rejoinSchemeUrl,
+          makeAPaymentUrl = controllers.routes.PaymentsClientListController.onPageLoad().url
         )
 
         running(application) {
@@ -221,7 +222,8 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
           secureMessagesUrl = controllers.routes.SecureMessagesController.onPageLoad().url,
           leaveThisServiceUrl = None,
           continueSavedRegUrl = appConfig.continueRegistrationUrl,
-          rejoinSchemeUrl = appConfig.rejoinSchemeUrl
+          rejoinSchemeUrl = appConfig.rejoinSchemeUrl,
+          makeAPaymentUrl = controllers.routes.PaymentsClientListController.onPageLoad().url
         )
 
 
