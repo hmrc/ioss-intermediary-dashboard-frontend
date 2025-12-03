@@ -154,7 +154,6 @@ startClientOutstandingReturn.heading = Which client's return do you want to star
 paymentsClientList.title = Which client do you want to make a VAT payment for?
 paymentsClientList.heading = Which client do you want to make a VAT payment for?
 paymentsClientList.table.header.clientName = Client name
-paymentsClientList.table.header.clientReference = Client reference
 paymentsClientList.table.header.iossNumber = IOSS number
 paymentsClientList.paymentDetails.link = <a class="govuk-link" href="{1}"><span class="govuk-visually-hidden">{2}</span>{0}</a>
 paymentsClientList.paymentDetails.hidden = Payment details for {0}
