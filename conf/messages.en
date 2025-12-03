@@ -149,9 +149,6 @@ clientReturnsList.remove.link = <a class="govuk-link" href="{1}"><span aria-hidd
 clientReturnsList.noSubmittedReturns = You have not completed any returns.
 clientReturnsList.change.hidden = View returns for
 
-startClientOutstandingReturn.title = Which client's return do you want to start?
-startClientOutstandingReturn.heading = Which client's return do you want to start?
-
 paymentsClientList.title = Which client do you want to make a VAT payment for?
 paymentsClientList.heading = Which client do you want to make a VAT payment for?
 paymentsClientList.table.header.clientName = Client name
@@ -160,5 +157,5 @@ paymentsClientList.paymentDetails.link = <a class="govuk-link" href="{1}"><span 
 paymentsClientList.paymentDetails.hidden = Payment details for {0}
 paymentsClientList.paymentDetails.noClientPayments = You do not have any clients on your account
 
-startClientOutstandingReturn.title = startClientOutstandingReturn
-startClientOutstandingReturn.heading = startClientOutstandingReturn
+startClientOutstandingReturn.title = Which client's return do you want to start?
+startClientOutstandingReturn.heading = Which client's return do you want to start?
