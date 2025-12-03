@@ -20,7 +20,6 @@ import base.SpecBase
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import models.SavedPendingRegistration
 import models.domain.VatCustomerInfo
-import models.etmp.EtmpClientDetails
 import models.responses.*
 import org.scalacheck.Gen
 import play.api.Application

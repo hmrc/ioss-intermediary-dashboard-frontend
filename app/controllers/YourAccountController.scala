@@ -45,7 +45,7 @@ class YourAccountController @Inject()(
 
   protected val controllerComponents: MessagesControllerComponents = cc
 
-  def onPageLoad(waypoints: Waypoints): Action[AnyContent] = cc.identifyAndGetRegistration.async {
+  def onPageLoad(waypoints: Waypoints): Action[AnyContent] = cc.identifyAndGetRegistrationWithCheckBouncedEmail.async {
     implicit request =>
 
       val vrn = request.vrn.vrn
