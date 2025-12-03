@@ -34,7 +34,7 @@ class PaymentsClientListController @Inject()(
                                        view: PaymentsClientListView
                                      ) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = cc.identifyAndGetRegistration {
+  def onPageLoad(waypoints: Waypoints): Action[AnyContent] = cc.identifyAndGetRegistration {
     implicit request =>
 
       val clientDetailsList: Seq[EtmpClientDetails] = request.registrationWrapper.etmpDisplayRegistration.clientDetails
