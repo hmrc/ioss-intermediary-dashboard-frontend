@@ -37,4 +37,6 @@ GET        /secure-messages                              controllers.SecureMessa
 
 GET        /individual-secure-message/:id                controllers.IndividualSecureMessageController.onPageLoad(id: String)
 
+GET        /intercept-unusable-email                     controllers.InterceptUnusableEmailController.onPageLoad()
+
 GET        /client-returns-list                          controllers.ClientReturnsListController.onPageLoad(waypoints: Waypoints ?= EmptyWaypoints)

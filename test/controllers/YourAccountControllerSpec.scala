@@ -26,7 +26,7 @@ import models.etmp.{EtmpDisplayRegistration, EtmpExclusion, RegistrationWrapper}
 import models.responses.InternalServerError
 import models.securemessage.responses.{SecureMessageCount, SecureMessageResponse, SecureMessageResponseWithCount, TaxpayerName}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{times, verify, when}
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalatestplus.mockito.MockitoSugar
 import pages.{EmptyWaypoints, Waypoints}
@@ -111,7 +111,10 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
           vatInfo = niVatInfo,
           etmpDisplayRegistration = arbitraryEtmpDisplayRegistration.arbitrary.sample.value.copy(
             exclusions = Seq.empty,
-            otherAddress = None
+            otherAddress = None,
+            schemeDetails = registrationWrapper.etmpDisplayRegistration.schemeDetails.copy(
+              unusableStatus = false
+            )
           )
         )
 
@@ -185,7 +188,12 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
         val registrationWrapperEmptyExclusions: RegistrationWrapper =
           registrationWrapper
             .copy(vatInfo = registrationWrapper.vatInfo)
-            .copy(etmpDisplayRegistration = registrationWrapper.etmpDisplayRegistration.copy(exclusions = Seq(exclusion)))
+            .copy(etmpDisplayRegistration = registrationWrapper.etmpDisplayRegistration.copy(
+              exclusions = Seq(exclusion),
+              schemeDetails = registrationWrapper.etmpDisplayRegistration.schemeDetails.copy(
+                unusableStatus = false
+              )
+            ))
 
         when(mockRegistrationConnector.getNumberOfPendingRegistrations(any())(any()))
           .thenReturn(1.toLong.toFuture)
@@ -259,11 +267,11 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val request = FakeRequest(GET, yourAccountRoute)
 
-        val thrown = intercept[Exception] {
-          await(route(application, request).value)
+        assertThrows[Exception] {
+          route(application, request).value.futureValue
         }
 
-        thrown.getMessage must include("Internal server error")
+        verify(mockRegistrationConnector, times(1)).getVatCustomerInfo(any())(any())
       }
     }
   }

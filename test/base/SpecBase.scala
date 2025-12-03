@@ -75,6 +75,8 @@ trait SpecBase
   lazy val fakeRequest: FakeRequest[AnyContentAsEmpty.type] =
     FakeRequest("", "/endpoint").withCSRFToken.asInstanceOf[FakeRequest[AnyContentAsEmpty.type]]
 
+  def testEnrolments: Enrolments = Enrolments(Set(Enrolment("HMRC-MTD-VAT", Seq(EnrolmentIdentifier("VRN", vrn.vrn)), "Activated")))
+  
   def emptyUserAnswers : UserAnswers = UserAnswers(userAnswersId)
 
   def messages(app: Application): Messages = app.injector.instanceOf[MessagesApi].preferred(FakeRequest())
