@@ -20,7 +20,7 @@ import base.SpecBase
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import models.SavedPendingRegistration
 import models.domain.VatCustomerInfo
-import models.etmp.{EtmpClientDetails, RegistrationWrapper}
+import models.etmp.EtmpClientDetails
 import models.responses.*
 import org.scalacheck.Gen
 import play.api.Application
@@ -35,9 +35,7 @@ class RegistrationConnectorSpec extends SpecBase with WireMockHelper {
   implicit private lazy val hc: HeaderCarrier = HeaderCarrier()
 
   private val vatNumber: String = "123456789"
-
-  private val etmpClientDetails: Seq[EtmpClientDetails] = Gen.listOfN(3, arbitraryEtmpClientDetails.arbitrary).sample.value
-
+  
   private def dashboardApplication: Application = applicationBuilder()
     .configure(
       "microservice.services.ioss-intermediary-dashboard.port" -> server.port,
@@ -271,7 +269,5 @@ class RegistrationConnectorSpec extends SpecBase with WireMockHelper {
         }
       }
     }
-
-
   }
 }

@@ -16,7 +16,7 @@
 
 package models.securemessage.responses
 
-import play.api.libs.json.{Json, OFormat, OWrites, Reads, __}
+import play.api.libs.json.{OFormat, OWrites, Reads, __}
 
 case class SecureMessageCount(total: Long, unread: Long) {
   lazy val read: Long =  total - unread

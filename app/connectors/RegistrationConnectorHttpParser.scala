@@ -17,7 +17,7 @@
 package connectors
 
 import logging.Logging
-import models.etmp.{EtmpClientDetails, EtmpDisplayRegistration, RegistrationWrapper}
+import models.etmp.{EtmpClientDetails, RegistrationWrapper}
 import models.responses.{ErrorResponse, InternalServerError, InvalidJson}
 import play.api.http.Status.OK
 import play.api.libs.json.{JsError, JsSuccess}

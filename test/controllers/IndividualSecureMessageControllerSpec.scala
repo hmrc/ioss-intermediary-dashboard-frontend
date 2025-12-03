@@ -18,7 +18,6 @@ package controllers
 
 import base.SpecBase
 import connectors.SecureMessageConnector
-import models.securemessage.Content
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar.mock

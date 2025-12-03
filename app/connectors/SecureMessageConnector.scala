@@ -18,11 +18,10 @@ package connectors
 
 import config.Service
 import connectors.SecureMessagesHttpParser.*
-import logging.Logging
 import models.securemessage.{CustomerEnrolment, MessageFilter}
 import play.api.Configuration
-import uk.gov.hmrc.http.{HeaderCarrier, HttpErrorFunctions, StringContextOps}
 import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, HttpErrorFunctions, StringContextOps}
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -30,7 +29,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class SecureMessageConnector @Inject()(
                                         httpClientV2: HttpClientV2,
                                         config: Configuration
-                                      )(implicit ec: ExecutionContext) extends HttpErrorFunctions with Logging {
+                                      )(implicit ec: ExecutionContext) extends HttpErrorFunctions {
 
   private val baseUrl: Service = config.get[Service]("microservice.services.secure-message")
 
@@ -49,12 +48,12 @@ class SecureMessageConnector @Inject()(
       language.map("language" -> _),
       taxIdentifiers.map("taxIdentifiers" -> _)
     ).flatten
-    
+
     httpClientV2.get(url"$baseUrl/messages")
       .transform(_.addQueryStringParameters(queryParams: _*))
       .execute[SecureMessageResultResponse]
   }
-  
+
   def markAsRead(id: String)(implicit hc: HeaderCarrier): Future[MarkAsReadResponse] = {
     httpClientV2.post(url"$baseUrl/messages/$id/read-time")
       .execute[MarkAsReadResponse]

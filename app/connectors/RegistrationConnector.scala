@@ -23,6 +23,7 @@ import connectors.VatCustomerInfoHttpParser.{VatCustomerInfoResponse, VatCustome
 import logging.Logging
 import models.etmp.RegistrationWrapper
 import play.api.Configuration
+import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpErrorFunctions, StringContextOps}
 
