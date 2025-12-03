@@ -39,8 +39,6 @@ class PaymentsClientListController @Inject()(
 
       val clientDetailsList: Seq[EtmpClientDetails] = request.registrationWrapper.etmpDisplayRegistration.clientDetails
       val viewModel: ClientPaymentsListViewModel = ClientPaymentsListViewModel(clientDetailsList)
-      val registration = request.registrationWrapper.etmpDisplayRegistration.customerIdentification
-      println(s"customerIdentification: $registration")
 
       Ok(view(viewModel))
   }
