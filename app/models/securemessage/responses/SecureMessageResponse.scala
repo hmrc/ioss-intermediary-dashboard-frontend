@@ -18,8 +18,6 @@ package models.securemessage.responses
 
 import play.api.libs.json.*
 
-import java.time.LocalDate
-
 case class SecureMessageResponse(
                               messageType: String,
                               id: String,

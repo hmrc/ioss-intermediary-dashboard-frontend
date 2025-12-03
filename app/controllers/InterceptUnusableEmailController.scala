@@ -19,22 +19,20 @@ package controllers
 import config.FrontendAppConfig
 import controllers.actions.*
 import logging.Logging
-
-import javax.inject.Inject
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.InterceptUnusableEmailView
 
-import scala.concurrent.ExecutionContext
+import javax.inject.Inject
 
 class InterceptUnusableEmailController @Inject()(
-                                       override val messagesApi: MessagesApi,
-                                       cc: AuthenticatedControllerComponents,
-                                       val controllerComponents: MessagesControllerComponents,
-                                       frontendAppConfig: FrontendAppConfig,
-                                       view: InterceptUnusableEmailView
-                                     )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
+                                                  override val messagesApi: MessagesApi,
+                                                  cc: AuthenticatedControllerComponents,
+                                                  val controllerComponents: MessagesControllerComponents,
+                                                  frontendAppConfig: FrontendAppConfig,
+                                                  view: InterceptUnusableEmailView
+                                                ) extends FrontendBaseController with I18nSupport with Logging {
 
   def onPageLoad: Action[AnyContent] = cc.identifyAndGetRegistrationWithoutCheckBouncedEmail {
     implicit request =>

@@ -16,7 +16,7 @@
 
 package models.securemessage.responses
 
-import play.api.libs.json.{Format, Json, OFormat}
+import play.api.libs.json.{Json, OFormat}
 
 case class TaxpayerName(
                          title: Option[String] = None,

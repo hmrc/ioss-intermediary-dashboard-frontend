@@ -17,7 +17,6 @@
 package connectors.test
 
 import config.Service
-import logging.Logging
 import play.api.Configuration
 import play.api.libs.json.{JsArray, JsObject, Json}
 import play.api.libs.ws.writeableOf_JsValue

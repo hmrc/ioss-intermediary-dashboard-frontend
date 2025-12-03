@@ -22,17 +22,16 @@ import controllers.actions.*
 import logging.Logging
 import models.etmp.EtmpExclusion
 import models.etmp.EtmpExclusionReason.*
-
-import javax.inject.Inject
 import pages.Waypoints
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.YourAccountView
 import utils.FutureSyntax.FutureOps
 import viewmodels.dashboard.DashboardUrlsViewModel
+import views.html.YourAccountView
 
 import java.time.{Clock, LocalDate}
+import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
 class YourAccountController @Inject()(
@@ -46,7 +45,7 @@ class YourAccountController @Inject()(
 
   protected val controllerComponents: MessagesControllerComponents = cc
 
-  def onPageLoad(waypoints: Waypoints): Action[AnyContent] = cc.identifyAndGetRegistration.async {
+  def onPageLoad(waypoints: Waypoints): Action[AnyContent] = cc.identifyAndGetRegistrationWithCheckBouncedEmail.async {
     implicit request =>
 
       val vrn = request.vrn.vrn
@@ -57,85 +56,85 @@ class YourAccountController @Inject()(
           registrationConnector.getVatCustomerInfo(vrn).flatMap {
             case Right(vatInfo) =>
 
-            secureMessageConnector.getMessages(taxIdentifiers = Some(intermediaryEnrolment)).flatMap {
-              case Right(secureMessages) =>
-                
-                registrationConnector.displayRegistration(request.intermediaryNumber).flatMap {
-                  case Right(registrationWrapper) =>
-                    
-                    val businessName = vatInfo.organisationName.orElse(vatInfo.individualName).getOrElse("")
-                    val intermediaryNumber = request.intermediaryNumber
+              secureMessageConnector.getMessages(taxIdentifiers = Some(intermediaryEnrolment)).flatMap {
+                case Right(secureMessages) =>
 
-                    val maybeExclusion: Option[EtmpExclusion] = request.registrationWrapper.etmpDisplayRegistration.exclusions.lastOption
-                    val leaveThisServiceUrl = if (maybeExclusion.isEmpty || maybeExclusion.exists(_.exclusionReason == Reversal)) {
-                      Some(appConfig.leaveThisServiceUrl)
-                    } else {
-                      None
-                    }
+                  registrationConnector.displayRegistration(request.intermediaryNumber).flatMap {
+                    case Right(registrationWrapper) =>
 
-                    val messageCount = secureMessages.count.unread match {
-                      case unread if unread > 0 => unread.toInt
-                      case _ => secureMessages.count.total.toInt
-                    }
+                      val businessName = vatInfo.organisationName.orElse(vatInfo.individualName).getOrElse("")
+                      val intermediaryNumber = request.intermediaryNumber
 
-                    val hasUnreadMessages = if (secureMessages.count.unread > 0) true else false
+                      val maybeExclusion: Option[EtmpExclusion] = request.registrationWrapper.etmpDisplayRegistration.exclusions.lastOption
+                      val leaveThisServiceUrl = if (maybeExclusion.isEmpty || maybeExclusion.exists(_.exclusionReason == Reversal)) {
+                        Some(appConfig.leaveThisServiceUrl)
+                      } else {
+                        None
+                      }
 
-                    val currentDate: LocalDate = LocalDate.now(clock)
-                    val canRejoin = registrationWrapper.etmpDisplayRegistration.canRejoinScheme(currentDate)
-                    
-                    val urls = DashboardUrlsViewModel(
-                      addClientUrl = appConfig.addClientUrl,
-                      viewClientReturnsListUrl = controllers.routes.ClientReturnsListController.onPageLoad().url,
-                      viewClientsListUrl = controllers.routes.ClientListController.onPageLoad().url,
-                      changeYourRegistrationUrl = appConfig.changeYourRegistrationUrl,
-                      pendingClientsUrl = controllers.routes.ClientAwaitingActivationController.onPageLoad().url,
-                      secureMessagesUrl = controllers.routes.SecureMessagesController.onPageLoad().url,
-                      leaveThisServiceUrl = leaveThisServiceUrl,
-                      continueSavedRegUrl = appConfig.continueRegistrationUrl,
-                      rejoinSchemeUrl = appConfig.rejoinSchemeUrl
-                    )
+                      val messageCount = secureMessages.count.unread match {
+                        case unread if unread > 0 => unread.toInt
+                        case _ => secureMessages.count.total.toInt
+                      }
 
-                    Ok(view(
-                      waypoints,
-                      businessName,
-                      intermediaryNumber,
-                      messageCount,
-                      hasUnreadMessages,
-                      numberOfAwaitingClients,
-                      cancelYourRequestToLeaveUrl(maybeExclusion),
-                      numberOfSavedUserJourneys,
-                      urls,
-                      canRejoin
-                    )).toFuture
+                      val hasUnreadMessages = if (secureMessages.count.unread > 0) true else false
 
-                  case Left(error) =>
-                    val message: String = s"Received an unexpected error when trying to retrieve registration details: $error."
-                    val exception: Exception = new Exception(message)
-                    logger.error(exception.getMessage, exception)
-                    throw exception
-                  
-                }
+                      val currentDate: LocalDate = LocalDate.now(clock)
+                      val canRejoin = registrationWrapper.etmpDisplayRegistration.canRejoinScheme(currentDate)
 
-              case Left(errors) =>
-                val message: String = s"Received an unexpected error when trying to retrieve secure messages: $errors."
-                val exception: Exception = new Exception(message)
-                logger.error(exception.getMessage, exception)
-                throw exception
-            }
+                      val urls = DashboardUrlsViewModel(
+                        addClientUrl = appConfig.addClientUrl,
+                        viewClientReturnsListUrl = controllers.routes.ClientReturnsListController.onPageLoad().url,
+                        viewClientsListUrl = controllers.routes.ClientListController.onPageLoad().url,
+                        changeYourRegistrationUrl = appConfig.changeYourRegistrationUrl,
+                        pendingClientsUrl = controllers.routes.ClientAwaitingActivationController.onPageLoad().url,
+                        secureMessagesUrl = controllers.routes.SecureMessagesController.onPageLoad().url,
+                        leaveThisServiceUrl = leaveThisServiceUrl,
+                        continueSavedRegUrl = appConfig.continueRegistrationUrl,
+                        rejoinSchemeUrl = appConfig.rejoinSchemeUrl
+                      )
 
-          case Left(error) =>
-            val exception = new Exception(error.body)
-            logger.error(exception.getMessage, exception)
-            throw exception
+                      Ok(view(
+                        waypoints,
+                        businessName,
+                        intermediaryNumber,
+                        messageCount,
+                        hasUnreadMessages,
+                        numberOfAwaitingClients,
+                        cancelYourRequestToLeaveUrl(maybeExclusion),
+                        numberOfSavedUserJourneys,
+                        urls,
+                        canRejoin
+                      )).toFuture
+
+                    case Left(error) =>
+                      val message: String = s"Received an unexpected error when trying to retrieve registration details: $error."
+                      val exception: Exception = new Exception(message)
+                      logger.error(exception.getMessage, exception)
+                      throw exception
+
+                  }
+
+                case Left(errors) =>
+                  val message: String = s"Received an unexpected error when trying to retrieve secure messages: $errors."
+                  val exception: Exception = new Exception(message)
+                  logger.error(exception.getMessage, exception)
+                  throw exception
+              }
+
+            case Left(error) =>
+              val exception = new Exception(error.body)
+              logger.error(exception.getMessage, exception)
+              throw exception
+          }
         }
       }
   }
-}
 
-  private  def cancelYourRequestToLeaveUrl(maybeExclusion: Option[EtmpExclusion]): Option[String] = {
+  private def cancelYourRequestToLeaveUrl(maybeExclusion: Option[EtmpExclusion]): Option[String] = {
     maybeExclusion match {
       case Some(exclusion) if Seq(VoluntarilyLeaves, TransferringMSID).contains(exclusion.exclusionReason) &&
-        LocalDate.now(clock).isBefore(exclusion.effectiveDate)  =>
+        LocalDate.now(clock).isBefore(exclusion.effectiveDate) =>
         Some(appConfig.cancelYourRequestToLeaveUrl)
       case _ => None
     }
