@@ -23,23 +23,33 @@ import javax.inject.Inject
 import pages.Waypoints
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.ClientReturnService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.clientList.ClientReturnsListViewModel
 import views.html.ClientReturnsListView
+
+import scala.concurrent.ExecutionContext
 
 class ClientReturnsListController @Inject()(
                                        override val messagesApi: MessagesApi,
                                        cc: AuthenticatedControllerComponents,
                                        val controllerComponents: MessagesControllerComponents,
+                                       clientReturnService: ClientReturnService,
                                        view: ClientReturnsListView
-                                     ) extends FrontendBaseController with I18nSupport {
+                                     )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad(waypoints: Waypoints): Action[AnyContent] = cc.identifyAndGetRegistration {
+  def onPageLoad(waypoints: Waypoints): Action[AnyContent] = cc.identifyAndGetRegistration.async {
     implicit request =>
       val clientDetailsList: Seq[EtmpClientDetails] = request.registrationWrapper.etmpDisplayRegistration.clientDetails
+      val intermediaryNumber = request.intermediaryNumber
 
-      val viewModel: ClientReturnsListViewModel = ClientReturnsListViewModel(clientDetailsList)
+      clientReturnService.clientsWithCompletedReturns(clientDetailsList, intermediaryNumber).map {
+        filteredClients =>
 
-      Ok(view(viewModel))
+          val viewModel: ClientReturnsListViewModel = ClientReturnsListViewModel(filteredClients)
+
+          Ok(view(viewModel))
+      }
+
   }
 }
