@@ -59,16 +59,10 @@ trait AuthenticatedControllerComponents extends MessagesControllerComponents {
       getRegistration
   }
 
-  def identifyAndGetRegistrationWithCheckBouncedEmail: ActionBuilder[RegistrationRequest, AnyContent] = {
-    identify andThen
-      getRegistration andThen
-      checkBouncedEmail() andThen
-      checkNiBasedAddress()
-  }
-
   def identifyAndGetRegistration: ActionBuilder[RegistrationRequest, AnyContent] = {
     identify andThen
       getRegistration andThen
+      checkBouncedEmail() andThen
       checkNiBasedAddress()
   }
 }
