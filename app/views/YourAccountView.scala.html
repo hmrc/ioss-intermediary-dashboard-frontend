@@ -16,7 +16,6 @@
 
 @import viewmodels.InputWidth._
 @import viewmodels.dashboard.DashboardUrlsViewModel
-@import controllers.returns.routes as returnsRoutes
 
 @this(
     layout: templates.Layout,
@@ -24,7 +23,6 @@
 )
 
 @(
-    waypoints: Waypoints,
     businessName: String,
     intermediaryNumber: String,
     numberOfMessages: Int,
@@ -75,7 +73,7 @@
                 <h2 class="govuk-heading-m">@messages("yourAccount.returns.heading")</h2>
 
                 <p class="govuk-body">
-                    <a class="govuk-link" href="@returnsRoutes.ClientsOutstandingReturnsListController.onPageLoad(waypoints)"
+                    <a class="govuk-link" href="@urls.startClientCurrentReturnsUrl"
                        id="start-a-return">
                         @messages("yourAccount.returns.startReturn")
                     </a>

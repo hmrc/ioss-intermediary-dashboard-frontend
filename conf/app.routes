@@ -45,4 +45,4 @@ GET        /client-outstanding-returns-list              controllers.returns.Cli
 
 GET        /client-overdue-returns-list                  controllers.returns.ClientsOverdueReturnsListController.onPageLoad(waypoints: Waypoints ?= EmptyWaypoints)
 
-GET         /client-payments-list                        controllers.PaymentsClientListController.onPageLoad(waypoints: Waypoints ?= EmptyWaypoints)
+GET        /client-payments-list                         controllers.PaymentsClientListController.onPageLoad(waypoints: Waypoints ?= EmptyWaypoints)
