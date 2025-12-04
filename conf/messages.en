@@ -147,6 +147,7 @@ clientReturnsList.noActiveClients = You have no active clients
 clientReturnsList.change.link = <a class="govuk-link" href="{1}"><span class="govuk-visually-hidden">{2}</span>{0}</a>
 clientReturnsList.remove.link = <a class="govuk-link" href="{1}"><span aria-hidden=true>{0}</span><span class="govuk-visually-hidden">{2}</span></a>
 clientReturnsList.noSubmittedReturns = You have not completed any returns.
+clientReturnsList.change.hidden = View returns for {0}
 
 startClientOutstandingReturn.title = Which client's return do you want to start?
 startClientOutstandingReturn.heading = Which client's return do you want to start?
