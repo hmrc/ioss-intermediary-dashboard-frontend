@@ -34,7 +34,7 @@ class RegistrationConnectorSpec extends SpecBase with WireMockHelper {
   implicit private lazy val hc: HeaderCarrier = HeaderCarrier()
 
   private val vatNumber: String = "123456789"
-  
+
   private def dashboardApplication: Application = applicationBuilder()
     .configure(
       "microservice.services.ioss-intermediary-dashboard.port" -> server.port,

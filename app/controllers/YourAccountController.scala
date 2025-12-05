@@ -92,11 +92,11 @@ class YourAccountController @Inject()(
                         leaveThisServiceUrl = leaveThisServiceUrl,
                         continueSavedRegUrl = appConfig.continueRegistrationUrl,
                         rejoinSchemeUrl = appConfig.rejoinSchemeUrl,
-                      makeAPaymentUrl = controllers.routes.PaymentsClientListController.onPageLoad().url
-                    )
+                        makeAPaymentUrl = controllers.routes.PaymentsClientListController.onPageLoad().url,
+                        startClientCurrentReturnsUrl = controllers.returns.routes.ClientsOutstandingReturnsListController.onPageLoad(waypoints).url
+                      )
 
                       Ok(view(
-                        waypoints,
                         businessName,
                         intermediaryNumber,
                         messageCount,

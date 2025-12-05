@@ -19,7 +19,7 @@ package controllers.actions
 import models.requests.{DataRequest, OptionalDataRequest, RegistrationRequest}
 import play.api.http.FileMimeTypes
 import play.api.i18n.{Langs, MessagesApi}
-import play.api.mvc.{ActionBuilder, AnyContent, DefaultActionBuilder, MessagesActionBuilder, MessagesControllerComponents, PlayBodyParsers}
+import play.api.mvc.*
 import repositories.SessionRepository
 
 import javax.inject.Inject
@@ -62,7 +62,6 @@ trait AuthenticatedControllerComponents extends MessagesControllerComponents {
   def identifyAndGetRegistration: ActionBuilder[RegistrationRequest, AnyContent] = {
     identify andThen
       getRegistration andThen
-      checkBouncedEmail() andThen
       checkNiBasedAddress()
   }
 }

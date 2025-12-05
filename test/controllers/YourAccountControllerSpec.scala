@@ -33,9 +33,9 @@ import pages.{EmptyWaypoints, Waypoints}
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import views.html.YourAccountView
 import utils.FutureSyntax.FutureOps
 import viewmodels.dashboard.DashboardUrlsViewModel
+import views.html.YourAccountView
 
 import java.time.LocalDate
 
@@ -147,7 +147,8 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
           leaveThisServiceUrl = Some(appConfig.leaveThisServiceUrl),
           continueSavedRegUrl = appConfig.continueRegistrationUrl,
           rejoinSchemeUrl = appConfig.rejoinSchemeUrl,
-          makeAPaymentUrl = controllers.routes.PaymentsClientListController.onPageLoad().url
+          makeAPaymentUrl = controllers.routes.PaymentsClientListController.onPageLoad().url,
+          startClientCurrentReturnsUrl = controllers.returns.routes.ClientsOutstandingReturnsListController.onPageLoad(waypoints).url
         )
 
         running(application) {
@@ -159,7 +160,6 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
 
           status(result) `mustEqual` OK
           contentAsString(result) mustEqual view(
-            waypoints,
             businessName,
             intermediaryNumber,
             numberOfMessages = secureMessageResponseWithCount.count.total.toInt,
@@ -223,7 +223,8 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
           leaveThisServiceUrl = None,
           continueSavedRegUrl = appConfig.continueRegistrationUrl,
           rejoinSchemeUrl = appConfig.rejoinSchemeUrl,
-          makeAPaymentUrl = controllers.routes.PaymentsClientListController.onPageLoad().url
+          makeAPaymentUrl = controllers.routes.PaymentsClientListController.onPageLoad().url,
+          startClientCurrentReturnsUrl = controllers.returns.routes.ClientsOutstandingReturnsListController.onPageLoad(waypoints).url
         )
 
 
@@ -236,7 +237,6 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
 
           status(result) `mustEqual` OK
           contentAsString(result) mustEqual view(
-            waypoints,
             businessName,
             intermediaryNumber,
             numberOfMessages = secureMessageResponseWithCount.count.total.toInt,

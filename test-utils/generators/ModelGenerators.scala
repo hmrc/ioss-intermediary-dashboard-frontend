@@ -139,7 +139,7 @@ trait ModelGenerators extends EitherValues {
     Arbitrary {
       for {
         clientName <- Gen.alphaStr
-        clientIossID <- Gen.alphaNumStr
+        clientIossID <- arbitraryIossNumber.arbitrary
         clientExcluded <- arbitrary[Boolean]
       } yield {
         EtmpClientDetails(
@@ -468,10 +468,20 @@ trait ModelGenerators extends EitherValues {
     }
   }
 
+  implicit lazy val arbitraryIossNumber: Arbitrary[String] = {
+    Arbitrary {
+      for {
+        iossNumber <- Gen.listOfN(7, Gen.numChar).map(_.mkString)
+      } yield {
+       s"IM900$iossNumber"
+      }
+    }
+  }
+
   implicit lazy val arbitraryCurrentReturns: Arbitrary[CurrentReturns] = {
     Arbitrary {
       for {
-        iossNumber <- arbitrary[String]
+        iossNumber <- arbitraryIossNumber.arbitrary
         incompleteReturns <- Gen.listOfN(2, arbitraryReturn.arbitrary)
         completedReturns <- Gen.listOfN(2, arbitraryReturn.arbitrary)
       } yield {
