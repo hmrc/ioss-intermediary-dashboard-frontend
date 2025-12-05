@@ -29,9 +29,13 @@
 
     <h1 class="govuk-heading-l">@messages("clientReturnsList.heading")</h1>
 
-    @govukInsetText(InsetText(
-        content = Text(messages("clientReturnsList.insetText"))
-      ))
+    @if(
+    clientReturnsListViewModel.activeClients.rows.nonEmpty ||
+    clientReturnsListViewModel.excludedClients.rows.nonEmpty) {
+        @govukInsetText(InsetText(
+            content = Text(messages("clientReturnsList.insetText"))
+          ))
+    }
 
     @if(
       clientReturnsListViewModel.activeClients.rows.isEmpty &&
@@ -40,8 +44,6 @@
 
        } else if(clientReturnsListViewModel.activeClients.rows.nonEmpty) {
         @govukTable(clientReturnsListViewModel.activeClients)
-    } else {
-        <p class="govuk-body">@messages("clientReturnsList.noActiveClients")</p>
     }
 
     @if(clientReturnsListViewModel.excludedClients.rows.nonEmpty) {

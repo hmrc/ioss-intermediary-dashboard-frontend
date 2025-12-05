@@ -18,19 +18,36 @@ package controllers.test
 
 import base.SpecBase
 import controllers.routes
+import models.etmp.EtmpClientDetails
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
+import org.mockito.Mockito.when
+import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.i18n.Messages
+import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import services.ClientReturnService
 import viewmodels.clientList.ClientReturnsListViewModel
 import views.html.ClientReturnsListView
+import utils.FutureSyntax.FutureOps
 
 class ClientReturnsListControllerSpec extends SpecBase {
+
+  private val mockClientReturnService: ClientReturnService = mock[ClientReturnService]
+  private val registration = registrationWrapper.etmpDisplayRegistration
+  private val clientDetailsList: Seq[EtmpClientDetails] = registration.clientDetails
 
   "ClientReturnsList Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
+      when(mockClientReturnService.clientsWithCompletedReturns(
+        eqTo(clientDetailsList),
+        eqTo(intermediaryNumber)
+      )(any())) thenReturn clientDetailsList.toFuture
+
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        .overrides(bind[ClientReturnService].toInstance(mockClientReturnService))
         .build()
 
       running(application) {
@@ -42,11 +59,7 @@ class ClientReturnsListControllerSpec extends SpecBase {
 
         val view = application.injector.instanceOf[ClientReturnsListView]
 
-        val registration = registrationWrapper.etmpDisplayRegistration
-
-        val clientReturnsListViewModel: ClientReturnsListViewModel = ClientReturnsListViewModel(
-          clientReturnsList = registration.clientDetails,
-        )
+        val clientReturnsListViewModel: ClientReturnsListViewModel = ClientReturnsListViewModel(clientDetailsList)
 
         status(result) `mustBe` OK
         contentAsString(result) `mustBe` view(clientReturnsListViewModel)(request).toString
