@@ -91,7 +91,7 @@ object ClientOutstandingReturnsListViewModel {
     LinkModel(
       linkText = messages("yourAccount.returns.startReturn"),
       id = "start-your-return",
-      url = s"$redirectUrl$clientIossNumber"
+      url = s"$redirectUrl/$clientIossNumber"
     )
   }
 }
