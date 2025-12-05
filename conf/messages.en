@@ -158,9 +158,9 @@ paymentsClientList.paymentDetails.hidden = Payment details for {0}
 paymentsClientList.paymentDetails.noClientPayments = You do not have any clients on your account
 
 clientsOutstandingReturnsList.title = Which client's return do you want to start?
-clientsOutstandingReturnsList.title.noReturns =You do not have any clients on your account
+clientsOutstandingReturnsList.title.noReturns =You do not have any clients with outstanding returns on your account
 clientsOutstandingReturnsList.heading = Which client's return do you want to start?
-clientsOutstandingReturnsList.heading.noReturns = You do not have any clients on your account
+clientsOutstandingReturnsList.heading.noReturns = You do not have any clients with outstanding returns on your account
 clientsOutstandingReturnsList.viewOverdueReturns = <a class="govuk-link" href="{0}">View your clients with overdue returns</a>
 clientsOutstandingReturnsList.p1 = If your client does not appear on this list, then they don't have any returns due.
 
@@ -170,8 +170,8 @@ clientsReturnsListCommon.table.startClientReturn.link = <a class="govuk-link" hr
 clientsReturnsListCommon.table.startClientReturn.hidden = Start return for
 
 clientsOverdueReturnsList.title = Start an overdue return
-clientsOverdueReturnsList.title.noReturns = You do not have any clients on your account
+clientsOverdueReturnsList.title.noReturns = You do not have any clients with outstanding returns on your account
 clientsOverdueReturnsList.heading = Start an overdue return
-clientsOverdueReturnsList.heading.noReturns = You do not have any clients on your account
+clientsOverdueReturnsList.heading.noReturns = You do not have any clients with outstanding returns on your account
 clientsOverdueReturnsList.viewDeReturns = <a class="govuk-link" href="{0}">View all your clients</a>
 clientsOverdueReturnsList.p1 = If your client does not appear on this list, then they don't have any returns due.
