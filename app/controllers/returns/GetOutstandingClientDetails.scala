@@ -17,7 +17,6 @@
 package controllers.returns
 
 import models.etmp.EtmpClientDetails
-import models.returns.SubmissionStatus.{Due, Overdue}
 import models.returns.{CurrentReturns, SubmissionStatus}
 
 object GetOutstandingClientDetails {
@@ -29,21 +28,6 @@ object GetOutstandingClientDetails {
                                           ): Seq[EtmpClientDetails] = {
     val iossNumbersWithDueReturns: Seq[String] = currentReturns.filter { currentReturn =>
       currentReturn.incompleteReturns.exists(_.submissionStatus == status)
-    }.map(_.iossNumber)
-
-    clientDetails.filter { clientDetails =>
-      iossNumbersWithDueReturns.contains(clientDetails.clientIossID)
-    }
-  }
-
-  def getOutstandingClientDetails(
-                                   currentReturns: Seq[CurrentReturns],
-                                   clientDetails: Seq[EtmpClientDetails]
-                                 ) = {
-    val iossNumbersWithDueReturns: Seq[String] = currentReturns.filter { currentReturn =>
-      currentReturn.incompleteReturns.exists { clientReturn =>
-        clientReturn.submissionStatus == Due || clientReturn.submissionStatus == Overdue
-      }
     }.map(_.iossNumber)
 
     clientDetails.filter { clientDetails =>

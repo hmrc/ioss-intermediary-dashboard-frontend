@@ -18,9 +18,10 @@ package controllers.returns
 
 import config.FrontendAppConfig
 import controllers.actions.*
-import controllers.returns.GetOutstandingClientDetails.{getOutstandingClientDetails, getOutstandingClientDetailsForStatus}
+import controllers.returns.GetOutstandingClientDetails.getOutstandingClientDetailsForStatus
 import models.etmp.EtmpClientDetails
-import models.returns.SubmissionStatus.Overdue
+import models.returns.CurrentReturns
+import models.returns.SubmissionStatus.{Due, Overdue}
 import pages.Waypoints
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -51,16 +52,31 @@ class ClientsOutstandingReturnsListController @Inject()(
 
       currentReturnsService.getCurrentReturns(request.intermediaryNumber).map { currentReturns =>
         val clientIossNumbersWithDueAndOverdueReturns: Seq[EtmpClientDetails] = getOutstandingClientDetails(currentReturns, clientDetails)
-        
+
         val startReturnUrl: String = frontendAppConfig.startCurrentReturnUrl
         val viewModel: ClientOutstandingReturnsListViewModel =
           ClientOutstandingReturnsListViewModel(clientIossNumbersWithDueAndOverdueReturns, startReturnUrl)
 
         val viewOverdueReturnsLink: String = routes.ClientsOverdueReturnsListController.onPageLoad(waypoints).url
-        
+
         val currentReturnsNonEmpty: Boolean = clientIossNumbersWithDueAndOverdueReturns.nonEmpty
         val overdueReturnsNonEmpty: Boolean = getOutstandingClientDetailsForStatus(currentReturns, Overdue, clientDetails).nonEmpty
         Ok(view(viewModel, viewOverdueReturnsLink, currentReturnsNonEmpty, overdueReturnsNonEmpty))
       }
+  }
+
+  private def getOutstandingClientDetails(
+                                           currentReturns: Seq[CurrentReturns],
+                                           clientDetails: Seq[EtmpClientDetails]
+                                         ): Seq[EtmpClientDetails] = {
+    val iossNumbersWithDueReturns: Seq[String] = currentReturns.filter { currentReturn =>
+      currentReturn.incompleteReturns.exists { clientReturn =>
+        clientReturn.submissionStatus == Due || clientReturn.submissionStatus == Overdue
+      }
+    }.map(_.iossNumber)
+
+    clientDetails.filter { clientDetails =>
+      iossNumbersWithDueReturns.contains(clientDetails.clientIossID)
+    }
   }
 }
