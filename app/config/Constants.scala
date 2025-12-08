@@ -20,4 +20,6 @@ object Constants {
 
   val pendingRegistrationTTL: Int = 28
   val niPostCodeAreaPrefix: String = "BT"
+
+  val intermediaryEnrolmentKey: String = "IntNumber"
 }
