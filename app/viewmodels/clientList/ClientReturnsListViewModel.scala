@@ -31,6 +31,7 @@ object ClientReturnsListViewModel {
 
   def apply(
              clientReturnsList: Seq[EtmpClientDetails],
+             redirectUrl: String
            )(implicit messages: Messages): ClientReturnsListViewModel = {
 
     val activeClients: Seq[EtmpClientDetails] = clientReturnsList.filterNot(_.clientExcluded)
@@ -38,13 +39,14 @@ object ClientReturnsListViewModel {
 
 
     ClientReturnsListViewModel(
-      activeClients = activeClientReturnsTable(activeClients),
-      excludedClients = excludedClientReturnsTable(excludedClients)
+      activeClients = activeClientReturnsTable(activeClients, redirectUrl),
+      excludedClients = excludedClientReturnsTable(excludedClients, redirectUrl)
     )
   }
 
   private def activeClientReturnsRows(
                                 activeClient: EtmpClientDetails,
+                                redirectUrl: String
                               )(implicit messages: Messages): Seq[TableRow] = {
     Seq(
       TableRow(
@@ -52,7 +54,7 @@ object ClientReturnsListViewModel {
           messages(
             "clientReturnsList.change.link",
             activeClient.clientName,
-            s"", // TODO VEI-661: INSERT SUBMIT RETURNS LINK HERE
+            s"$redirectUrl/${activeClient.clientIossID}",
             messages("clientReturnsList.change.hidden", activeClient.clientName)
           )
         ),
@@ -66,6 +68,7 @@ object ClientReturnsListViewModel {
 
   private def excludedClientReturnsRows(
                                   excludedClient: EtmpClientDetails,
+                                  redirectUrl: String
                                 )(implicit messages: Messages): Seq[TableRow] = {
     Seq(
       TableRow(
@@ -73,7 +76,7 @@ object ClientReturnsListViewModel {
           messages(
             "clientReturnsList.change.link",
             excludedClient.clientName,
-            s"#", // TODO VEI-661: INSERT SUBMIT RETURNS LINK HERE
+            s"$redirectUrl/${excludedClient.clientIossID}",
             messages("clientReturnsList.change.hidden", excludedClient.clientName)
           )
         ),
@@ -90,10 +93,11 @@ object ClientReturnsListViewModel {
 
   private def activeClientReturnsTable(
                                  activeClients: Seq[EtmpClientDetails],
+                                 redirectUrl: String
                                )(implicit messages: Messages): Table = {
 
     val activeClientsRows = activeClients.map { activeClient =>
-      activeClientReturnsRows(activeClient)
+      activeClientReturnsRows(activeClient, redirectUrl)
     }
 
     Table(
@@ -118,10 +122,11 @@ object ClientReturnsListViewModel {
 
   private def excludedClientReturnsTable(
                                    excludedClients: Seq[EtmpClientDetails],
+                                   redirectUrl: String
                                  )(implicit messages: Messages): Table = {
 
     val excludedClientsRows = excludedClients.map { excludedClient =>
-      excludedClientReturnsRows(excludedClient)
+      excludedClientReturnsRows(excludedClient, redirectUrl)
     }
 
     Table(
