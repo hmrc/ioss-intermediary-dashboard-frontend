@@ -18,6 +18,7 @@ package generators
 
 import models.domain.ModelHelpers.normaliseSpaces
 import models.domain.VatCustomerInfo
+import models.enrolments.{EACDEnrolment, EACDEnrolments, EACDIdentifiers}
 import models.etmp.*
 import models.returns.{CurrentReturns, PartialReturnPeriod, Return, SubmissionStatus}
 import models.saveForLater.{ContinueSingleClientSavedReturn, SavedUserAnswers}
@@ -435,6 +436,43 @@ trait ModelGenerators extends EitherValues {
           etmpDisplayRegistration = etmpDisplayRegistration
         )
       }
+    }
+  }
+
+  implicit lazy val arbitraryEACDIdentifiers: Arbitrary[EACDIdentifiers] = {
+    Arbitrary {
+      for {
+        key <- Gen.alphaStr
+        value <- Gen.alphaStr
+      } yield EACDIdentifiers(
+        key = key,
+        value = value
+      )
+    }
+  }
+
+  implicit lazy val arbitraryEACDEnrolment: Arbitrary[EACDEnrolment] = {
+    Arbitrary {
+      for {
+        service <- Gen.alphaStr
+        state <- Gen.alphaStr
+        identifiers <- Gen.listOfN(3, arbitraryEACDIdentifiers.arbitrary)
+      } yield EACDEnrolment(
+        service = service,
+        state = state,
+        activationDate = Some(LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS)),
+        identifiers = identifiers
+      )
+    }
+  }
+
+  implicit lazy val arbitraryEACDEnrolments: Arbitrary[EACDEnrolments] = {
+    Arbitrary {
+      for {
+        enrolments <- Gen.listOfN(3, arbitraryEACDEnrolment.arbitrary)
+      } yield EACDEnrolments(
+        enrolments = enrolments
+      )
     }
   }
 

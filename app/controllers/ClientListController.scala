@@ -64,7 +64,6 @@ class ClientListController @Inject()(
       previousRegistrations.flatMap { previousRegistrations =>
         val numberOfPreviousRegistrations: Int = previousRegistrations.size
         Ok(view(viewModel, numberOfPreviousRegistrations)).toFuture
-// TODO: Spec needs to be fixed to incorporate the flatMap call
       }
   }
 }
