@@ -19,36 +19,52 @@ package controllers
 import config.FrontendAppConfig
 import controllers.actions.*
 import logging.Logging
+import models.amend.PreviousRegistration
 import models.etmp.EtmpClientDetails
 import pages.Waypoints
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.intermediaries.AccountService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.FutureSyntax.FutureOps
 import viewmodels.clientList.ClientListViewModel
 import views.html.ClientListView
 
 import javax.inject.Inject
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 class ClientListController @Inject()(
                                       override val messagesApi: MessagesApi,
                                       cc: AuthenticatedControllerComponents,
                                       frontendAppConfig: FrontendAppConfig,
-                                      view: ClientListView
+                                      view: ClientListView,
+                                      accountService: AccountService
                                     )
   extends FrontendBaseController with I18nSupport with Logging {
 
   protected val controllerComponents: MessagesControllerComponents = cc
 
-  def onPageLoad(waypoints: Waypoints): Action[AnyContent] = cc.identifyAndGetRegistration {
+  def onPageLoad(waypoints: Waypoints): Action[AnyContent] = cc.identifyAndGetRegistration.async {
     implicit request =>
 
       val clientDetailsList: Seq[EtmpClientDetails] = request.registrationWrapper.etmpDisplayRegistration.clientDetails
 
+      val previousRegistrations: Future[Seq[PreviousRegistration]] = accountService.getPreviousRegistrations()
+
       val changeRegistrationRedirectUrl: String = frontendAppConfig.changeYourNetpRegistrationUrl
       val excludeClientRedirectUrl: String = frontendAppConfig.leaveNetpServiceUrl
 
-      val viewModel: ClientListViewModel = ClientListViewModel(clientDetailsList, changeRegistrationRedirectUrl, excludeClientRedirectUrl)
-        
-      Ok(view(viewModel))
+      val viewModel: ClientListViewModel = ClientListViewModel(
+        clientDetailsList,
+        changeRegistrationRedirectUrl,
+        excludeClientRedirectUrl,
+      )
+
+      previousRegistrations.flatMap { previousRegistrations =>
+        val numberOfPreviousRegistrations: Int = previousRegistrations.size
+        Ok(view(viewModel, numberOfPreviousRegistrations)).toFuture
+// TODO: Spec needs to be fixed to incorporate the flatMap call
+      }
   }
 }
