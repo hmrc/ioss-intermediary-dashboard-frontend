@@ -130,6 +130,8 @@ clientList.change.link = <a class="govuk-link" href="{1}"><span class="govuk-vis
 clientList.remove.link = <a class="govuk-link" href="{1}"><span aria-hidden=true>{0}</span><span class="govuk-visually-hidden">{2}</span></a>
 clientList.viewPrevRegistrationsLink = View clients from your previous IOSS registrations
 
+viewOrChangePreviousRegistrationsMultiple.hint = IOSS intermediary number: {0}
+
 secureMessages.title = Messages
 secureMessages.subject.read = <a class="govuk-link" href="">{0}</a>
 secureMessages.subject.unread = <a class="govuk-link" href="{1}"><span class="govuk-visually-hidden">Unread message</span><span class="govuk-!-font-weight-bold">{0}</span></a>

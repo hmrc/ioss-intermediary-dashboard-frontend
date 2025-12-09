@@ -16,6 +16,7 @@
 
 package generators
 
+import models.amend.PreviousRegistration
 import models.domain.ModelHelpers.normaliseSpaces
 import models.domain.VatCustomerInfo
 import models.enrolments.{EACDEnrolment, EACDEnrolments, EACDIdentifiers}
@@ -472,6 +473,22 @@ trait ModelGenerators extends EitherValues {
         enrolments <- Gen.listOfN(3, arbitraryEACDEnrolment.arbitrary)
       } yield EACDEnrolments(
         enrolments = enrolments
+      )
+    }
+  }
+
+  implicit lazy val arbitraryPreviousRegistration: Arbitrary[PreviousRegistration] = {
+    Arbitrary {
+      for {
+        intermediaryNumber <- genIntermediaryNumber
+        startPeriod <- Gen.choose(LocalDate.of(2020, 1, 1).toEpochDay, LocalDate.of(2025, 12, 31).toEpochDay)
+          .map(LocalDate.ofEpochDay)
+        endPeriod <- Gen.choose(startPeriod.toEpochDay, startPeriod.plusMonths(12).toEpochDay)
+          .map(LocalDate.ofEpochDay)
+      } yield PreviousRegistration(
+        intermediaryNumber = intermediaryNumber,
+        startPeriod = startPeriod,
+        endPeriod = endPeriod
       )
     }
   }
