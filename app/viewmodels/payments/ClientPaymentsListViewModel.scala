@@ -16,11 +16,13 @@
 
 package viewmodels.payments
 
+import config.FrontendAppConfig
 import models.etmp.EtmpClientDetails
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.Aliases.{Table, Text}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.table.{HeadCell, TableRow}
+import viewmodels.LinkModel
 
 case class ClientPaymentsListViewModel(clients: Table)
 
@@ -28,16 +30,17 @@ object ClientPaymentsListViewModel {
 
   def apply(
              clients: Seq[EtmpClientDetails],
-
+             config: FrontendAppConfig
            )(implicit messages: Messages): ClientPaymentsListViewModel = {
 
     ClientPaymentsListViewModel(
-      clients = clientListTable(clients)
+      clients = clientListTable(clients, config)
     )
   }
 
   private def clientListRows(
-                              client: EtmpClientDetails
+                              client: EtmpClientDetails,
+                              config: FrontendAppConfig
                             )(implicit messages: Messages): Seq[TableRow] = {
 
     Seq(
@@ -46,7 +49,7 @@ object ClientPaymentsListViewModel {
           messages(
             "paymentsClientList.paymentDetails.link",
             client.clientName,
-            s"", //todo Insert Payment Link here
+            startPaymentLink(config, client.clientIossID).url,
             messages("paymentsClientList.paymentDetails.hidden", client.clientName)
           )
         ),
@@ -59,10 +62,11 @@ object ClientPaymentsListViewModel {
   }
 
   private def clientListTable(
-                               clients: Seq[EtmpClientDetails]
+                               clients: Seq[EtmpClientDetails],
+                               config: FrontendAppConfig
                              )(implicit messages: Messages): Table = {
 
-    val rows = clients.map(clientListRows)
+    val rows = clients.map(clientListRows(_, config))
 
     Table(
       rows = rows,
@@ -76,6 +80,14 @@ object ClientPaymentsListViewModel {
           classes = "govuk-!-width-one-quarter"
         )
       ))
+    )
+  }
+
+  private def startPaymentLink(config: FrontendAppConfig, iossNumber: String)(implicit messages: Messages) = {
+    LinkModel(
+      linkText = messages("yourAccount.returns.startReturn"),
+      id = s"start-client-payment-$iossNumber",
+      url = s"${config.startPaymentUrl}/$iossNumber"
     )
   }
 }
