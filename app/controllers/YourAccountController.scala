@@ -22,9 +22,11 @@ import controllers.actions.*
 import logging.Logging
 import models.etmp.EtmpExclusion
 import models.etmp.EtmpExclusionReason.*
+import models.returns.{CurrentReturns, SubmissionStatus}
 import pages.Waypoints
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.returns.CurrentReturnsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.FutureSyntax.FutureOps
 import viewmodels.dashboard.DashboardUrlsViewModel
@@ -39,6 +41,7 @@ class YourAccountController @Inject()(
                                        view: YourAccountView,
                                        registrationConnector: RegistrationConnector,
                                        secureMessageConnector: SecureMessageConnector,
+                                       currentReturnsService: CurrentReturnsService,
                                        appConfig: FrontendAppConfig,
                                        clock: Clock
                                      )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
@@ -82,31 +85,36 @@ class YourAccountController @Inject()(
                       val currentDate: LocalDate = LocalDate.now(clock)
                       val canRejoin = registrationWrapper.etmpDisplayRegistration.canRejoinScheme(currentDate)
 
-                      val urls = DashboardUrlsViewModel(
-                        addClientUrl = appConfig.addClientUrl,
-                        viewClientReturnsListUrl = controllers.routes.ClientReturnsListController.onPageLoad().url,
-                        viewClientsListUrl = controllers.routes.ClientListController.onPageLoad().url,
-                        changeYourRegistrationUrl = appConfig.changeYourRegistrationUrl,
-                        pendingClientsUrl = controllers.routes.ClientAwaitingActivationController.onPageLoad().url,
-                        secureMessagesUrl = controllers.routes.SecureMessagesController.onPageLoad().url,
-                        leaveThisServiceUrl = leaveThisServiceUrl,
-                        continueSavedRegUrl = appConfig.continueRegistrationUrl,
-                        rejoinSchemeUrl = appConfig.rejoinSchemeUrl,
-                        makeAPaymentUrl = controllers.routes.PaymentsClientListController.onPageLoad().url,
-                        startClientCurrentReturnsUrl = controllers.returns.routes.ClientsOutstandingReturnsListController.onPageLoad(waypoints).url
-                      )
+                      currentReturnsService.getCurrentReturns(intermediaryNumber).flatMap { hasOutstandingReturns =>
+                        val isFinalReturnComleted = getExistingOutstandingReturns(hasOutstandingReturns)
 
-                      Ok(view(
-                        businessName,
-                        intermediaryNumber,
-                        messageCount,
-                        hasUnreadMessages,
-                        numberOfAwaitingClients,
-                        cancelYourRequestToLeaveUrl(maybeExclusion),
-                        numberOfSavedUserJourneys,
-                        urls,
-                        canRejoin,
-                      )).toFuture
+                        val urls = DashboardUrlsViewModel(
+                          addClientUrl = appConfig.addClientUrl,
+                          viewClientReturnsListUrl = controllers.routes.ClientReturnsListController.onPageLoad().url,
+                          viewClientsListUrl = controllers.routes.ClientListController.onPageLoad().url,
+                          changeYourRegistrationUrl = appConfig.changeYourRegistrationUrl,
+                          pendingClientsUrl = controllers.routes.ClientAwaitingActivationController.onPageLoad().url,
+                          secureMessagesUrl = controllers.routes.SecureMessagesController.onPageLoad().url,
+                          leaveThisServiceUrl = leaveThisServiceUrl,
+                          continueSavedRegUrl = appConfig.continueRegistrationUrl,
+                          rejoinSchemeUrl = appConfig.rejoinSchemeUrl,
+                          makeAPaymentUrl = controllers.routes.PaymentsClientListController.onPageLoad().url,
+                          startClientCurrentReturnsUrl = controllers.returns.routes.ClientsOutstandingReturnsListController.onPageLoad(waypoints).url
+                        )
+
+                        Ok(view(
+                          businessName,
+                          intermediaryNumber,
+                          messageCount,
+                          hasUnreadMessages,
+                          numberOfAwaitingClients,
+                          cancelYourRequestToLeaveUrl(maybeExclusion),
+                          numberOfSavedUserJourneys,
+                          urls,
+                          canRejoin,
+                          isFinalReturnComleted
+                        )).toFuture
+                      }
 
                     case Left(error) =>
                       val message: String = s"Received an unexpected error when trying to retrieve registration details: $error."
@@ -138,6 +146,18 @@ class YourAccountController @Inject()(
         LocalDate.now(clock).isBefore(exclusion.effectiveDate) =>
         Some(appConfig.cancelYourRequestToLeaveUrl)
       case _ => None
+    }
+  }
+
+  private def getExistingOutstandingReturns(currentReturns: Seq[CurrentReturns]): Boolean = {
+    currentReturns.exists { cr =>
+      if (cr.finalReturnsCompleted) {
+        false
+      } else {
+        cr.incompleteReturns.exists { currentReturns =>
+          Seq(SubmissionStatus.Due, SubmissionStatus.Overdue, SubmissionStatus.Next).contains(currentReturns.submissionStatus)
+        }
+      }
     }
   }
 }

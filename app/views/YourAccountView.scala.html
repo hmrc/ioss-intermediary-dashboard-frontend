@@ -31,7 +31,8 @@
     cancelYourRequestToLeaveUrl: Option[String],
     numberOfSavedUserJourneys: Long,
     urls: DashboardUrlsViewModel,
-    canRejoin: Boolean
+    canRejoin: Boolean,
+    hasOutstandingRetuns: Boolean
 )(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("yourAccount.title")),
@@ -176,7 +177,7 @@
                     </p>
                 }
 
-                @if(canRejoin) {
+                @if(canRejoin && !hasOutstandingRetuns) {
                     <p class="govuk-body">
                         <a class="govuk-link" href="@urls.rejoinSchemeUrl"
                            id="rejoin-scheme">

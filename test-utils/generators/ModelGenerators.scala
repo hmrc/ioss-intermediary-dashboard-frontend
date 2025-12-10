@@ -488,7 +488,8 @@ trait ModelGenerators extends EitherValues {
         CurrentReturns(
           iossNumber = iossNumber,
           incompleteReturns = incompleteReturns,
-          completedReturns = completedReturns
+          completedReturns = completedReturns,
+          finalReturnsCompleted = false
         )
       }
     }

@@ -74,12 +74,14 @@ class ClientReturnServiceSpec extends SpecBase with MockitoSugar {
            CurrentReturns(
              iossNumber = "IM9001234567",
              incompleteReturns = Seq.empty,
-             completedReturns = Seq(completedReturns)
+             completedReturns = Seq(completedReturns),
+             finalReturnsCompleted = false
            ),
            CurrentReturns(
              iossNumber = "IM9001234568",
              incompleteReturns = Seq.empty,
-             completedReturns = Seq(completedReturns)
+             completedReturns = Seq(completedReturns),
+             finalReturnsCompleted = false
            )
         )
 

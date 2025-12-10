@@ -76,7 +76,8 @@ class ReturnStatusConnectorSpec extends SpecBase with WireMockHelper {
              |         "isOldest" : ${additionalReturn.isOldest}
              |       }
              |     ],
-             |     "completedReturns" : []
+             |     "completedReturns" : [],
+             |     "finalReturnsCompleted": false
              |   },
              |  {
              |     "iossNumber" : "IM9001234568",
@@ -100,7 +101,8 @@ class ReturnStatusConnectorSpec extends SpecBase with WireMockHelper {
              |         "inProgress" : ${additionalReturn.inProgress},
              |         "isOldest" : ${additionalReturn.isOldest}
              |       }
-             |     ]
+             |     ],
+             |     "finalReturnsCompleted": false
              |   }
              |]""".stripMargin
 
@@ -119,8 +121,8 @@ class ReturnStatusConnectorSpec extends SpecBase with WireMockHelper {
           val result = connector.getCurrentReturns(intermediaryNumber).futureValue
 
           val expectedResult: Seq[CurrentReturns] = Seq(
-            CurrentReturns("IM9001234567", Seq(arbReturn, additionalReturn), Seq.empty),
-            CurrentReturns("IM9001234568", Seq.empty, Seq(arbReturn, additionalReturn))
+            CurrentReturns("IM9001234567", Seq(arbReturn, additionalReturn), Seq.empty, false),
+            CurrentReturns("IM9001234568", Seq.empty, Seq(arbReturn, additionalReturn), false)
           )
 
           result `mustBe` Right(expectedResult)
