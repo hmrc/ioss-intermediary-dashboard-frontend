@@ -24,15 +24,19 @@ import models.domain.VatCustomerInfo
 import models.etmp.EtmpExclusionReason.TransferringMSID
 import models.etmp.{EtmpDisplayRegistration, EtmpExclusion, RegistrationWrapper}
 import models.responses.InternalServerError
+import models.returns.CurrentReturns
 import models.securemessage.responses.{SecureMessageCount, SecureMessageResponse, SecureMessageResponseWithCount, TaxpayerName}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalacheck.Arbitrary.arbitrary
+import org.scalacheck.Gen
 import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar.mock
 import pages.{EmptyWaypoints, Waypoints}
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import services.returns.CurrentReturnsService
 import utils.FutureSyntax.FutureOps
 import viewmodels.dashboard.DashboardUrlsViewModel
 import views.html.YourAccountView
@@ -86,6 +90,8 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
 
 
   val mockSecureMessageConnector: SecureMessageConnector = mock[SecureMessageConnector]
+  private val mockCurrentReturnsService: CurrentReturnsService = mock[CurrentReturnsService]
+  private val currentReturns: Seq[CurrentReturns] = Gen.listOfN(3, arbitraryCurrentReturns.arbitrary).sample.value
 
   lazy val yourAccountRoute: String = routes.YourAccountController.onPageLoad(waypoints).url
 
@@ -130,10 +136,12 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
           .thenReturn(Right(secureMessageResponseWithCount).toFuture)
         when(mockRegistrationConnector.displayRegistration(any())(any()))
           .thenReturn(Right(registrationWrapperEmptyExclusionsAndEmptyOtherAddress).toFuture)
+        when(mockCurrentReturnsService.getCurrentReturns(any())(any())) thenReturn currentReturns.toFuture
 
         val application = applicationBuilder(userAnswers = Some(emptyUserAnswers), registrationWrapper = registrationWrapperEmptyExclusionsAndEmptyOtherAddress)
           .overrides(bind[RegistrationConnector].toInstance(mockRegistrationConnector))
           .overrides(bind[SecureMessageConnector].toInstance(mockSecureMessageConnector))
+          .overrides(bind[CurrentReturnsService].toInstance(mockCurrentReturnsService))
           .build()
         val appConfig = application.injector.instanceOf[FrontendAppConfig]
 
@@ -168,7 +176,8 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
             cancelYourRequestToLeaveUrl = None,
             1,
             urls,
-            false
+            false,
+            hasOutstandingRetuns = false
           )(request, messages(application)).toString
         }
       }
@@ -206,10 +215,12 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
           .thenReturn(Right(secureMessageResponseWithCount).toFuture)
         when(mockRegistrationConnector.displayRegistration(any())(any()))
           .thenReturn(Right(registrationWrapperEmptyExclusions).toFuture)
+        when(mockCurrentReturnsService.getCurrentReturns(any())(any())) thenReturn currentReturns.toFuture
 
         val application = applicationBuilder(userAnswers = Some(emptyUserAnswers), registrationWrapper = registrationWrapperEmptyExclusions)
           .overrides(bind[RegistrationConnector].toInstance(mockRegistrationConnector))
           .overrides(bind[SecureMessageConnector].toInstance(mockSecureMessageConnector))
+          .overrides(bind[CurrentReturnsService].toInstance(mockCurrentReturnsService))
           .build()
         val appConfig = application.injector.instanceOf[FrontendAppConfig]
 
@@ -245,7 +256,8 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
             cancelYourRequestToLeaveUrl = Some(appConfig.cancelYourRequestToLeaveUrl),
             1,
             urls,
-            false
+            false,
+            hasOutstandingRetuns = false
           )(request, messages(application)).toString
         }
       }

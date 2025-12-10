@@ -21,7 +21,8 @@ import play.api.libs.json.{Json, OFormat}
 case class CurrentReturns(
                            iossNumber: String,
                            incompleteReturns: Seq[Return],
-                           completedReturns: Seq[Return]
+                           completedReturns: Seq[Return],
+                           finalReturnsCompleted: Boolean,
                          )
 
 object CurrentReturns {
