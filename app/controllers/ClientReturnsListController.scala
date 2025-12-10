@@ -16,6 +16,7 @@
 
 package controllers
 
+import config.FrontendAppConfig
 import controllers.actions.*
 import models.etmp.EtmpClientDetails
 
@@ -35,6 +36,7 @@ class ClientReturnsListController @Inject()(
                                        cc: AuthenticatedControllerComponents,
                                        val controllerComponents: MessagesControllerComponents,
                                        clientReturnService: ClientReturnService,
+                                       frontendAppConfig: FrontendAppConfig,
                                        view: ClientReturnsListView
                                      )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
@@ -42,11 +44,12 @@ class ClientReturnsListController @Inject()(
     implicit request =>
       val clientDetailsList: Seq[EtmpClientDetails] = request.registrationWrapper.etmpDisplayRegistration.clientDetails
       val intermediaryNumber = request.intermediaryNumber
+      val startReturnsHistoryUrl = frontendAppConfig.startReturnsHistoryUrl
 
       clientReturnService.clientsWithCompletedReturns(clientDetailsList, intermediaryNumber).map {
         filteredClients =>
 
-          val viewModel: ClientReturnsListViewModel = ClientReturnsListViewModel(filteredClients)
+          val viewModel: ClientReturnsListViewModel = ClientReturnsListViewModel(filteredClients, startReturnsHistoryUrl)
 
           Ok(view(viewModel))
       }

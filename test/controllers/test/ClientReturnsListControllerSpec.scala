@@ -17,6 +17,7 @@
 package controllers.test
 
 import base.SpecBase
+import config.FrontendAppConfig
 import controllers.routes
 import models.etmp.EtmpClientDetails
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
@@ -59,7 +60,9 @@ class ClientReturnsListControllerSpec extends SpecBase {
 
         val view = application.injector.instanceOf[ClientReturnsListView]
 
-        val clientReturnsListViewModel: ClientReturnsListViewModel = ClientReturnsListViewModel(clientDetailsList)
+        val config = application.injector.instanceOf[FrontendAppConfig]
+
+        val clientReturnsListViewModel: ClientReturnsListViewModel = ClientReturnsListViewModel(clientDetailsList, config.startReturnsHistoryUrl)
 
         status(result) `mustBe` OK
         contentAsString(result) `mustBe` view(clientReturnsListViewModel)(request).toString
