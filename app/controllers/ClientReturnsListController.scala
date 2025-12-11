@@ -46,12 +46,14 @@ class ClientReturnsListController @Inject()(
       val intermediaryNumber = request.intermediaryNumber
       val startReturnsHistoryUrl = frontendAppConfig.startReturnsHistoryUrl
 
+      val navigateToPreviousRegistrationUrl = routes.ClientsPreviousRegistrationReturnsListController.onPageLoad(waypoints).url
+      
       clientReturnService.clientsWithCompletedReturns(clientDetailsList, intermediaryNumber).map {
         filteredClients =>
 
           val viewModel: ClientReturnsListViewModel = ClientReturnsListViewModel(filteredClients, startReturnsHistoryUrl)
 
-          Ok(view(viewModel))
+          Ok(view(viewModel, navigateToPreviousRegistrationUrl))
       }
 
   }
