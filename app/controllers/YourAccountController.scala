@@ -83,10 +83,17 @@ class YourAccountController @Inject()(
                       val hasUnreadMessages = if (secureMessages.count.unread > 0) true else false
 
                       val currentDate: LocalDate = LocalDate.now(clock)
-                      val canRejoin = registrationWrapper.etmpDisplayRegistration.canRejoinScheme(currentDate)
+                      val isRejoinEligible = registrationWrapper.etmpDisplayRegistration.canRejoinScheme(currentDate)
 
-                      currentReturnsService.getCurrentReturns(intermediaryNumber).flatMap { hasOutstandingReturns =>
-                        val isFinalReturnComleted = getExistingOutstandingReturns(hasOutstandingReturns)
+                      val futureFinalReturnComplete = if (isRejoinEligible) {
+                        currentReturnsService.getCurrentReturns(intermediaryNumber).map { hasOutstandingReturns =>
+                          getExistingOutstandingReturns(hasOutstandingReturns)
+                        }
+                      } else {
+                        false.toFuture
+                      }
+
+                      futureFinalReturnComplete.flatMap { finalReturnComplete =>
 
                         val urls = DashboardUrlsViewModel(
                           addClientUrl = appConfig.addClientUrl,
@@ -111,8 +118,8 @@ class YourAccountController @Inject()(
                           cancelYourRequestToLeaveUrl(maybeExclusion),
                           numberOfSavedUserJourneys,
                           urls,
-                          canRejoin,
-                          isFinalReturnComleted
+                          isRejoinEligible,
+                          finalReturnComplete
                         )).toFuture
                       }
 
