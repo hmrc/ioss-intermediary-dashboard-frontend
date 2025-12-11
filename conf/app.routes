@@ -41,6 +41,8 @@ GET        /intercept-unusable-email                     controllers.InterceptUn
 
 GET        /client-returns-list                          controllers.ClientReturnsListController.onPageLoad(waypoints: Waypoints ?= EmptyWaypoints)
 
+GET        /client-previous-registration-returns-list    controllers.ClientsPreviousRegistrationReturnsListController.onPageLoad(waypoints: Waypoints ?= EmptyWaypoints)
+
 GET        /client-outstanding-returns-list              controllers.returns.ClientsOutstandingReturnsListController.onPageLoad(waypoints: Waypoints ?= EmptyWaypoints)
 
 GET        /client-overdue-returns-list                  controllers.returns.ClientsOverdueReturnsListController.onPageLoad(waypoints: Waypoints ?= EmptyWaypoints)

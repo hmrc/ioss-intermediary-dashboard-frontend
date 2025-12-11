@@ -188,6 +188,13 @@ clientsOverdueReturnsList.heading.noReturns = You do not have any clients with r
 clientsOverdueReturnsList.viewDeReturns = <a class="govuk-link" href="{0}">View all your clients</a>
 clientsOverdueReturnsList.p1 = If your client does not appear on this list, then they don't have any returns due.
 
+previousRegistrationsList.title = Which client''s returns do you want to view?
+previousRegistrationsList.heading = Which client''s returns do you want to view?
+previousRegistrationsList.intermediaryNumber = IOSS intermediary number: {0}
+previousRegistrationsList.clientReturns.link = <a class="govuk-link" href="{0}">Return to your current registration</a>
+previousRegistrationsList.table.link = <a class="govuk-link" href="{1}"><span class="govuk-visually-hidden">{2}</span>{0}</a>
+previousRegistrationsList.p1 = If your client does not appear on this list, then you did not complete any returns for them.
+
 continueSingleClientSavedReturn.title = Do you want to continue the return for
 continueSingleClientSavedReturn.heading = Do you want to continue the return for
 continueSingleClientSavedReturn.yes = Yes
