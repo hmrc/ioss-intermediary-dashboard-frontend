@@ -16,6 +16,7 @@
 
 package controllers
 
+import config.FrontendAppConfig
 import controllers.actions.*
 import models.etmp.EtmpClientDetails
 
@@ -31,14 +32,15 @@ class PaymentsClientListController @Inject()(
                                        override val messagesApi: MessagesApi,
                                        cc: AuthenticatedControllerComponents,
                                        val controllerComponents: MessagesControllerComponents,
-                                       view: PaymentsClientListView
+                                       view: PaymentsClientListView,
+                                       config: FrontendAppConfig
                                      ) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad(waypoints: Waypoints): Action[AnyContent] = cc.identifyAndGetRegistration {
     implicit request =>
 
       val clientDetailsList: Seq[EtmpClientDetails] = request.registrationWrapper.etmpDisplayRegistration.clientDetails
-      val viewModel: ClientPaymentsListViewModel = ClientPaymentsListViewModel(clientDetailsList)
+      val viewModel: ClientPaymentsListViewModel = ClientPaymentsListViewModel(clientDetailsList, config)
 
       Ok(view(viewModel))
   }

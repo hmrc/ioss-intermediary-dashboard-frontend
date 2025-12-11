@@ -48,6 +48,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   val rejoinSchemeUrl: String               = configuration.get[String]("urls.rejoinSchemeUrl")
   val startCurrentReturnUrl: String         = configuration.get[String]("urls.startCurrentReturnUrl")
   val startReturnsHistoryUrl: String         = configuration.get[String]("urls.startReturnsHistoryUrl")
+  val startPaymentUrl: String               = configuration.get[String]("urls.startPaymentUrl")
 
   val allowedRedirectUrls: Seq[String] = configuration.get[Seq[String]]("urls.allowedRedirects")
 

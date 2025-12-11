@@ -17,6 +17,7 @@
 package controllers
 
 import base.SpecBase
+import config.FrontendAppConfig
 import play.api.i18n.Messages
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
@@ -39,11 +40,13 @@ class PaymentsClientListControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         val view = application.injector.instanceOf[PaymentsClientListView]
+        val config = application.injector.instanceOf[FrontendAppConfig]
 
         val registration = registrationWrapper.etmpDisplayRegistration
         
         val clientPaymentsListViewModel: ClientPaymentsListViewModel = ClientPaymentsListViewModel(
-          clients = registration.clientDetails
+          clients = registration.clientDetails,
+          config = config
         )
 
         status(result) mustBe OK
