@@ -63,7 +63,7 @@ class ClientListController @Inject()(
 
       previousRegistrations.flatMap { previousRegistrations =>
         val numberOfPreviousRegistrations: Int = previousRegistrations.size
-        Ok(view(viewModel, numberOfPreviousRegistrations)).toFuture
+        Ok(view(waypoints, viewModel, numberOfPreviousRegistrations)).toFuture
       }
   }
 }

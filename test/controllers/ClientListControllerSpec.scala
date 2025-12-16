@@ -73,6 +73,7 @@ class ClientListControllerSpec extends SpecBase with BeforeAndAfterEach {
 
         status(result) `mustBe` OK
         contentAsString(result) `mustBe` view(
+          waypoints,
           clientListViewModel,
           numberOfPreviousRegistrations = previousRegistrations.size
         )(request).toString
