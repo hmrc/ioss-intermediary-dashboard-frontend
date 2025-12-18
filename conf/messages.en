@@ -195,6 +195,12 @@ previousRegistrationsList.clientReturns.link = <a class="govuk-link" href="{0}">
 previousRegistrationsList.table.link = <a class="govuk-link" href="{1}"><span class="govuk-visually-hidden">{2}</span>{0}</a>
 previousRegistrationsList.p1 = If your client does not appear on this list, then you did not complete any returns for them.
 
+clientsPreviousRegistrationList.title = Which of your previous registrations do you want to view?
+clientsPreviousRegistrationList.heading = Which of your previous registrations do you want to view?
+clientsPreviousRegistrationList.noSubmittedReturns = You have not completed any returns.
+clientsPreviousRegistrationList.error.required = Select which registration you want to view
+clientsPreviousRegistrationList.error.invalid = Select a valid previous registration.
+
 continueSingleClientSavedReturn.title = Do you want to continue the return for
 continueSingleClientSavedReturn.heading = Do you want to continue the return for
 continueSingleClientSavedReturn.yes = Yes
