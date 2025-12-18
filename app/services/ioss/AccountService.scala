@@ -17,10 +17,11 @@
 package services.ioss
 
 import connectors.RegistrationConnector
+import models.StandardPeriod
 import models.returns.PreviousRegistration
 import uk.gov.hmrc.http.HeaderCarrier
 
-import java.time.LocalDate
+import java.time.{LocalDate, YearMonth}
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -31,16 +32,16 @@ class AccountService @Inject()(
   def getPreviousRegistrations()(implicit hc: HeaderCarrier): Future[Seq[PreviousRegistration]] = {
     registrationConnector.getAccounts().map { accounts =>
 
-      val accountDetails: Seq[(LocalDate, String)] = accounts
+      val accountDetails: Seq[(YearMonth, String)] = accounts
         .enrolments.map(e => e.activationDate -> e.identifiers.find(_.key == "IntNumber").map(_.value))
         .collect {
-          case (Some(activationDate), Some(intermediaryNumber)) => LocalDate.from(activationDate) -> intermediaryNumber
+          case (Some(activationDate), Some(intermediaryNumber)) => YearMonth.from(activationDate) -> intermediaryNumber
         }.sortBy(_._1)
 
       accountDetails.zip(accountDetails.drop(1)).map { case ((activationDate, intermediaryNumber), (nextActivationDate, _)) =>
         PreviousRegistration(
-          startPeriod = activationDate,
-          endPeriod = nextActivationDate.minusMonths(1),
+          startPeriod = StandardPeriod(activationDate),
+          endPeriod = StandardPeriod(nextActivationDate.minusMonths(1)),
           intermediaryNumber = intermediaryNumber
         )
       }

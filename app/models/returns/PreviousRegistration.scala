@@ -17,6 +17,7 @@
 package models.returns
 
 import formats.Format.dateMonthYearFormatter
+import models.Period
 import play.api.i18n.Messages
 import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
@@ -25,24 +26,9 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 
 import java.time.LocalDate
 
-final case class PreviousRegistration(intermediaryNumber: String, startPeriod: LocalDate, endPeriod: LocalDate)
+case class PreviousRegistration(intermediaryNumber: String, startPeriod: Period, endPeriod: Period)
 
 object PreviousRegistration {
 
   implicit val format: OFormat[PreviousRegistration] = Json.format[PreviousRegistration]
-
-  def options(previousRegistrations: Seq[PreviousRegistration])(implicit messages: Messages): Seq[RadioItem] = {
-    previousRegistrations.zipWithIndex.map {
-      case (previousRegistration, index) =>
-        val startPeriod: String = previousRegistration.startPeriod.format(dateMonthYearFormatter)
-        val endPeriod: String = previousRegistration.endPeriod.format(dateMonthYearFormatter)
-
-        RadioItem(
-          content = Text(s"$startPeriod to $endPeriod"),
-          id = Some(s"value_$index"),
-          value = Some(previousRegistration.intermediaryNumber),
-          hint = Some(Hint(content = HtmlContent(messages("viewOrChangePreviousRegistrationsMultiple.hint", previousRegistration.intermediaryNumber))))
-        )
-    }
-  }
 }
