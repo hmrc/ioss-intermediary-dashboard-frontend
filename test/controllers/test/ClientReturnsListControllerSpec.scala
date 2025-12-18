@@ -37,7 +37,7 @@ class ClientReturnsListControllerSpec extends SpecBase {
   private val mockClientReturnService: ClientReturnService = mock[ClientReturnService]
   private val registration = registrationWrapper.etmpDisplayRegistration
   private val clientDetailsList: Seq[EtmpClientDetails] = registration.clientDetails
-  private val navigateToPreviousRegistrationUrl = routes.ClientsPreviousRegistrationReturnsListController.onPageLoad(waypoints).url
+  private val navigateToPreviousRegistrationsListUrl = routes.ClientsPreviousRegistrationListController.onPageLoad(waypoints).url
 
   "ClientReturnsList Controller" - {
 
@@ -66,7 +66,7 @@ class ClientReturnsListControllerSpec extends SpecBase {
         val clientReturnsListViewModel: ClientReturnsListViewModel = ClientReturnsListViewModel(clientDetailsList, config.startReturnsHistoryUrl)
 
         status(result) `mustBe` OK
-        contentAsString(result) `mustBe` view(clientReturnsListViewModel, navigateToPreviousRegistrationUrl)(request).toString
+        contentAsString(result) `mustBe` view(clientReturnsListViewModel, navigateToPreviousRegistrationsListUrl)(request).toString
       }
     }
   }

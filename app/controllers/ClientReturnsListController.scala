@@ -42,19 +42,18 @@ class ClientReturnsListController @Inject()(
 
   def onPageLoad(waypoints: Waypoints): Action[AnyContent] = cc.identifyAndGetRegistration.async {
     implicit request =>
+
       val clientDetailsList: Seq[EtmpClientDetails] = request.registrationWrapper.etmpDisplayRegistration.clientDetails
       val intermediaryNumber = request.intermediaryNumber
       val startReturnsHistoryUrl = frontendAppConfig.startReturnsHistoryUrl
+      val navigateToPreviousRegistrationsListUrl = routes.ClientsPreviousRegistrationListController.onPageLoad(waypoints).url
 
-      val navigateToPreviousRegistrationUrl = routes.ClientsPreviousRegistrationReturnsListController.onPageLoad(waypoints).url
-      
       clientReturnService.clientsWithCompletedReturns(clientDetailsList, intermediaryNumber).map {
         filteredClients =>
 
           val viewModel: ClientReturnsListViewModel = ClientReturnsListViewModel(filteredClients, startReturnsHistoryUrl)
 
-          Ok(view(viewModel, navigateToPreviousRegistrationUrl))
+          Ok(view(viewModel, navigateToPreviousRegistrationsListUrl))
       }
-
   }
 }

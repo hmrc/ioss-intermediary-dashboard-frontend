@@ -17,16 +17,19 @@
 package controllers
 
 import config.FrontendAppConfig
+import connectors.RegistrationConnector
 import controllers.actions.AuthenticatedControllerComponents
 import logging.Logging
 import pages.Waypoints
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import repositories.SelectedPreviousRegistrationRepository
 import services.ioss.AccountService
 import services.returns.CurrentReturnsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.returns.ClientOutstandingReturnsListViewModel
 import views.html.returns.ClientsPreviousRegistrationReturnsListView
+import utils.FutureSyntax.FutureOps
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
@@ -37,39 +40,59 @@ class ClientsPreviousRegistrationReturnsListController @Inject()(
                                                                  accountService: AccountService,
                                                                  frontendAppConfig: FrontendAppConfig,
                                                                  currentReturnsService: CurrentReturnsService,
+                                                                 selectedPreviousRegistrationRepository: SelectedPreviousRegistrationRepository,
+                                                                 registrationConnector: RegistrationConnector,
                                                                  view: ClientsPreviousRegistrationReturnsListView,
                                                                  val controllerComponents: MessagesControllerComponents,
                                                                )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
   
   def onPageLoad(waypoints: Waypoints): Action[AnyContent] = cc.identifyAndGetRegistration.async {
     implicit request =>
-      
-      accountService.getPreviousRegistrations().flatMap { previousRegistrations =>
-        
-        previousRegistrations.size match {
-          case 0 =>
-            val exception = new IllegalStateException("Must have one or more previous registrations")
-            logger.error(exception.getMessage, exception)
-            throw exception
 
-          case _ =>
-            
-            val clientDetails = request.registrationWrapper.etmpDisplayRegistration.clientDetails
-            
-            currentReturnsService.getCurrentReturns(request.intermediaryNumber).map { currentReturns =>
-              
-              val startPreviousRegistrationReturnsHistoryUrl: String = frontendAppConfig.startPreviousRegistrationReturnsHistoryUrl
-              
-              val viewModel = ClientOutstandingReturnsListViewModel(
-                clientDetails,
-                startPreviousRegistrationReturnsHistoryUrl
-              )
+      accountService.getPreviousRegistrations().flatMap {
 
-              val navigateToCurrentReturnsUrl = routes.ClientReturnsListController.onPageLoad(waypoints).url
-              
-              Ok(view(viewModel, request.intermediaryNumber, navigateToCurrentReturnsUrl, startPreviousRegistrationReturnsHistoryUrl))
-            }
-        }
+        case Nil =>
+          Redirect(routes.JourneyRecoveryController.onPageLoad()).toFuture
+
+        case registration :: Nil =>
+          val clientDetails = request.registrationWrapper.etmpDisplayRegistration.clientDetails
+          val startPreviousRegistrationReturnsHistoryUrl: String = frontendAppConfig.startReturnsHistoryUrl
+
+          val viewModel = ClientOutstandingReturnsListViewModel(
+            clientDetails,
+            startPreviousRegistrationReturnsHistoryUrl
+          )
+
+          val navigateToCurrentReturnsUrl = routes.ClientReturnsListController.onPageLoad(waypoints).url
+
+          Ok(view(viewModel, request.intermediaryNumber, navigateToCurrentReturnsUrl, startPreviousRegistrationReturnsHistoryUrl)).toFuture
+
+        case registrations =>
+          selectedPreviousRegistrationRepository.get(request.userId).flatMap {
+            case Some(selectedRegistration) if registrations.contains(selectedRegistration.previousRegistration) =>
+
+              val selectedRegistrationIntermediaryNumber = selectedRegistration.previousRegistration.intermediaryNumber
+
+              for {
+                registrationWrapper <- registrationConnector.getRegistration(selectedRegistrationIntermediaryNumber)
+                currentReturns <- currentReturnsService.getCurrentReturns(selectedRegistrationIntermediaryNumber)
+              } yield {
+
+                val clientDetails = registrationWrapper.etmpDisplayRegistration.clientDetails
+                val startPreviousRegistrationReturnsHistoryUrl: String = frontendAppConfig.startReturnsHistoryUrl
+
+                val viewModel = ClientOutstandingReturnsListViewModel(
+                  clientDetails,
+                  startPreviousRegistrationReturnsHistoryUrl
+                )
+
+                val navigateToCurrentReturnsUrl = routes.ClientReturnsListController.onPageLoad(waypoints).url
+
+                Ok(view(viewModel, selectedRegistrationIntermediaryNumber, navigateToCurrentReturnsUrl, startPreviousRegistrationReturnsHistoryUrl))
+              }
+
+            case _ => Redirect(routes.JourneyRecoveryController.onPageLoad()).toFuture
+          }
       }
   }
 }

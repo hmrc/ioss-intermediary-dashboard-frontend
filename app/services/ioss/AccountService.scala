@@ -21,7 +21,7 @@ import models.StandardPeriod
 import models.returns.PreviousRegistration
 import uk.gov.hmrc.http.HeaderCarrier
 
-import java.time.{LocalDate, YearMonth}
+import java.time.YearMonth
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 

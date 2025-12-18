@@ -16,15 +16,9 @@
 
 package models.returns
 
-import formats.Format.dateMonthYearFormatter
 import models.Period
-import play.api.i18n.Messages
 import play.api.libs.json.{Json, OFormat}
-import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
-import uk.gov.hmrc.govukfrontend.views.viewmodels.hint.Hint
-import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 
-import java.time.LocalDate
 
 case class PreviousRegistration(intermediaryNumber: String, startPeriod: Period, endPeriod: Period)
 

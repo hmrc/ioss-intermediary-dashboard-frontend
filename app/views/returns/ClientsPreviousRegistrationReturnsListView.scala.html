@@ -30,14 +30,22 @@
 
 @layout(pageTitle = titleNoForm(messages("previousRegistrationsList.title"))) {
 
-    <h1 class="govuk-heading-l">@messages("previousRegistrationsList.heading")</h1>
-    <p class="govuk-body-l">@messages("previousRegistrationsList.intermediaryNumber", intermediaryNumber)</p>
+    <h1 class="govuk-heading-l">
+        @messages("previousRegistrationsList.heading")
+        <span class="govuk-caption-l">@messages("previousRegistrationsList.intermediaryNumber", intermediaryNumber)</span>
+    </h1>
 
     <p class="govuk-body-m">@Html(messages("previousRegistrationsList.clientReturns.link", navigateToCurrentReturnsUrl))</p>
 
-    <div class="govuk-inset-text">
-        <p class="govuk-body">@messages("previousRegistrationsList.p1")</p>
-    </div>
+    @if(viewModel.clientOutstandingReturns.rows.nonEmpty) {
+        <div class="govuk-inset-text">
+            <p class="govuk-body">@messages("previousRegistrationsList.p1")</p>
+        </div>
+    }
 
-    @govukTable(viewModel.clientOutstandingReturns)
+    @if(viewModel.clientOutstandingReturns.rows.nonEmpty) {
+        @govukTable(viewModel.clientOutstandingReturns)
+    } else {
+        <p class="govuk-body-m">@messages("clientsPreviousRegistrationList.noSubmittedReturns")</p>
+    }
 }
