@@ -27,5 +27,6 @@ case class DashboardUrlsViewModel(
                                    continueSavedRegUrl: String,
                                    rejoinSchemeUrl: String,
                                    makeAPaymentUrl: String,
-                                   startClientCurrentReturnsUrl: String
+                                   startClientCurrentReturnsUrl: String,
+                                   continueSavedReturnUrl: Option[String]
                                  )

@@ -31,7 +31,7 @@ class VatApiDownController @Inject()(
 
   protected val controllerComponents: MessagesControllerComponents = cc
 
-  def onPageLoad: Action[AnyContent] = cc.identifyAndGetData {
+  def onPageLoad: Action[AnyContent] = (cc.actionBuilder andThen cc.identify) {
     implicit request =>
       Ok(view())
   }

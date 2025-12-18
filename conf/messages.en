@@ -59,6 +59,7 @@ yourAccount.paragraph = You can correct a previous return when you submit your n
 yourAccount.returns.heading = Returns
 yourAccount.returns.startReturn = Start a return
 yourAccount.returns.previousReturn = View submitted returns
+yourAccount.returns.savedReturns.continue = Continue a return in progress
 yourAccount.payment.heading = Payments
 yourAccount.payment.makeAPayment = Make a payment
 yourAccount.clients.heading = Your clients
@@ -176,3 +177,29 @@ clientsOverdueReturnsList.heading = Start an overdue return
 clientsOverdueReturnsList.heading.noReturns = You do not have any clients with returns due.
 clientsOverdueReturnsList.viewDeReturns = <a class="govuk-link" href="{0}">View all your clients</a>
 clientsOverdueReturnsList.p1 = If your client does not appear on this list, then they don't have any returns due.
+
+continueSingleClientSavedReturn.title = Do you want to continue the return for
+continueSingleClientSavedReturn.heading = Do you want to continue the return for
+continueSingleClientSavedReturn.yes = Yes
+continueSingleClientSavedReturn.no = No, delete this return
+continueSingleClientSavedReturn.checkYourAnswersLabel = Do you want to continue the return for
+continueSingleClientSavedReturn.error.required = Select continueSingleClientSavedReturn
+continueSingleClientSavedReturn.change.hidden = ContinueSingleClientSavedReturn
+
+continueSingleClientSavedReturn.title = Do you want to continue the return for {0}(VAT/tax reference: {1})?
+continueSingleClientSavedReturn.heading = Do you want to continue the return for {0} (VAT/tax reference: {1})?
+continueSingleClientSavedReturn.yes = Yes
+continueSingleClientSavedReturn.no = No, delete this return
+continueSingleClientSavedReturn.error.required = Select Yes if you want to continue the return for {0} (VAT/tax reference: {1})
+continueSingleClientSavedReturn.change.hidden = to continue the return for {0}(VAT/tax reference: {1})
+
+selectClientSavedReturn.title = Which return would you like to continue?
+selectClientSavedReturn.heading = Which return would you like to continue?
+selectClientSavedReturn.option = {0} (IOSS reference {1})
+selectClientSavedReturn.error.required = Select which return you would like to continue
+selectClientSavedReturn.change.hidden = which return you would like to continue
+
+deleteIntermediaryReturn.title = Are you sure you want to delete this return?
+deleteIntermediaryReturn.heading = Are you sure you want to delete this return?
+deleteIntermediaryReturn.error.required = Select yes if you want to delete this return
+deleteIntermediaryReturn.button = Delete return
