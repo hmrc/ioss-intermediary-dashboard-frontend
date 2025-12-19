@@ -74,7 +74,7 @@ class DeleteIntermediaryReturnControllerSpec extends SpecBase with MockitoSugar 
       }
     }
 
-    "must redirect to the Your Account page when the user answers Yes" in {
+    "must delete the return and clear the session and then redirect to the Your Account page when the user answers Yes" in {
 
       when(mockSaveForLaterService.deleteSavedUserAnswers(any(), any())(any())) thenReturn true.toFuture
       when(mockSessionRepository.clear(any())) thenReturn true.toFuture
