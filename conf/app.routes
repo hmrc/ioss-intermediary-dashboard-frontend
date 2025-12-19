@@ -46,3 +46,12 @@ GET        /client-outstanding-returns-list              controllers.returns.Cli
 GET        /client-overdue-returns-list                  controllers.returns.ClientsOverdueReturnsListController.onPageLoad(waypoints: Waypoints ?= EmptyWaypoints)
 
 GET        /client-payments-list                         controllers.PaymentsClientListController.onPageLoad(waypoints: Waypoints ?= EmptyWaypoints)
+
+GET        /continue-single-client-saved-return/:iossNumber          controllers.saveForLater.ContinueSingleClientSavedReturnController.onPageLoad(waypoints: Waypoints ?= EmptyWaypoints, iossNumber: String)
+POST       /continue-single-client-saved-return/:iossNumber          controllers.saveForLater.ContinueSingleClientSavedReturnController.onSubmit(waypoints: Waypoints ?= EmptyWaypoints, iossNumber: String)
+
+GET        /select-client-saved-return                   controllers.saveForLater.SelectClientSavedReturnController.onPageLoad(waypoints: Waypoints ?= EmptyWaypoints)
+POST       /select-client-saved-return                   controllers.saveForLater.SelectClientSavedReturnController.onSubmit(waypoints: Waypoints ?= EmptyWaypoints)
+
+GET        /delete-intermediary-return/:iossNumber/:period           controllers.returns.DeleteIntermediaryReturnController.onPageLoad(waypoints: Waypoints ?= EmptyWaypoints, iossNumber: String, period: Period)
+POST       /delete-intermediary-return/:iossNumber/:period           controllers.returns.DeleteIntermediaryReturnController.onSubmit(waypoints: Waypoints ?= EmptyWaypoints, iossNumber: String, period: Period)

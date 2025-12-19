@@ -22,7 +22,9 @@ import play.api.libs.json.*
 import play.api.mvc.{PathBindable, QueryStringBindable}
 
 import java.time.Month.*
+import java.time.format.TextStyle
 import java.time.{LocalDate, Month, YearMonth}
+import java.util.Locale
 import scala.util.Try
 import scala.util.matching.Regex
 
@@ -33,8 +35,13 @@ trait Period {
   val lastDay: LocalDate
   val isPartial: Boolean
 
-  val paymentDeadline: LocalDate =
+  val paymentDeadline: LocalDate = {
     LocalDate.of(year, month, 1).plusMonths(2).minusDays(1)
+  }
+
+  def displayText: String = {
+    s"${month.getDisplayName(TextStyle.FULL, Locale.ENGLISH)} $year"
+  }
 }
 
 case class StandardPeriod(year: Int, month: Month) extends Period {

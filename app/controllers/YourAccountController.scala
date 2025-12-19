@@ -24,9 +24,12 @@ import models.etmp.EtmpExclusion
 import models.etmp.EtmpExclusionReason.*
 import models.returns.{CurrentReturns, SubmissionStatus}
 import pages.Waypoints
+import pages.saveForLater.{ContinueSingleClientSavedReturnPage, SelectClientSavedReturnPage}
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.SaveForLaterService
 import services.returns.CurrentReturnsService
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.FutureSyntax.FutureOps
 import viewmodels.dashboard.DashboardUrlsViewModel
@@ -34,13 +37,14 @@ import views.html.YourAccountView
 
 import java.time.{Clock, LocalDate}
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class YourAccountController @Inject()(
                                        cc: AuthenticatedControllerComponents,
                                        view: YourAccountView,
                                        registrationConnector: RegistrationConnector,
                                        secureMessageConnector: SecureMessageConnector,
+                                       saveForLaterService: SaveForLaterService,
                                        currentReturnsService: CurrentReturnsService,
                                        appConfig: FrontendAppConfig,
                                        clock: Clock
@@ -94,33 +98,36 @@ class YourAccountController @Inject()(
                       }
 
                       futureFinalReturnComplete.flatMap { finalReturnComplete =>
+                        checkIntermediarySavedAnswersAndRedirect(waypoints).flatMap { redirectUrl =>
 
-                        val urls = DashboardUrlsViewModel(
-                          addClientUrl = appConfig.addClientUrl,
-                          viewClientReturnsListUrl = controllers.routes.ClientReturnsListController.onPageLoad().url,
-                          viewClientsListUrl = controllers.routes.ClientListController.onPageLoad().url,
-                          changeYourRegistrationUrl = appConfig.changeYourRegistrationUrl,
-                          pendingClientsUrl = controllers.routes.ClientAwaitingActivationController.onPageLoad().url,
-                          secureMessagesUrl = controllers.routes.SecureMessagesController.onPageLoad().url,
-                          leaveThisServiceUrl = leaveThisServiceUrl,
-                          continueSavedRegUrl = appConfig.continueRegistrationUrl,
-                          rejoinSchemeUrl = appConfig.rejoinSchemeUrl,
-                          makeAPaymentUrl = controllers.routes.PaymentsClientListController.onPageLoad().url,
-                          startClientCurrentReturnsUrl = controllers.returns.routes.ClientsOutstandingReturnsListController.onPageLoad(waypoints).url
-                        )
+                          val urls = DashboardUrlsViewModel(
+                            addClientUrl = appConfig.addClientUrl,
+                            viewClientReturnsListUrl = controllers.routes.ClientReturnsListController.onPageLoad().url,
+                            viewClientsListUrl = controllers.routes.ClientListController.onPageLoad().url,
+                            changeYourRegistrationUrl = appConfig.changeYourRegistrationUrl,
+                            pendingClientsUrl = controllers.routes.ClientAwaitingActivationController.onPageLoad().url,
+                            secureMessagesUrl = controllers.routes.SecureMessagesController.onPageLoad().url,
+                            leaveThisServiceUrl = leaveThisServiceUrl,
+                            continueSavedRegUrl = appConfig.continueRegistrationUrl,
+                            rejoinSchemeUrl = appConfig.rejoinSchemeUrl,
+                            makeAPaymentUrl = controllers.routes.PaymentsClientListController.onPageLoad().url,
+                            startClientCurrentReturnsUrl = controllers.returns.routes.ClientsOutstandingReturnsListController.onPageLoad(waypoints).url,
+                            continueSavedReturnUrl = redirectUrl
+                          )
 
-                        Ok(view(
-                          businessName,
-                          intermediaryNumber,
-                          messageCount,
-                          hasUnreadMessages,
-                          numberOfAwaitingClients,
-                          cancelYourRequestToLeaveUrl(maybeExclusion),
-                          numberOfSavedUserJourneys,
-                          urls,
-                          isRejoinEligible,
-                          finalReturnComplete
-                        )).toFuture
+                          Ok(view(
+                            businessName,
+                            intermediaryNumber,
+                            messageCount,
+                            hasUnreadMessages,
+                            numberOfAwaitingClients,
+                            cancelYourRequestToLeaveUrl(maybeExclusion),
+                            numberOfSavedUserJourneys,
+                            urls,
+                            isRejoinEligible,
+                            finalReturnComplete
+                          )).toFuture
+                        }
                       }
 
                     case Left(error) =>
@@ -164,6 +171,27 @@ class YourAccountController @Inject()(
         cr.incompleteReturns.exists { currentReturns =>
           Seq(SubmissionStatus.Due, SubmissionStatus.Overdue, SubmissionStatus.Next).contains(currentReturns.submissionStatus)
         }
+      }
+    }
+  }
+
+  private def checkIntermediarySavedAnswersAndRedirect(
+                                                        waypoints: Waypoints
+                                                      )(implicit hc: HeaderCarrier): Future[Option[String]] = {
+
+    for {
+      savedUserAnswers <- saveForLaterService.getAllClientSavedAnswers()
+    } yield {
+      savedUserAnswers match {
+        case Nil =>
+          None
+
+        case saveAnswers :: Nil =>
+          val iossNumber: String = saveAnswers.iossNumber
+          Some(ContinueSingleClientSavedReturnPage(iossNumber).route(waypoints).url)
+
+        case _ =>
+          Some(SelectClientSavedReturnPage.route(waypoints).url)
       }
     }
   }

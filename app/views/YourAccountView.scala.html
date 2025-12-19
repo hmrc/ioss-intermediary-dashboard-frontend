@@ -73,6 +73,15 @@
             <div id="next-return" class="tile-body">
                 <h2 class="govuk-heading-m">@messages("yourAccount.returns.heading")</h2>
 
+                @if(urls.continueSavedReturnUrl.nonEmpty) {
+                    <p class="govuk-body">
+                        <a class="govuk-link" href="@urls.continueSavedReturnUrl"
+                           id="continue-return">
+                            @messages("yourAccount.returns.savedReturns.continue")
+                        </a>
+                    </p>
+                }
+
                 <p class="govuk-body">
                     <a class="govuk-link" href="@urls.startClientCurrentReturnsUrl"
                        id="start-a-return">
