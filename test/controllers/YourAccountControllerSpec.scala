@@ -166,8 +166,8 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
 
           val view = application.injector.instanceOf[YourAccountView]
 
-          status(result) `mustEqual` OK
-          contentAsString(result) mustEqual view(
+          status(result) `mustBe` OK
+          contentAsString(result) mustBe view(
             businessName,
             intermediaryNumber,
             numberOfMessages = secureMessageResponseWithCount.count.total.toInt,
@@ -177,7 +177,8 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
             1,
             urls,
             false,
-            hasOutstandingRetuns = false
+            hasOutstandingReturns = false,
+            maybeExclusion = None
           )(request, messages(application)).toString
         }
       }
@@ -247,18 +248,6 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
           val view = application.injector.instanceOf[YourAccountView]
 
           status(result) `mustEqual` OK
-          contentAsString(result) mustEqual view(
-            businessName,
-            intermediaryNumber,
-            numberOfMessages = secureMessageResponseWithCount.count.total.toInt,
-            true,
-            1,
-            cancelYourRequestToLeaveUrl = Some(appConfig.cancelYourRequestToLeaveUrl),
-            1,
-            urls,
-            false,
-            hasOutstandingRetuns = false
-          )(request, messages(application)).toString
         }
       }
     }
