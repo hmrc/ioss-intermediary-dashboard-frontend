@@ -296,7 +296,8 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar with BeforeAn
             1,
             urls,
             false,
-            hasOutstandingRetuns = false
+            hasOutstandingReturns = false,
+            maybeExclusion = None
           )(request, messages(application)).toString
 
           verify(mockSaveForLaterService, times(1)).getAllClientSavedAnswers()(any())

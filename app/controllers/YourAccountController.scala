@@ -89,10 +89,19 @@ class YourAccountController @Inject()(
                       val currentDate: LocalDate = LocalDate.now(clock)
                       val isRejoinEligible = registrationWrapper.etmpDisplayRegistration.canRejoinScheme(currentDate)
 
+                      val hasNoClients =
+                        request.registrationWrapper.etmpDisplayRegistration.clientDetails.isEmpty
+
                       val futureFinalReturnComplete = if (isRejoinEligible) {
-                        currentReturnsService.getCurrentReturns(intermediaryNumber).map { hasOutstandingReturns =>
-                          getExistingOutstandingReturns(hasOutstandingReturns)
+                        if (hasNoClients){
+                          true.toFuture
+                        } else {
+                          currentReturnsService.getCurrentReturns(intermediaryNumber).map { hasOutstandingReturns =>
+                            getExistingOutstandingReturns(hasOutstandingReturns)
+                          }
                         }
+                      } else if (hasNoClients){
+                        true.toFuture
                       } else {
                         false.toFuture
                       }
@@ -125,9 +134,9 @@ class YourAccountController @Inject()(
                             numberOfSavedUserJourneys,
                             urls,
                             isRejoinEligible,
-                            finalReturnComplete
-                          )).toFuture
-                        }
+                            finalReturnComplete,
+                          maybeExclusion
+                        )).toFuture}
                       }
 
                     case Left(error) =>
