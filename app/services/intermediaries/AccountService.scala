@@ -20,6 +20,8 @@ import config.Constants.intermediaryEnrolmentKey
 import connectors.RegistrationConnector
 import models.amend.PreviousRegistration
 import models.enrolments.EACDEnrolments
+import models.etmp.EtmpClientDetails
+import models.responses.ErrorResponse
 import uk.gov.hmrc.http.HeaderCarrier
 
 import java.time.LocalDate
@@ -29,7 +31,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class AccountService @Inject()(
                                 registrationConnector: RegistrationConnector
                               )(implicit ec: ExecutionContext) {
-  
+
 
   def getLatestIntermediaryAccount()(implicit hc: HeaderCarrier): Future[Option[String]] = {
     getLatestAccount(registrationConnector.getIntermediaryAccounts(), intermediaryEnrolmentKey)
@@ -65,6 +67,18 @@ class AccountService @Inject()(
           intermediaryNumber = intermediaryNumber
         )
       }
+    }
+  }
+
+  def getRegistrationClientDetails(
+                                    intermediaryNumber: String
+                                  )(implicit hc: HeaderCarrier): Future[Either[ErrorResponse, Seq[EtmpClientDetails]]] = {
+    registrationConnector.displayRegistration(intermediaryNumber).map {
+      case Right(registration) =>
+        Right(registration.etmpDisplayRegistration.clientDetails)
+
+      case Left(error) => Left(error)
+
     }
   }
 }

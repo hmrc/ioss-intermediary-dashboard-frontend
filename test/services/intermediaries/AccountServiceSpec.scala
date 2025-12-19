@@ -21,12 +21,12 @@ import config.Constants
 import connectors.RegistrationConnector
 import models.amend.PreviousRegistration
 import models.enrolments.{EACDEnrolment, EACDEnrolments, EACDIdentifiers}
-import org.mockito.ArgumentMatchers.any
+import models.responses.{ErrorResponse, InternalServerError}
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar.mock
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.FutureSyntax.FutureOps
-import config.Constants.intermediaryEnrolmentKey
 
 import java.time.LocalDateTime
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -112,6 +112,40 @@ class AccountServiceSpec extends SpecBase {
             endPeriod = nextActivation.toLocalDate.minusMonths(1)
           )
         )
+      }
+    }
+
+    "getRegistrationClientDetails" - {
+
+      "must return list of EtmpDisplayRegistration clientDetails" in {
+
+        when(
+          mockRegistrationConnector.displayRegistration(eqTo(intermediaryNumber))(any())
+        ).thenReturn(Right(registrationWrapper).toFuture)
+
+        val registrationDetails = registrationWrapper.etmpDisplayRegistration.clientDetails
+
+        val service = new AccountService(mockRegistrationConnector)
+
+        val result = service.getRegistrationClientDetails(intermediaryNumber).futureValue
+
+        result mustBe Right(registrationDetails)
+      }
+
+      "must return Left(ErrorResponse) when the connector returns an error" in {
+
+        val errorResponse: ErrorResponse = InternalServerError
+
+        when(
+          mockRegistrationConnector.displayRegistration(eqTo(intermediaryNumber))(any())
+        ).thenReturn(Left(errorResponse).toFuture)
+
+        val service = new AccountService(mockRegistrationConnector)
+
+        val result =
+          service.getRegistrationClientDetails(intermediaryNumber).futureValue
+
+        result mustBe Left(errorResponse)
       }
     }
   }
