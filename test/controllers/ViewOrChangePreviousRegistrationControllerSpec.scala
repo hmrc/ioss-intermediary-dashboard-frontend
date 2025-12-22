@@ -17,39 +17,33 @@
 package controllers
 
 import base.SpecBase
+import config.FrontendAppConfig
 import connectors.RegistrationConnector
 import controllers.amend.routes
-import forms.ViewOrChangePreviousRegistrationFormProvider
 import models.amend.PreviousRegistration
-import org.mockito.ArgumentMatchers.{any, eq as eqTo}
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito
-import org.mockito.Mockito.{times, verify, when}
+import org.mockito.Mockito.when
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
-import pages.ViewOrChangePreviousRegistrationPage
 import pages.{EmptyWaypoints, Waypoints}
-import play.api.data.Form
+import play.api.i18n.Messages
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import services.intermediaries.AccountService
 import utils.FutureSyntax.FutureOps
+import viewmodels.amend.ViewOrChangePreviousRegistrationViewModel
 import views.html.ViewOrChangePreviousRegistrationView
 
 import java.time.LocalDate
 
 class ViewOrChangePreviousRegistrationControllerSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach {
 
-  private val previousRegistration = PreviousRegistration(intermediaryNumber, LocalDate.now(), LocalDate.now().plusMonths(6))
-
-  private val formProvider = new ViewOrChangePreviousRegistrationFormProvider()
-  private val form: Form[Boolean] = formProvider(intermediaryNumber)
-
-  private val waypoints: Waypoints = EmptyWaypoints
-
   private lazy val viewOrChangePreviousRegistrationRoute: String = routes.ViewOrChangePreviousRegistrationController.onPageLoad(waypoints).url
-  private lazy val viewOrChangePreviousRegistrationSubmitRoute: String = routes.ViewOrChangePreviousRegistrationController.onSubmit(waypoints).url
-
+  private val previousRegistration = PreviousRegistration(intermediaryNumber, LocalDate.now(), LocalDate.now().plusMonths(6))
+  private val clientDetails = registrationWrapper.etmpDisplayRegistration.clientDetails
+  private val waypoints: Waypoints = EmptyWaypoints
   private val mockRegistrationConnector: RegistrationConnector = mock[RegistrationConnector]
   private val mockAccountService: AccountService = mock[AccountService]
 
@@ -61,20 +55,39 @@ class ViewOrChangePreviousRegistrationControllerSpec extends SpecBase with Mocki
   "must return OK and the correct view for a GET when a single previous registration exists" in {
 
     when(mockAccountService.getPreviousRegistrations()(any())).thenReturn(Seq(previousRegistration).toFuture)
+    when(mockAccountService.getRegistrationClientDetails(any())(any())).thenReturn(Right(clientDetails).toFuture)
 
     val application = applicationBuilder(userAnswers = Some(emptyUserAnswersWithVatInfo))
       .overrides(bind[AccountService].toInstance(mockAccountService))
       .build()
 
+    val appConfig = application.injector.instanceOf[FrontendAppConfig]
+
+    val returnToCurrentRegUrl: String = appConfig.viewClientsListUrl
+    val changeRegistrationRedirectUrl: String = "ADD-CHANGE-REG-LINK-HERE" // TODO: Update link
+
+
     running(application) {
+      implicit val msgs: Messages = messages(application)
+
       val request = FakeRequest(GET, viewOrChangePreviousRegistrationRoute)
+
+      val viewModel = ViewOrChangePreviousRegistrationViewModel(
+        clientDetails,
+        changeRegistrationRedirectUrl
+      )
 
       val result = route(application, request).value
 
       val view = application.injector.instanceOf[ViewOrChangePreviousRegistrationView]
 
       status(result) mustBe OK
-      contentAsString(result) mustBe view(form, waypoints, intermediaryNumber)(request, messages(application)).toString
+      contentAsString(result) mustBe view(
+        waypoints,
+        intermediaryNumber,
+        viewModel,
+        returnToCurrentRegUrl
+      )(request, messages(application)).toString
     }
   }
 }

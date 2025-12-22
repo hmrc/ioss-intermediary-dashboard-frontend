@@ -61,7 +61,7 @@ class ViewOrChangePreviousRegistrationController @Inject()(
 
               accountService.getRegistrationClientDetails(intermediaryNumber).map {
                 case Right(clientDetailsList) =>
-                  val changeRegistrationRedirectUrl = YourAccountPage.route(waypoints).url
+                  val changeRegistrationRedirectUrl = YourAccountPage.route(waypoints).url // TODO: Update link
 
                   val viewModel = ViewOrChangePreviousRegistrationViewModel(
                     clientDetailsList,
