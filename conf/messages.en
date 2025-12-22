@@ -137,6 +137,7 @@ viewOrChangePreviousRegistrationsMultiple.hint = IOSS intermediary number: {0}
 viewOrChangePreviousRegistration.change.hidden =  Change client details for
 viewOrChangePreviousRegistration.table.header.clientName = Client name
 viewOrChangePreviousRegistration.table.header.iossNumber = IOSS number
+viewOrChangePreviousRegistration.returnToCurrentRegistration.link = Return to your current registration
 
 secureMessages.title = Messages
 secureMessages.subject.read = <a class="govuk-link" href="">{0}</a>

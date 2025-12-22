@@ -16,6 +16,7 @@
 
 package controllers.amend
 
+import config.FrontendAppConfig
 import controllers.actions.*
 import logging.Logging
 import models.etmp.EtmpClientDetails
@@ -36,7 +37,8 @@ class ViewOrChangePreviousRegistrationController @Inject()(
                                                             override val messagesApi: MessagesApi,
                                                             cc: AuthenticatedControllerComponents,
                                                             accountService: AccountService,
-                                                            view: ViewOrChangePreviousRegistrationView
+                                                            view: ViewOrChangePreviousRegistrationView,
+                                                            frontendAppConfig: FrontendAppConfig,
                                                           )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
 
   protected val controllerComponents: MessagesControllerComponents = cc
@@ -55,6 +57,8 @@ class ViewOrChangePreviousRegistrationController @Inject()(
             case 1 =>
               val intermediaryNumber: String = previousRegistrations.map(_.intermediaryNumber).head
 
+              val returnToCurrentRegUrl: String = frontendAppConfig.viewClientsListUrl
+
               accountService.getRegistrationClientDetails(intermediaryNumber).map {
                 case Right(clientDetailsList) =>
                   val changeRegistrationRedirectUrl = YourAccountPage.route(waypoints).url
@@ -65,7 +69,7 @@ class ViewOrChangePreviousRegistrationController @Inject()(
                   )
 
 
-                  Ok(view(waypoints, intermediaryNumber, viewModel))
+                  Ok(view(waypoints, intermediaryNumber, viewModel, returnToCurrentRegUrl))
 
                 case Left(error) =>
                   logger.error(s"Failed to retrieve client details: $error")

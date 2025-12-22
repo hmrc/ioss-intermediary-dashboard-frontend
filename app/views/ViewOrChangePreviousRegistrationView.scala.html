@@ -22,14 +22,18 @@
     govukTable: GovukTable
 )
 
-@(waypoints: Waypoints, intermediaryNumber: String, viewModel: ViewOrChangePreviousRegistrationViewModel)(implicit request: Request[_], messages: Messages)
+@(waypoints: Waypoints, intermediaryNumber: String, viewModel: ViewOrChangePreviousRegistrationViewModel, returnToCurrentRegUrl: String)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("viewOrChangePreviousRegistration.title", intermediaryNumber))) {
 
-        <h1 class="govuk-heading-l govuk-!-margin-bottom-0">
-            @messages("viewOrChangePreviousRegistration.heading")
-        </h1>
-        <span class="govuk-caption-l govuk-!-margin-bottom-3">@messages("viewOrChangePreviousRegistration.intermediaryNumberCaption", intermediaryNumber)</span>
+    <h1 class="govuk-heading-l govuk-!-margin-bottom-0">
+        @messages("viewOrChangePreviousRegistration.heading")
+    </h1>
+    <span class="govuk-caption-l govuk-!-margin-bottom-3">@messages("viewOrChangePreviousRegistration.intermediaryNumberCaption", intermediaryNumber)</span>
+
+    <p class="govuk-body govuk-!-margin-bottom-6">
+        <a class="govuk-link" href="@returnToCurrentRegUrl" id="messages">@messages("viewOrChangePreviousRegistration.returnToCurrentRegistration.link") </a>
+    </p>
 
     @govukTable(viewModel.clients)
 
