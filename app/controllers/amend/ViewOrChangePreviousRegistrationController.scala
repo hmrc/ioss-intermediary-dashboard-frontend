@@ -17,25 +17,24 @@
 package controllers.amend
 
 import controllers.actions.*
-import forms.ViewOrChangePreviousRegistrationFormProvider
 import logging.Logging
-import pages.{ViewOrChangePreviousRegistrationPage, Waypoints, YourAccountPage}
-import play.api.data.Form
+import models.etmp.EtmpClientDetails
+import models.responses.ErrorResponse
+import pages.{Waypoints, YourAccountPage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import queries.PreviousRegistrationIntermediaryNumberQuery
 import services.intermediaries.AccountService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.FutureSyntax.FutureOps
+import viewmodels.amend.ViewOrChangePreviousRegistrationViewModel
 import views.html.ViewOrChangePreviousRegistrationView
 
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 class ViewOrChangePreviousRegistrationController @Inject()(
                                                             override val messagesApi: MessagesApi,
                                                             cc: AuthenticatedControllerComponents,
-                                                            formProvider: ViewOrChangePreviousRegistrationFormProvider,
                                                             accountService: AccountService,
                                                             view: ViewOrChangePreviousRegistrationView
                                                           )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
@@ -52,42 +51,32 @@ class ViewOrChangePreviousRegistrationController @Inject()(
               val exception = new IllegalStateException("Must have one or more previous registrations")
               logger.error(exception.getMessage, exception)
               throw exception
+
             case 1 =>
               val intermediaryNumber: String = previousRegistrations.map(_.intermediaryNumber).head
 
-              val form: Form[Boolean] = formProvider(intermediaryNumber)
+              accountService.getRegistrationClientDetails(intermediaryNumber).map {
+                case Right(clientDetailsList) =>
+                  val changeRegistrationRedirectUrl = YourAccountPage.route(waypoints).url
 
-              Ok(view(form, waypoints, intermediaryNumber)).toFuture
+                  val viewModel = ViewOrChangePreviousRegistrationViewModel(
+                    clientDetailsList,
+                    changeRegistrationRedirectUrl
+                  )
+
+
+                  Ok(view(waypoints, intermediaryNumber, viewModel))
+
+                case Left(error) =>
+                  logger.error(s"Failed to retrieve client details: $error")
+                  InternalServerError
+              }
+
             case _ =>
               Redirect(YourAccountPage.route(waypoints).url).toFuture
           }
         }
     }
-
-
-  def onSubmit(waypoints: Waypoints): Action[AnyContent] =
-    cc.identifyAndGetData.async {
-      implicit request =>
-
-        accountService.getPreviousRegistrations().flatMap { previousRegistrations =>
-
-          val intermediaryNumber: String = previousRegistrations.map(_.intermediaryNumber).head
-
-          val form: Form[Boolean] = formProvider(intermediaryNumber)
-
-          form.bindFromRequest().fold(
-            formWithErrors =>
-              BadRequest(view(formWithErrors, waypoints, intermediaryNumber)).toFuture,
-
-            value =>
-              for {
-                updatedAnswers <- Future.fromTry(request.userAnswers.set(ViewOrChangePreviousRegistrationPage, value))
-                updateAnswersWithIntermediaryNumber <- Future.fromTry(updatedAnswers.set(PreviousRegistrationIntermediaryNumberQuery, intermediaryNumber))
-                _ <- cc.sessionRepository.set(updateAnswersWithIntermediaryNumber)
-
-              } yield Redirect(ViewOrChangePreviousRegistrationPage.navigate(waypoints, request.userAnswers, updateAnswersWithIntermediaryNumber).route)
-          )
-        }
-    }
 }
+
 

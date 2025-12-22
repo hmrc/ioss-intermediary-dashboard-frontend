@@ -15,28 +15,22 @@
  *@
 
 @import controllers.amend.routes
+@import viewmodels.amend.ViewOrChangePreviousRegistrationViewModel
 
 @this(
     layout: templates.Layout,
-    formHelper: FormWithCSRF,
-    govukErrorSummary: GovukErrorSummary,
-    govukRadios: GovukRadios,
-    govukButton: GovukButton
+    govukTable: GovukTable
 )
 
-@(form: Form[_], waypoints: Waypoints, intermediaryNumber: String)(implicit request: Request[_], messages: Messages)
+@(waypoints: Waypoints, intermediaryNumber: String, viewModel: ViewOrChangePreviousRegistrationViewModel)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = title(form, messages("viewOrChangePreviousRegistration.title", intermediaryNumber))) {
+@layout(pageTitle = titleNoForm(messages("viewOrChangePreviousRegistration.title", intermediaryNumber))) {
 
-    @formHelper(action = routes.ViewOrChangePreviousRegistrationController.onSubmit(waypoints), Symbol("autoComplete") -> "off") {
-        <h1 class="govuk-heading-l">
+        <h1 class="govuk-heading-l govuk-!-margin-bottom-0">
             @messages("viewOrChangePreviousRegistration.heading")
         </h1>
+        <span class="govuk-caption-l govuk-!-margin-bottom-3">@messages("viewOrChangePreviousRegistration.intermediaryNumberCaption", intermediaryNumber)</span>
 
-        <span class="govuk-caption-l">@messages("viewOrChangePreviousRegistration.intermediaryNumberCaption", intermediaryNumber)</span>
-        @if(form.errors.nonEmpty) {
-            @govukErrorSummary(ErrorSummaryViewModel(form))
-        }
+    @govukTable(viewModel.clients)
 
-    }
 }
