@@ -17,14 +17,15 @@
 package forms
 
 import javax.inject.Inject
-
 import forms.mappings.Mappings
 import play.api.data.Form
+import models.amend.PreviousRegistration
 
-class ViewOrChangePreviousRegistrationFormProvider @Inject() extends Mappings {
+class ViewOrChangePreviousRegistrationsMultipleFormProvider @Inject() extends Mappings {
 
-  def apply(intermediaryNumber: String): Form[Boolean] =
+  def apply(previousRegistrations: Seq[PreviousRegistration]): Form[String] =
     Form(
-      "value" -> boolean("viewOrChangePreviousRegistration.error.required", args = Seq(intermediaryNumber))
+      "value" -> text("viewOrChangePreviousRegistrationsMultiple.error.required")
+        .verifying(validIntermediaryNumber(previousRegistrations, "viewOrChangePreviousRegistrationsMultiple.error.invalid"))
     )
 }

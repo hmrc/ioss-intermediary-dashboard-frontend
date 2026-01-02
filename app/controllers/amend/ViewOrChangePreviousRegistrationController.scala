@@ -21,6 +21,7 @@ import controllers.actions.*
 import logging.Logging
 import models.etmp.EtmpClientDetails
 import models.responses.ErrorResponse
+import pages.amend.ViewOrChangePreviousRegistrationsMultiplePage
 import pages.{Waypoints, YourAccountPage}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -77,7 +78,7 @@ class ViewOrChangePreviousRegistrationController @Inject()(
               }
 
             case _ =>
-              Redirect(YourAccountPage.route(waypoints).url).toFuture
+              Redirect(ViewOrChangePreviousRegistrationsMultiplePage.route(waypoints).url).toFuture
           }
         }
     }
