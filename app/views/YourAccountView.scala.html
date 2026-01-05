@@ -33,7 +33,7 @@
     numberOfSavedUserJourneys: Long,
     urls: DashboardUrlsViewModel,
     canRejoin: Boolean,
-    hasOutstandingReturns: Boolean,
+    finalReturnComplete: Boolean,
     maybeExclusion: Option[EtmpExclusion],
 )(implicit request: Request[_], messages: Messages)
 
@@ -70,7 +70,7 @@
         } else None
     }
 
-    @if(hasOutstandingReturns) {
+    @if(finalReturnComplete) {
         @maybeExclusion match {
             case Some(exclusion) => {
                 @exclusion.exclusionReason match {
@@ -258,7 +258,7 @@
                     </p>
                 }
 
-                @if(canRejoin && !hasOutstandingReturns) {
+                @if(canRejoin && finalReturnComplete) {
                     <p class="govuk-body">
                         <a class="govuk-link" href="@urls.rejoinSchemeUrl"
                            id="rejoin-scheme">

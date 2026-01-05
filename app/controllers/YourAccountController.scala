@@ -103,7 +103,9 @@ class YourAccountController @Inject()(
                       } else if (hasNoClients){
                         true.toFuture
                       } else {
-                        false.toFuture
+                        currentReturnsService.getCurrentReturns(intermediaryNumber).map { hasOutstandingReturns =>
+                          getExistingOutstandingReturns(hasOutstandingReturns)
+                        }
                       }
 
                       futureFinalReturnComplete.flatMap { finalReturnComplete =>
@@ -173,14 +175,15 @@ class YourAccountController @Inject()(
   }
 
   private def getExistingOutstandingReturns(currentReturns: Seq[CurrentReturns]): Boolean = {
-    currentReturns.exists { cr =>
-      if (cr.finalReturnsCompleted) {
-        false
-      } else {
-        cr.incompleteReturns.exists { currentReturns =>
-          Seq(SubmissionStatus.Due, SubmissionStatus.Overdue, SubmissionStatus.Next).contains(currentReturns.submissionStatus)
+    currentReturns.forall { cr =>
+      cr.finalReturnsCompleted &&
+        !cr.incompleteReturns.exists { r =>
+          Seq(
+            SubmissionStatus.Due,
+            SubmissionStatus.Overdue,
+            SubmissionStatus.Next
+          ).contains(r.submissionStatus)
         }
-      }
     }
   }
 
