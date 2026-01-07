@@ -16,7 +16,7 @@
 
 package controllers.actions
 
-import models.requests.RegistrationRequest
+import models.requests.{DataRequest, OptionalDataRegistrationRequest, OptionalDataRequest, RegistrationRequest}
 import play.api.http.FileMimeTypes
 import play.api.i18n.{Langs, MessagesApi}
 import play.api.mvc.*
@@ -26,15 +26,15 @@ import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
 trait AuthenticatedControllerComponents extends MessagesControllerComponents {
-  
+
   def actionBuilder: DefaultActionBuilder
-  
+
   def sessionRepository: SessionRepository
-  
+
   def identify: IdentifierAction
-  
+
   def getData: DataRetrievalAction
-  
+
   def requireData: DataRequiredAction
 
   def getRegistration: GetRegistrationAction
@@ -48,12 +48,33 @@ trait AuthenticatedControllerComponents extends MessagesControllerComponents {
       getRegistration
   }
 
+  def getOptionalDataRegistration: GetOptionalDataRegistrationAction
+
+  def identifyAndGetData: ActionBuilder[DataRequest, AnyContent] =
+    actionBuilder andThen
+      identify andThen
+      getData andThen
+      requireData
+
+  def identifyAndGetOptionalData: ActionBuilder[OptionalDataRequest, AnyContent] =
+    actionBuilder andThen
+      identify andThen
+      getData
+
   def identifyAndGetRegistration: ActionBuilder[RegistrationRequest, AnyContent] = {
     identify andThen
       getRegistration andThen
       checkBouncedEmail() andThen
       checkNiBasedAddress()
   }
+
+  def identifyGetDataAndRegistration: ActionBuilder[OptionalDataRegistrationRequest, AnyContent] = {
+    actionBuilder andThen
+      identify andThen
+      getData andThen
+      getOptionalDataRegistration
+  }
+
 }
 
 case class DefaultAuthenticatedControllerComponents @Inject()(
@@ -70,5 +91,6 @@ case class DefaultAuthenticatedControllerComponents @Inject()(
                                                                  requireData: DataRequiredAction,
                                                                  getRegistration: GetRegistrationAction,
                                                                  checkNiBasedAddress: CheckNiBasedAddressFilterProvider,
-                                                                 checkBouncedEmail: CheckBouncedEmailFilterProvider
+                                                                 checkBouncedEmail: CheckBouncedEmailFilterProvider,
+                                                                 getOptionalDataRegistration: GetOptionalDataRegistrationAction,
                                                                ) extends AuthenticatedControllerComponents
