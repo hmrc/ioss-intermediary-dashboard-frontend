@@ -19,7 +19,6 @@ package controllers.returns
 import controllers.actions.*
 import forms.returns.DeleteIntermediaryReturnFormProvider
 import models.Period
-import pages.saveForLater.ContinueSingleClientSavedReturnPage
 import pages.{Waypoints, YourAccountPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -64,7 +63,7 @@ class DeleteIntermediaryReturnController @Inject()(
               _ <- saveForLaterService.deleteSavedUserAnswers(iossNumber, period)
             } yield Redirect(YourAccountPage.route(waypoints).url)
           } else {
-            Redirect(ContinueSingleClientSavedReturnPage(iossNumber).route(waypoints).url).toFuture
+            Redirect(YourAccountPage.route(waypoints).url).toFuture
           }
       )
   }

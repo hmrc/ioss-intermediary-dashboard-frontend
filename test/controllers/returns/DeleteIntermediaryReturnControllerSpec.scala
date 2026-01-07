@@ -25,7 +25,6 @@ import org.mockito.Mockito.{times, verify, verifyNoInteractions, when}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import pages.YourAccountPage
-import pages.saveForLater.ContinueSingleClientSavedReturnPage
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.test.FakeRequest
@@ -101,7 +100,7 @@ class DeleteIntermediaryReturnControllerSpec extends SpecBase with MockitoSugar 
       }
     }
 
-    "must redirect to the Continue Single Client Saved Return page when the user answers No" in {
+    "must redirect to the Your Account page when the user answers No" in {
 
       val application =
         applicationBuilder(userAnswers = Some(emptyUserAnswers))
@@ -115,7 +114,7 @@ class DeleteIntermediaryReturnControllerSpec extends SpecBase with MockitoSugar 
         val result = route(application, request).value
 
         status(result) `mustBe` SEE_OTHER
-        redirectLocation(result).value `mustBe` ContinueSingleClientSavedReturnPage(iossNumber).route(waypoints).url
+        redirectLocation(result).value `mustBe` YourAccountPage.route(waypoints).url
         verifyNoInteractions(mockSaveForLaterService)
         verifyNoInteractions(mockSessionRepository)
       }
