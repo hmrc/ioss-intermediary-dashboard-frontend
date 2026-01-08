@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,21 +34,22 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   def feedbackUrl(implicit request: RequestHeader): String =
     s"$contactHost/contact/beta-feedback?service=$contactFormServiceIdentifier&backUrl=${host + request.uri}"
 
-  val loginUrl: String                      = configuration.get[String]("urls.login")
-  val loginContinueUrl: String              = configuration.get[String]("urls.loginContinue")
-  val signOutUrl: String                    = configuration.get[String]("urls.signOut")
-  val addClientUrl: String                  = configuration.get[String]("urls.addClientUrl")
-  val pendingRegistrationUrl: String        = configuration.get[String]("urls.pendingRegistrationUrl")
-  val changeYourRegistrationUrl: String     = configuration.get[String]("urls.changeYourRegistrationUrl")
-  val leaveThisServiceUrl: String           = configuration.get[String]("urls.leaveThisServiceUrl")
-  val leaveNetpServiceUrl: String           = configuration.get[String]("urls.leaveNetpServiceUrl")
-  val changeYourNetpRegistrationUrl: String = configuration.get[String]("urls.changeNetpRegistrationUrl")
-  val cancelYourRequestToLeaveUrl: String   = configuration.get[String]("urls.cancelYourRequestToLeaveUrl")
-  val continueRegistrationUrl:String        = configuration.get[String]("urls.continueRegistrationUrl")
-  val rejoinSchemeUrl: String               = configuration.get[String]("urls.rejoinSchemeUrl")
-  val startCurrentReturnUrl: String         = configuration.get[String]("urls.startCurrentReturnUrl")
-  val startReturnsHistoryUrl: String         = configuration.get[String]("urls.startReturnsHistoryUrl")
-  val startPaymentUrl: String               = configuration.get[String]("urls.startPaymentUrl")
+  val loginUrl: String                        = configuration.get[String]("urls.login")
+  val loginContinueUrl: String                = configuration.get[String]("urls.loginContinue")
+  val signOutUrl: String                      = configuration.get[String]("urls.signOut")
+  val addClientUrl: String                    = configuration.get[String]("urls.addClientUrl")
+  val pendingRegistrationUrl: String          = configuration.get[String]("urls.pendingRegistrationUrl")
+  val changeYourRegistrationUrl: String       = configuration.get[String]("urls.changeYourRegistrationUrl")
+  val leaveThisServiceUrl: String             = configuration.get[String]("urls.leaveThisServiceUrl")
+  val leaveNetpServiceUrl: String             = configuration.get[String]("urls.leaveNetpServiceUrl")
+  val changeYourNetpRegistrationUrl: String   = configuration.get[String]("urls.changeNetpRegistrationUrl")
+  val cancelYourRequestToLeaveUrl: String     = configuration.get[String]("urls.cancelYourRequestToLeaveUrl")
+  val continueRegistrationUrl:String          = configuration.get[String]("urls.continueRegistrationUrl")
+  val rejoinSchemeUrl: String                 = configuration.get[String]("urls.rejoinSchemeUrl")
+  val startCurrentReturnUrl: String           = configuration.get[String]("urls.startCurrentReturnUrl")
+  val startReturnsHistoryUrl: String          = configuration.get[String]("urls.startReturnsHistoryUrl")
+  val startPaymentUrl: String                 = configuration.get[String]("urls.startPaymentUrl")
+  val startIntermediarySavedReturns: String   = configuration.get[String]("urls.startIntermediarySavedReturns")
 
   val allowedRedirectUrls: Seq[String] = configuration.get[Seq[String]]("urls.allowedRedirects")
 

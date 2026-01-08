@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,17 +25,22 @@ import models.etmp.EtmpExclusionReason.TransferringMSID
 import models.etmp.{EtmpDisplayRegistration, EtmpExclusion, RegistrationWrapper}
 import models.responses.InternalServerError
 import models.returns.CurrentReturns
+import models.saveForLater.SavedUserAnswers
 import models.securemessage.responses.{SecureMessageCount, SecureMessageResponse, SecureMessageResponseWithCount, TaxpayerName}
 import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito
 import org.mockito.Mockito.{times, verify, when}
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Gen
+import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.mockito.MockitoSugar.mock
+import pages.saveForLater.{ContinueSingleClientSavedReturnPage, SelectClientSavedReturnPage}
 import pages.{EmptyWaypoints, Waypoints}
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import services.SaveForLaterService
 import services.returns.CurrentReturnsService
 import utils.FutureSyntax.FutureOps
 import viewmodels.dashboard.DashboardUrlsViewModel
@@ -43,7 +48,7 @@ import views.html.YourAccountView
 
 import java.time.LocalDate
 
-class YourAccountControllerSpec extends SpecBase with MockitoSugar {
+class YourAccountControllerSpec extends SpecBase with MockitoSugar with BeforeAndAfterEach {
 
   private val waypoints: Waypoints = EmptyWaypoints
   private val businessName = "Company name"
@@ -88,18 +93,29 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
     etmpDisplayRegistration = etmpDisplayRegistration
   )
 
+  private val savedUserAnswers: Seq[SavedUserAnswers] = Gen.listOfN(3, arbitrarySavedUserAnswers.arbitrary).sample.value
 
-  val mockSecureMessageConnector: SecureMessageConnector = mock[SecureMessageConnector]
+  private val mockSecureMessageConnector: SecureMessageConnector = mock[SecureMessageConnector]
   private val mockCurrentReturnsService: CurrentReturnsService = mock[CurrentReturnsService]
+  private val mockRegistrationConnector: RegistrationConnector = mock[RegistrationConnector]
+  private val mockSaveForLaterService: SaveForLaterService = mock[SaveForLaterService]
+
   private val currentReturns: Seq[CurrentReturns] = Gen.listOfN(3, arbitraryCurrentReturns.arbitrary).sample.value
 
   lazy val yourAccountRoute: String = routes.YourAccountController.onPageLoad(waypoints).url
+
+  override def beforeEach(): Unit = {
+    Mockito.reset(
+      mockRegistrationConnector,
+      mockSaveForLaterService
+    )
+  }
 
   "YourAccount Controller" - {
 
     "should display your account view" - {
 
-      "must return OK and the correct view for a GET" in {
+      "must return OK and the correct view for a GET and there are mo client saved returns present" in {
 
         val niVatInfo = vatCustomerInfo.copy(
           desAddress = DesAddress(
@@ -124,8 +140,6 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
           )
         )
 
-        val mockRegistrationConnector = mock[RegistrationConnector]
-
         when(mockRegistrationConnector.getNumberOfPendingRegistrations(any())(any()))
           .thenReturn(1.toLong.toFuture)
         when(mockRegistrationConnector.getNumberOfSavedUserAnswers(any())(any()))
@@ -137,12 +151,17 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
         when(mockRegistrationConnector.displayRegistration(any())(any()))
           .thenReturn(Right(registrationWrapperEmptyExclusionsAndEmptyOtherAddress).toFuture)
         when(mockCurrentReturnsService.getCurrentReturns(any())(any())) thenReturn currentReturns.toFuture
+        when(mockSaveForLaterService.getAllClientSavedAnswers()(any())) thenReturn Seq.empty.toFuture
 
         val application = applicationBuilder(userAnswers = Some(emptyUserAnswers), registrationWrapper = registrationWrapperEmptyExclusionsAndEmptyOtherAddress)
-          .overrides(bind[RegistrationConnector].toInstance(mockRegistrationConnector))
-          .overrides(bind[SecureMessageConnector].toInstance(mockSecureMessageConnector))
-          .overrides(bind[CurrentReturnsService].toInstance(mockCurrentReturnsService))
+          .overrides(
+            bind[RegistrationConnector].toInstance(mockRegistrationConnector),
+            bind[SecureMessageConnector].toInstance(mockSecureMessageConnector),
+            bind[CurrentReturnsService].toInstance(mockCurrentReturnsService),
+            bind[SaveForLaterService].toInstance(mockSaveForLaterService)
+          )
           .build()
+
         val appConfig = application.injector.instanceOf[FrontendAppConfig]
 
         val urls = DashboardUrlsViewModel(
@@ -156,7 +175,8 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
           continueSavedRegUrl = appConfig.continueRegistrationUrl,
           rejoinSchemeUrl = appConfig.rejoinSchemeUrl,
           makeAPaymentUrl = controllers.routes.PaymentsClientListController.onPageLoad().url,
-          startClientCurrentReturnsUrl = controllers.returns.routes.ClientsOutstandingReturnsListController.onPageLoad(waypoints).url
+          startClientCurrentReturnsUrl = controllers.returns.routes.ClientsOutstandingReturnsListController.onPageLoad(waypoints).url,
+          continueSavedReturnUrl = None
         )
 
         running(application) {
@@ -166,8 +186,8 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
 
           val view = application.injector.instanceOf[YourAccountView]
 
-          status(result) `mustEqual` OK
-          contentAsString(result) mustEqual view(
+          status(result) `mustBe` OK
+          contentAsString(result) `mustBe` view(
             businessName,
             intermediaryNumber,
             numberOfMessages = secureMessageResponseWithCount.count.total.toInt,
@@ -179,12 +199,210 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
             false,
             hasOutstandingRetuns = false
           )(request, messages(application)).toString
+
+          verify(mockSaveForLaterService, times(1)).getAllClientSavedAnswers()(any())
+        }
+      }
+
+      "must return OK and the correct view for a GET when there is a client saved return present" in {
+
+        val niVatInfo = vatCustomerInfo.copy(
+          desAddress = DesAddress(
+            line1 = "1 The Street",
+            line2 = None,
+            line3 = None,
+            line4 = None,
+            line5 = None,
+            postCode = Some("BT11 1AA"),
+            countryCode = "GB"
+          )
+        )
+
+        val registrationWrapperEmptyExclusionsAndEmptyOtherAddress = registrationWrapper.copy(
+          vatInfo = niVatInfo,
+          etmpDisplayRegistration = arbitraryEtmpDisplayRegistration.arbitrary.sample.value.copy(
+            exclusions = Seq.empty,
+            otherAddress = None,
+            schemeDetails = registrationWrapper.etmpDisplayRegistration.schemeDetails.copy(
+              unusableStatus = false
+            )
+          )
+        )
+
+        val indexedClientIossNumbers: Seq[(String, Int)] = registrationWrapperEmptyExclusionsAndEmptyOtherAddress
+          .etmpDisplayRegistration.clientDetails.map(_.clientIossID).zipWithIndex
+
+        val mappedSavedUserAnswers: Seq[SavedUserAnswers] = savedUserAnswers.zipWithIndex.map { (savedAnswers, index) =>
+          savedAnswers.copy(iossNumber = indexedClientIossNumbers(index)._1)
+        }
+
+        when(mockRegistrationConnector.getNumberOfPendingRegistrations(any())(any()))
+          .thenReturn(1.toLong.toFuture)
+        when(mockRegistrationConnector.getNumberOfSavedUserAnswers(any())(any()))
+          .thenReturn(1.toLong.toFuture)
+        when(mockRegistrationConnector.getVatCustomerInfo(any())(any()))
+          .thenReturn(Right(vatCustomerInfo).toFuture)
+        when(mockSecureMessageConnector.getMessages(any(), any(), any(), any(), any())(any()))
+          .thenReturn(Right(secureMessageResponseWithCount).toFuture)
+        when(mockRegistrationConnector.displayRegistration(any())(any()))
+          .thenReturn(Right(registrationWrapperEmptyExclusionsAndEmptyOtherAddress).toFuture)
+        when(mockCurrentReturnsService.getCurrentReturns(any())(any())) thenReturn currentReturns.toFuture
+        when(mockSaveForLaterService.getAllClientSavedAnswers()(any())) thenReturn Seq(mappedSavedUserAnswers.head).toFuture
+
+        val application = applicationBuilder(
+          userAnswers = Some(emptyUserAnswers),registrationWrapper = registrationWrapperEmptyExclusionsAndEmptyOtherAddress)
+          .overrides(
+            bind[RegistrationConnector].toInstance(mockRegistrationConnector),
+            bind[SecureMessageConnector].toInstance(mockSecureMessageConnector),
+            bind[CurrentReturnsService].toInstance(mockCurrentReturnsService),
+            bind[SaveForLaterService].toInstance(mockSaveForLaterService)
+          )
+          .build()
+
+        val appConfig = application.injector.instanceOf[FrontendAppConfig]
+
+        val continueSavedReturnUrl: String = ContinueSingleClientSavedReturnPage(mappedSavedUserAnswers.head.iossNumber).route(waypoints).url
+
+        val urls = DashboardUrlsViewModel(
+          addClientUrl = appConfig.addClientUrl,
+          viewClientReturnsListUrl = controllers.routes.ClientReturnsListController.onPageLoad().url,
+          viewClientsListUrl = controllers.routes.ClientListController.onPageLoad().url,
+          changeYourRegistrationUrl = appConfig.changeYourRegistrationUrl,
+          pendingClientsUrl = controllers.routes.ClientAwaitingActivationController.onPageLoad().url,
+          secureMessagesUrl = controllers.routes.SecureMessagesController.onPageLoad().url,
+          leaveThisServiceUrl = Some(appConfig.leaveThisServiceUrl),
+          continueSavedRegUrl = appConfig.continueRegistrationUrl,
+          rejoinSchemeUrl = appConfig.rejoinSchemeUrl,
+          makeAPaymentUrl = controllers.routes.PaymentsClientListController.onPageLoad().url,
+          startClientCurrentReturnsUrl = controllers.returns.routes.ClientsOutstandingReturnsListController.onPageLoad(waypoints).url,
+          continueSavedReturnUrl = Some(continueSavedReturnUrl)
+        )
+
+        running(application) {
+          val request = FakeRequest(GET, yourAccountRoute)
+
+          val result = route(application, request).value
+
+          val view = application.injector.instanceOf[YourAccountView]
+
+          status(result) `mustBe` OK
+          contentAsString(result) `mustBe` view(
+            businessName,
+            intermediaryNumber,
+            numberOfMessages = secureMessageResponseWithCount.count.total.toInt,
+            true,
+            1,
+            cancelYourRequestToLeaveUrl = None,
+            1,
+            urls,
+            false,
+            hasOutstandingRetuns = false
+          )(request, messages(application)).toString
+
+          verify(mockSaveForLaterService, times(1)).getAllClientSavedAnswers()(any())
+        }
+      }
+
+      "must return OK and the correct view for a GET when there are multiple client saved returns present" in {
+
+        val niVatInfo = vatCustomerInfo.copy(
+          desAddress = DesAddress(
+            line1 = "1 The Street",
+            line2 = None,
+            line3 = None,
+            line4 = None,
+            line5 = None,
+            postCode = Some("BT11 1AA"),
+            countryCode = "GB"
+          )
+        )
+
+        val registrationWrapperEmptyExclusionsAndEmptyOtherAddress = registrationWrapper.copy(
+          vatInfo = niVatInfo,
+          etmpDisplayRegistration = arbitraryEtmpDisplayRegistration.arbitrary.sample.value.copy(
+            exclusions = Seq.empty,
+            otherAddress = None,
+            schemeDetails = registrationWrapper.etmpDisplayRegistration.schemeDetails.copy(
+              unusableStatus = false
+            )
+          )
+        )
+
+        val indexedClientIossNumbers: Seq[(String, Int)] = registrationWrapperEmptyExclusionsAndEmptyOtherAddress
+          .etmpDisplayRegistration.clientDetails.map(_.clientIossID).zipWithIndex
+
+        val mappedSavedUserAnswers: Seq[SavedUserAnswers] = savedUserAnswers.zipWithIndex.map { (savedAnswers, index) =>
+          savedAnswers.copy(iossNumber = indexedClientIossNumbers(index)._1)
+        }
+
+        when(mockRegistrationConnector.getNumberOfPendingRegistrations(any())(any()))
+          .thenReturn(1.toLong.toFuture)
+        when(mockRegistrationConnector.getNumberOfSavedUserAnswers(any())(any()))
+          .thenReturn(1.toLong.toFuture)
+        when(mockRegistrationConnector.getVatCustomerInfo(any())(any()))
+          .thenReturn(Right(vatCustomerInfo).toFuture)
+        when(mockSecureMessageConnector.getMessages(any(), any(), any(), any(), any())(any()))
+          .thenReturn(Right(secureMessageResponseWithCount).toFuture)
+        when(mockRegistrationConnector.displayRegistration(any())(any()))
+          .thenReturn(Right(registrationWrapperEmptyExclusionsAndEmptyOtherAddress).toFuture)
+        when(mockCurrentReturnsService.getCurrentReturns(any())(any())) thenReturn currentReturns.toFuture
+        when(mockSaveForLaterService.getAllClientSavedAnswers()(any())) thenReturn mappedSavedUserAnswers.toFuture
+
+        val application = applicationBuilder(
+          userAnswers = Some(emptyUserAnswers), registrationWrapper = registrationWrapperEmptyExclusionsAndEmptyOtherAddress)
+          .overrides(
+            bind[RegistrationConnector].toInstance(mockRegistrationConnector),
+            bind[SecureMessageConnector].toInstance(mockSecureMessageConnector),
+            bind[CurrentReturnsService].toInstance(mockCurrentReturnsService),
+            bind[SaveForLaterService].toInstance(mockSaveForLaterService)
+          )
+          .build()
+
+        val appConfig = application.injector.instanceOf[FrontendAppConfig]
+
+        val continueSavedReturnUrl: String = SelectClientSavedReturnPage.route(waypoints).url
+
+        val urls = DashboardUrlsViewModel(
+          addClientUrl = appConfig.addClientUrl,
+          viewClientReturnsListUrl = controllers.routes.ClientReturnsListController.onPageLoad().url,
+          viewClientsListUrl = controllers.routes.ClientListController.onPageLoad().url,
+          changeYourRegistrationUrl = appConfig.changeYourRegistrationUrl,
+          pendingClientsUrl = controllers.routes.ClientAwaitingActivationController.onPageLoad().url,
+          secureMessagesUrl = controllers.routes.SecureMessagesController.onPageLoad().url,
+          leaveThisServiceUrl = Some(appConfig.leaveThisServiceUrl),
+          continueSavedRegUrl = appConfig.continueRegistrationUrl,
+          rejoinSchemeUrl = appConfig.rejoinSchemeUrl,
+          makeAPaymentUrl = controllers.routes.PaymentsClientListController.onPageLoad().url,
+          startClientCurrentReturnsUrl = controllers.returns.routes.ClientsOutstandingReturnsListController.onPageLoad(waypoints).url,
+          continueSavedReturnUrl = Some(continueSavedReturnUrl)
+        )
+
+        running(application) {
+          val request = FakeRequest(GET, yourAccountRoute)
+
+          val result = route(application, request).value
+
+          val view = application.injector.instanceOf[YourAccountView]
+
+          status(result) `mustBe` OK
+          contentAsString(result) `mustBe` view(
+            businessName,
+            intermediaryNumber,
+            numberOfMessages = secureMessageResponseWithCount.count.total.toInt,
+            true,
+            1,
+            cancelYourRequestToLeaveUrl = None,
+            1,
+            urls,
+            false,
+            hasOutstandingRetuns = false
+          )(request, messages(application)).toString
+
+          verify(mockSaveForLaterService, times(1)).getAllClientSavedAnswers()(any())
         }
       }
 
       "must return OK with cancelYourRequestToLeave link and without leaveThisService link when a trader is excluded" in {
-
-        val mockRegistrationConnector = mock[RegistrationConnector]
 
         val registrationWrapper: RegistrationWrapper = arbitrary[RegistrationWrapper].sample.value
 
@@ -216,11 +434,15 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
         when(mockRegistrationConnector.displayRegistration(any())(any()))
           .thenReturn(Right(registrationWrapperEmptyExclusions).toFuture)
         when(mockCurrentReturnsService.getCurrentReturns(any())(any())) thenReturn currentReturns.toFuture
+        when(mockSaveForLaterService.getAllClientSavedAnswers()(any())) thenReturn Seq.empty.toFuture
 
         val application = applicationBuilder(userAnswers = Some(emptyUserAnswers), registrationWrapper = registrationWrapperEmptyExclusions)
-          .overrides(bind[RegistrationConnector].toInstance(mockRegistrationConnector))
-          .overrides(bind[SecureMessageConnector].toInstance(mockSecureMessageConnector))
-          .overrides(bind[CurrentReturnsService].toInstance(mockCurrentReturnsService))
+          .overrides(
+            bind[RegistrationConnector].toInstance(mockRegistrationConnector),
+            bind[SecureMessageConnector].toInstance(mockSecureMessageConnector),
+            bind[CurrentReturnsService].toInstance(mockCurrentReturnsService),
+            bind[SaveForLaterService].toInstance(mockSaveForLaterService)
+          )
           .build()
         val appConfig = application.injector.instanceOf[FrontendAppConfig]
 
@@ -235,9 +457,9 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
           continueSavedRegUrl = appConfig.continueRegistrationUrl,
           rejoinSchemeUrl = appConfig.rejoinSchemeUrl,
           makeAPaymentUrl = controllers.routes.PaymentsClientListController.onPageLoad().url,
-          startClientCurrentReturnsUrl = controllers.returns.routes.ClientsOutstandingReturnsListController.onPageLoad(waypoints).url
+          startClientCurrentReturnsUrl = controllers.returns.routes.ClientsOutstandingReturnsListController.onPageLoad(waypoints).url,
+          continueSavedReturnUrl = None
         )
-
 
         running(application) {
           val request = FakeRequest(GET, yourAccountRoute)
@@ -246,8 +468,8 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
 
           val view = application.injector.instanceOf[YourAccountView]
 
-          status(result) `mustEqual` OK
-          contentAsString(result) mustEqual view(
+          status(result) `mustBe` OK
+          contentAsString(result) `mustBe` view(
             businessName,
             intermediaryNumber,
             numberOfMessages = secureMessageResponseWithCount.count.total.toInt,
@@ -259,6 +481,8 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar {
             false,
             hasOutstandingRetuns = false
           )(request, messages(application)).toString
+
+          verify(mockSaveForLaterService, times(1)).getAllClientSavedAnswers()(any())
         }
       }
     }

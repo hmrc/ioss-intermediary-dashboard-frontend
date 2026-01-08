@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package controllers.actions
 
-import models.requests.{DataRequest, OptionalDataRequest, RegistrationRequest}
+import models.requests.RegistrationRequest
 import play.api.http.FileMimeTypes
 import play.api.i18n.{Langs, MessagesApi}
 import play.api.mvc.*
@@ -42,17 +42,6 @@ trait AuthenticatedControllerComponents extends MessagesControllerComponents {
   def checkNiBasedAddress: CheckNiBasedAddressFilterProvider
 
   def checkBouncedEmail: CheckBouncedEmailFilterProvider
-
-  def identifyAndGetData: ActionBuilder[DataRequest, AnyContent] =
-    actionBuilder andThen
-      identify andThen
-      getData andThen
-      requireData
-
-  def identifyAndGetOptionalData: ActionBuilder[OptionalDataRequest, AnyContent] =
-    actionBuilder andThen
-      identify andThen
-      getData
 
   def identifyAndGetRegistrationWithoutCheckBouncedEmail: ActionBuilder[RegistrationRequest, AnyContent] = {
     identify andThen

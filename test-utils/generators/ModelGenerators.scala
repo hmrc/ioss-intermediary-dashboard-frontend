@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import models.domain.ModelHelpers.normaliseSpaces
 import models.domain.VatCustomerInfo
 import models.etmp.*
 import models.returns.{CurrentReturns, PartialReturnPeriod, Return, SubmissionStatus}
+import models.saveForLater.{ContinueSingleClientSavedReturn, SavedUserAnswers}
 import models.{Bic, Country, DesAddress, Iban, IntermediaryDetails, Period, SavedPendingRegistration, StandardPeriod, UserAnswers}
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Gen.{choose, listOfN}
@@ -473,7 +474,7 @@ trait ModelGenerators extends EitherValues {
       for {
         iossNumber <- Gen.listOfN(7, Gen.numChar).map(_.mkString)
       } yield {
-       s"IM900$iossNumber"
+        s"IM900$iossNumber"
       }
     }
   }
@@ -510,6 +511,23 @@ trait ModelGenerators extends EitherValues {
           month = month
         )
       }
+    }
+  }
+
+  implicit val arbitrarySavedUserAnswers: Arbitrary[SavedUserAnswers] = {
+    Arbitrary {
+      for {
+        iossNumber <- arbitrary[String]
+        period <- arbitraryPeriod.arbitrary
+        data = JsObject(Seq("test" -> Json.toJson("test")))
+        now = Instant.now
+      } yield SavedUserAnswers(iossNumber, period, data, now)
+    }
+  }
+
+  implicit lazy val arbitraryContinueSingleClientSavedReturn: Arbitrary[ContinueSingleClientSavedReturn] = {
+    Arbitrary {
+      Gen.oneOf(ContinueSingleClientSavedReturn.values)
     }
   }
 }
