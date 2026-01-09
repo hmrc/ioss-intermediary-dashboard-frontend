@@ -75,6 +75,15 @@ yourAccount.details.leaveThisService = Leave this service
 yourAccount.details.cancelYourRequestToLeave = Cancel your request to leave
 yourAccount.details.rejoinScheme = Rejoin this service
 
+yourAccount.leftService = You have left this service.
+yourAccount.leftService.outstanding = You have left this service. You must complete and pay any outstanding returns for all your clients.
+
+yourAccount.removedFromService = We have removed you from this service.
+yourAccount.removedFromService.outstanding = We have removed you from this service. You must complete and pay any outstanding returns for all your clients.
+
+yourAccount.quarantined = We have removed you from this service. You cannot rejoin until {0}.
+yourAccount.quarantined.outstanding = We have removed you from this service, but you must complete and pay your final return for all your clients. You cannot rejoin until {0}.
+
 cannotUseNotAnIntermediary.title = You cannot use this service
 cannotUseNotAnIntermediary.heading = You cannot use this service
 

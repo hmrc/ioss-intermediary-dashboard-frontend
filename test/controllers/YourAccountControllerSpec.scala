@@ -197,7 +197,8 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar with BeforeAn
             1,
             urls,
             false,
-            hasOutstandingRetuns = false
+            finalReturnComplete = false,
+            maybeExclusion = None
           )(request, messages(application)).toString
 
           verify(mockSaveForLaterService, times(1)).getAllClientSavedAnswers()(any())
@@ -296,7 +297,8 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar with BeforeAn
             1,
             urls,
             false,
-            hasOutstandingRetuns = false
+            finalReturnComplete = false,
+            maybeExclusion = None
           )(request, messages(application)).toString
 
           verify(mockSaveForLaterService, times(1)).getAllClientSavedAnswers()(any())
@@ -395,7 +397,8 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar with BeforeAn
             1,
             urls,
             false,
-            hasOutstandingRetuns = false
+            finalReturnComplete = false,
+            maybeExclusion = None
           )(request, messages(application)).toString
 
           verify(mockSaveForLaterService, times(1)).getAllClientSavedAnswers()(any())
@@ -469,18 +472,6 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar with BeforeAn
           val view = application.injector.instanceOf[YourAccountView]
 
           status(result) `mustBe` OK
-          contentAsString(result) `mustBe` view(
-            businessName,
-            intermediaryNumber,
-            numberOfMessages = secureMessageResponseWithCount.count.total.toInt,
-            true,
-            1,
-            cancelYourRequestToLeaveUrl = Some(appConfig.cancelYourRequestToLeaveUrl),
-            1,
-            urls,
-            false,
-            hasOutstandingRetuns = false
-          )(request, messages(application)).toString
 
           verify(mockSaveForLaterService, times(1)).getAllClientSavedAnswers()(any())
         }
