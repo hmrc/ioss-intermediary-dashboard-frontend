@@ -138,6 +138,7 @@ viewOrChangePreviousRegistration.change.hidden =  Change client details for
 viewOrChangePreviousRegistration.table.header.clientName = Client name
 viewOrChangePreviousRegistration.table.header.iossNumber = IOSS number
 viewOrChangePreviousRegistration.returnToCurrentRegistration.link = Return to your current registration
+viewOrChangePreviousRegistration.change.link = <a class="govuk-link" href="{1}"><span class="govuk-visually-hidden">{2}</span>{0}</a>
 
 viewOrChangePreviousRegistrationsMultiple.title = Which registration do you want to view or change?
 viewOrChangePreviousRegistrationsMultiple.heading = Which registration do you want to view or change?

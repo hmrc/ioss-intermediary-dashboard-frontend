@@ -44,6 +44,7 @@ private def clientRows(
     TableRow(
       content = HtmlContent(
         messages(
+          "viewOrChangePreviousRegistration.change.link",
           clients.clientName,
           s"$changeClientRegistrationUrl/${clients.clientIossID}",
           messages("viewOrChangePreviousRegistration.change.hidden", clients.clientName)
