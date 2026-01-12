@@ -43,17 +43,27 @@ class ViewOrChangePreviousRegistrationsMultipleControllerSpec extends SpecBase w
 
 
   private val mockAccountService: AccountService = mock[AccountService]
+  private val mockRegistrationConnector = mock[RegistrationConnector]
+
 
 
   "ViewOrChangePreviousRegistrationsMultiple Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
-      when(mockAccountService.getPreviousRegistrations()(any())) thenReturn previousRegistrations.toFuture
+      when(mockRegistrationConnector.getRegistration(any())(any())).thenReturn(registrationWrapper.toFuture)
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswersWithVatInfo))
-        .overrides(bind[AccountService].toInstance(mockAccountService))
-        .build()
+      when(mockRegistrationConnector.displayRegistration(any())(any())).thenReturn(Right(registrationWrapper).toFuture)
+
+      when(mockAccountService.getPreviousRegistrations()(any())).thenReturn(previousRegistrations.toFuture)
+
+      val application = applicationBuilder(
+        userAnswers = Some(emptyUserAnswersWithVatInfo)
+      )
+        .overrides(
+          bind[RegistrationConnector].toInstance(mockRegistrationConnector),
+          bind[AccountService].toInstance(mockAccountService)
+        ).build()
 
       running(application) {
         val request = FakeRequest(GET, viewOrChangePreviousRegistrationsMultipleRoute)
@@ -62,8 +72,15 @@ class ViewOrChangePreviousRegistrationsMultipleControllerSpec extends SpecBase w
 
         val view = application.injector.instanceOf[ViewOrChangePreviousRegistrationsMultipleView]
 
+        val expectedForm: Form[String] = formProvider(previousRegistrations)
+
         status(result) mustBe OK
-        contentAsString(result) mustBe view(form, waypoints, previousRegistrations)(request, messages(application)).toString
+        contentAsString(result) mustBe
+          view(
+            expectedForm,
+            waypoints,
+            previousRegistrations
+          )(request, messages(application)).toString
       }
     }
 

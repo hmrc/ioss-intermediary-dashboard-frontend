@@ -18,6 +18,7 @@ package controllers.amend
 
 import controllers.actions.*
 import forms.ViewOrChangePreviousRegistrationsMultipleFormProvider
+import models.UserAnswers
 import pages.Waypoints
 import pages.amend.ViewOrChangePreviousRegistrationsMultiplePage
 import play.api.data.Form
@@ -42,33 +43,59 @@ class ViewOrChangePreviousRegistrationsMultipleController @Inject()(
                                                                    )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
 
-  def onPageLoad(waypoints: Waypoints): Action[AnyContent] = cc.identifyAndGetRegistration.async {
+  def onPageLoad(waypoints: Waypoints): Action[AnyContent] = cc.identifyGetDataAndRegistration.async {
     implicit request =>
 
       accountService.getPreviousRegistrations().flatMap { previousRegistrations =>
 
         val form: Form[String] = formProvider(previousRegistrations)
+        val preparedForm = request.userAnswers match {
+          case Some(answers) =>
+            answers.get(ViewOrChangePreviousRegistrationsMultiplePage) match {
+              case Some(value) => form.fill(value)
+              case None => form
+            }
+          case None =>
+            form
+        }
 
-        Ok(view(form, waypoints, previousRegistrations)).toFuture
+        Ok(view(preparedForm, waypoints, previousRegistrations)).toFuture
       }
   }
 
-  def onSubmit(waypoints: Waypoints): Action[AnyContent] = cc.identifyAndGetData.async {
-    implicit request =>
+  def onSubmit(waypoints: Waypoints): Action[AnyContent] =
+    cc.identifyGetDataAndRegistration.async { implicit request =>
 
       accountService.getPreviousRegistrations().flatMap { previousRegistrations =>
 
         val form: Form[String] = formProvider(previousRegistrations)
+
         form.bindFromRequest().fold(
           formWithErrors =>
-            BadRequest(view(formWithErrors, waypoints, previousRegistrations)).toFuture,
+            Future.successful(
+              BadRequest(view(formWithErrors, waypoints, previousRegistrations))
+            ),
 
-          value =>
+          value => {
+            val baseAnswers = request.userAnswers.getOrElse(UserAnswers(request.userId))
+
             for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(PreviousRegistrationIntermediaryNumberQuery, value))
+              updatedAnswers <- Future.fromTry(
+                baseAnswers.set(
+                  PreviousRegistrationIntermediaryNumberQuery,
+                  value
+                )
+              )
               _ <- cc.sessionRepository.set(updatedAnswers)
-            } yield Redirect(ViewOrChangePreviousRegistrationsMultiplePage.navigate(waypoints, request.userAnswers, updatedAnswers).route)
+            } yield Redirect(
+              ViewOrChangePreviousRegistrationsMultiplePage
+                .navigate(waypoints, baseAnswers, updatedAnswers)
+                .route
+            )
+          }
         )
       }
-  }
+    }
+
 }
+
