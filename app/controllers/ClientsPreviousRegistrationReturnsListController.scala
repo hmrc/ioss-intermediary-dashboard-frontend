@@ -55,17 +55,23 @@ class ClientsPreviousRegistrationReturnsListController @Inject()(
           Redirect(routes.JourneyRecoveryController.onPageLoad()).toFuture
 
         case registration :: Nil =>
-          val clientDetails = request.registrationWrapper.etmpDisplayRegistration.clientDetails
-          val startPreviousRegistrationReturnsHistoryUrl: String = frontendAppConfig.startReturnsHistoryUrl
+          for {
+            registrationWrapper <- registrationConnector.getRegistration(registration.intermediaryNumber)
+            currentReturns <- currentReturnsService.getCurrentReturns(registration.intermediaryNumber)
+          } yield {
 
-          val viewModel = ClientOutstandingReturnsListViewModel(
-            clientDetails,
-            startPreviousRegistrationReturnsHistoryUrl
-          )
+            val clientDetails = registrationWrapper.etmpDisplayRegistration.clientDetails
+            val startPreviousRegistrationReturnsHistoryUrl: String = frontendAppConfig.startReturnsHistoryUrl
 
-          val navigateToCurrentReturnsUrl = routes.ClientReturnsListController.onPageLoad(waypoints).url
+            val viewModel = ClientOutstandingReturnsListViewModel(
+              clientDetails,
+              startPreviousRegistrationReturnsHistoryUrl
+            )
 
-          Ok(view(viewModel, request.intermediaryNumber, navigateToCurrentReturnsUrl, startPreviousRegistrationReturnsHistoryUrl)).toFuture
+            val navigateToCurrentReturnsUrl = routes.ClientReturnsListController.onPageLoad(waypoints).url
+
+            Ok(view(viewModel, registration.intermediaryNumber, navigateToCurrentReturnsUrl, startPreviousRegistrationReturnsHistoryUrl))
+          }
 
         case registrations =>
           selectedPreviousRegistrationRepository.get(request.userId).flatMap {
