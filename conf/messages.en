@@ -202,6 +202,11 @@ clientsPreviousRegistrationList.noSubmittedReturns = You have not completed any 
 clientsPreviousRegistrationList.error.required = Select which registration you want to view
 clientsPreviousRegistrationList.error.invalid = Select a valid previous registration.
 
+previousRegistrationClientsList.table.header.clientName = Client name
+previousRegistrationClientsList.table.header.iossNumber = IOSS number
+previousRegistrationClientsList.table.startClientReturn.link = <a class="govuk-link" href="{1}"><span class="govuk-visually-hidden">{2}</span>{0}</a>
+previousRegistrationClientsList.table.startClientReturn.hidden = View returns for
+
 continueSingleClientSavedReturn.title = Do you want to continue the return for
 continueSingleClientSavedReturn.heading = Do you want to continue the return for
 continueSingleClientSavedReturn.yes = Yes

@@ -27,7 +27,7 @@ import repositories.SelectedPreviousRegistrationRepository
 import services.ioss.AccountService
 import services.returns.CurrentReturnsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import viewmodels.returns.ClientOutstandingReturnsListViewModel
+import viewmodels.returns.ClientsPreviousRegistrationReturnsListViewModel
 import views.html.returns.ClientsPreviousRegistrationReturnsListView
 import utils.FutureSyntax.FutureOps
 
@@ -63,7 +63,7 @@ class ClientsPreviousRegistrationReturnsListController @Inject()(
             val clientDetails = registrationWrapper.etmpDisplayRegistration.clientDetails
             val startPreviousRegistrationReturnsHistoryUrl: String = frontendAppConfig.startReturnsHistoryUrl
 
-            val viewModel = ClientOutstandingReturnsListViewModel(
+            val viewModel = ClientsPreviousRegistrationReturnsListViewModel(
               clientDetails,
               startPreviousRegistrationReturnsHistoryUrl
             )
@@ -87,7 +87,7 @@ class ClientsPreviousRegistrationReturnsListController @Inject()(
                 val clientDetails = registrationWrapper.etmpDisplayRegistration.clientDetails
                 val startPreviousRegistrationReturnsHistoryUrl: String = frontendAppConfig.startReturnsHistoryUrl
 
-                val viewModel = ClientOutstandingReturnsListViewModel(
+                val viewModel = ClientsPreviousRegistrationReturnsListViewModel(
                   clientDetails,
                   startPreviousRegistrationReturnsHistoryUrl
                 )

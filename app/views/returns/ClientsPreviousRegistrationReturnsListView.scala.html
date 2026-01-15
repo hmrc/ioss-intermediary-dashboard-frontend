@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@import viewmodels.returns.ClientOutstandingReturnsListViewModel
+@import viewmodels.returns.ClientsPreviousRegistrationReturnsListViewModel
 
 @this(
     layout: templates.Layout,
@@ -22,7 +22,7 @@
 )
     
 @(
-    viewModel: ClientOutstandingReturnsListViewModel,
+    viewModel: ClientsPreviousRegistrationReturnsListViewModel,
     intermediaryNumber: String,
     navigateToCurrentReturnsUrl: String,
     startPreviousRegistrationReturnsHistoryUrl: String
@@ -37,14 +37,14 @@
 
     <p class="govuk-body-m">@Html(messages("previousRegistrationsList.clientReturns.link", navigateToCurrentReturnsUrl))</p>
 
-    @if(viewModel.clientOutstandingReturns.rows.nonEmpty) {
+    @if(viewModel.clientsPreviousRegistrationReturns.rows.nonEmpty) {
         <div class="govuk-inset-text">
             <p class="govuk-body">@messages("previousRegistrationsList.p1")</p>
         </div>
     }
 
-    @if(viewModel.clientOutstandingReturns.rows.nonEmpty) {
-        @govukTable(viewModel.clientOutstandingReturns)
+    @if(viewModel.clientsPreviousRegistrationReturns.rows.nonEmpty) {
+        @govukTable(viewModel.clientsPreviousRegistrationReturns)
     } else {
         <p class="govuk-body-m">@messages("clientsPreviousRegistrationList.noSubmittedReturns")</p>
     }
