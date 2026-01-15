@@ -44,7 +44,7 @@ class ClientReturnsListController @Inject()(
   def onPageLoad(waypoints: Waypoints): Action[AnyContent] = cc.identifyAndGetRegistration.async {
     implicit request =>
 
-      val numberOfEnrolments = findIntermediariesFromEnrolments(request.enrolments)
+      val numberOfEnrolments = findNumberOfIntermediaryEnrolments(request.enrolments)
       val clientDetailsList: Seq[EtmpClientDetails] = request.registrationWrapper.etmpDisplayRegistration.clientDetails
       val intermediaryNumber = request.intermediaryNumber
       val startReturnsHistoryUrl = frontendAppConfig.startReturnsHistoryUrl
@@ -59,7 +59,7 @@ class ClientReturnsListController @Inject()(
       }
   }
 
-  private def findIntermediariesFromEnrolments(enrolments: Enrolments): Int = {
+  private def findNumberOfIntermediaryEnrolments(enrolments: Enrolments): Int = {
     enrolments.enrolments.count(_.key == "HMRC-IOSS-INT")
   }
 }
