@@ -25,6 +25,7 @@ import pages.Waypoints
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.ClientReturnService
+import uk.gov.hmrc.auth.core.Enrolments
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.clientList.ClientReturnsListViewModel
 import views.html.ClientReturnsListView
@@ -43,6 +44,7 @@ class ClientReturnsListController @Inject()(
   def onPageLoad(waypoints: Waypoints): Action[AnyContent] = cc.identifyAndGetRegistration.async {
     implicit request =>
 
+      val numberOfEnrolments = findIntermediariesFromEnrolments(request.enrolments)
       val clientDetailsList: Seq[EtmpClientDetails] = request.registrationWrapper.etmpDisplayRegistration.clientDetails
       val intermediaryNumber = request.intermediaryNumber
       val startReturnsHistoryUrl = frontendAppConfig.startReturnsHistoryUrl
@@ -53,7 +55,11 @@ class ClientReturnsListController @Inject()(
 
           val viewModel: ClientReturnsListViewModel = ClientReturnsListViewModel(filteredClients, startReturnsHistoryUrl)
 
-          Ok(view(viewModel, navigateToPreviousRegistrationsListUrl))
+          Ok(view(viewModel, navigateToPreviousRegistrationsListUrl, numberOfEnrolments))
       }
+  }
+
+  private def findIntermediariesFromEnrolments(enrolments: Enrolments): Int = {
+    enrolments.enrolments.count(_.key == "HMRC-IOSS-INT")
   }
 }

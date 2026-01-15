@@ -149,6 +149,7 @@ interceptUnusableEmail.confirm = Confirm email address
 
 clientReturnsList.title = Which client''s returns do you want to view?
 clientReturnsList.heading = Which client''s returns do you want to view?
+clientReturnsList.previousRegistration.link = <a class="govuk-link" href="{0}">View clients and returns from your previous IOSS registration</a>
 clientReturnsList.previousRegistrations.link = <a class="govuk-link" href="{0}">View clients and returns from your previous IOSS registrations</a>
 clientReturnsList.insetText = If your client does not appear on this list, then you have not completed any returns for them.
 clientReturnsList.active.heading = Active clients
