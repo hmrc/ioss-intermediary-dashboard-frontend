@@ -40,7 +40,6 @@ trait Period {
   val paymentDeadline: LocalDate = {
     LocalDate.of(year, month, 1).plusMonths(2).minusDays(1)
   }
-}
 
   def displayText: String = {
     s"${month.getDisplayName(TextStyle.FULL, Locale.ENGLISH)} $year"
