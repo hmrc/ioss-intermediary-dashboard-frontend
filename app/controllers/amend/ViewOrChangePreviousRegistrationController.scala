@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,17 +17,14 @@
 package controllers.amend
 
 import config.FrontendAppConfig
-import controllers.actions.*
+import controllers.actions.AuthenticatedControllerComponents
 import logging.Logging
-import models.etmp.EtmpClientDetails
-import models.responses.ErrorResponse
-import pages.amend.ViewOrChangePreviousRegistrationsMultiplePage
-import pages.{Waypoints, YourAccountPage}
+import pages.Waypoints
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import queries.PreviousRegistrationIntermediaryNumberQuery
 import services.intermediaries.AccountService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.FutureSyntax.FutureOps
 import viewmodels.amend.ViewOrChangePreviousRegistrationViewModel
 import views.html.ViewOrChangePreviousRegistrationView
 
@@ -40,48 +37,39 @@ class ViewOrChangePreviousRegistrationController @Inject()(
                                                             accountService: AccountService,
                                                             view: ViewOrChangePreviousRegistrationView,
                                                             frontendAppConfig: FrontendAppConfig,
-                                                          )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
+                                                          )(implicit ec: ExecutionContext)
+  extends FrontendBaseController with I18nSupport with Logging {
 
   protected val controllerComponents: MessagesControllerComponents = cc
 
   def onPageLoad(waypoints: Waypoints): Action[AnyContent] =
-    cc.identifyAndGetRegistration.async {
-      implicit request =>
-        accountService.getPreviousRegistrations().flatMap { previousRegistrations =>
+    cc.identifyGetDataAndRegistration.async { implicit request =>
 
-          previousRegistrations.size match {
-            case 0 =>
-              val exception = new IllegalStateException("Must have one or more previous registrations")
-              logger.error(exception.getMessage, exception)
-              throw exception
-
-            case 1 =>
-              val intermediaryNumber: String = previousRegistrations.map(_.intermediaryNumber).head
-
-              val returnToCurrentRegUrl: String = frontendAppConfig.viewClientsListUrl
-
-              accountService.getRegistrationClientDetails(intermediaryNumber).map {
-                case Right(clientDetailsList) =>
-                  val changeRegistrationRedirectUrl = frontendAppConfig.changeYourNetpRegistrationUrl
-
-                  val viewModel = ViewOrChangePreviousRegistrationViewModel(
-                    clientDetailsList,
-                    changeRegistrationRedirectUrl
-                  )
-
-
-                  Ok(view(waypoints, intermediaryNumber, viewModel, returnToCurrentRegUrl))
-
-                case Left(error) =>
-                  logger.error(s"Failed to retrieve client details: $error")
-                  InternalServerError
-              }
-
-            case _ =>
-              Redirect(ViewOrChangePreviousRegistrationsMultiplePage.route(waypoints).url).toFuture
-          }
+      val intermediaryNumber: String = request.userAnswers
+        .flatMap(_.get(PreviousRegistrationIntermediaryNumberQuery))
+        .getOrElse {
+          throw new IllegalStateException("Intermediary number missing")
         }
+
+      accountService.getRegistrationClientDetails(intermediaryNumber).map {
+
+        case Right(clientDetailsList) =>
+
+          val changeRegistrationRedirectUrl = frontendAppConfig.changeYourNetpRegistrationUrl
+          val returnToCurrentRegUrl: String = frontendAppConfig.viewClientsListUrl
+
+          val viewModel = ViewOrChangePreviousRegistrationViewModel(
+            clientDetailsList,
+            changeRegistrationRedirectUrl
+          )
+
+          Ok(view(waypoints, intermediaryNumber, viewModel, returnToCurrentRegUrl))
+
+        case Left(error) =>
+          logger.error(s"Failed to retrieve client details: $error")
+          InternalServerError
+      }
+
     }
+
 }
-
-

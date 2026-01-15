@@ -18,7 +18,7 @@ package pages.amend
 
 import controllers.amend.routes
 import models.UserAnswers
-import pages.{Page, QuestionPage, Waypoints, YourAccountPage}
+import pages.{Page, QuestionPage, Waypoints}
 import play.api.libs.json.JsPath
 import play.api.mvc.Call
 
@@ -32,7 +32,7 @@ case object ViewOrChangePreviousRegistrationsMultiplePage extends QuestionPage[S
     routes.ViewOrChangePreviousRegistrationsMultipleController.onPageLoad(waypoints)
 
   override protected def nextPageNormalMode(waypoints: Waypoints, answers: UserAnswers): Page = {
-    YourAccountPage // TODO: add correct redirect link
+    ViewOrChangePreviousRegistrationPage
   }
 
 }

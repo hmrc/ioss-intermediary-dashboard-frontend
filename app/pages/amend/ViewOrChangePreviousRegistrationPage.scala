@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,29 +14,17 @@
  * limitations under the License.
  */
 
-package pages
+package pages.amend
 
 import controllers.amend.routes
-import models.UserAnswers
-import pages.{Page, QuestionPage, RecoveryOps, Waypoints}
-import play.api.libs.json.JsPath
+import pages.{Page, Waypoints}
 import play.api.mvc.Call
 
-case object ViewOrChangePreviousRegistrationPage extends QuestionPage[Boolean] {
+case object ViewOrChangePreviousRegistrationPage extends Page {
 
-  override def path: JsPath = JsPath \ toString
 
   override def toString: String = "view-or-change-previous-registration"
 
   override def route(waypoints: Waypoints): Call =
     routes.ViewOrChangePreviousRegistrationController.onPageLoad(waypoints)
-
-  override protected def nextPageNormalMode(waypoints: Waypoints, answers: UserAnswers): Page = {
-    answers.get(this).map {
-      case true =>
-        YourAccountPage // placeholder
-      case false =>
-        YourAccountPage // placeholder
-    }.orRecover
-  }
 }

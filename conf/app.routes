@@ -60,6 +60,7 @@ POST       /select-client-saved-return                   controllers.saveForLate
 GET        /delete-intermediary-return/:iossNumber/:period           controllers.returns.DeleteIntermediaryReturnController.onPageLoad(waypoints: Waypoints ?= EmptyWaypoints, iossNumber: String, period: Period)
 POST       /delete-intermediary-return/:iossNumber/:period           controllers.returns.DeleteIntermediaryReturnController.onSubmit(waypoints: Waypoints ?= EmptyWaypoints, iossNumber: String, period: Period)
 
+GET        /change-your-previous-registration-start      controllers.amend.ViewOrChangePreviousRegistrationsStartController.onPageLoad(waypoints: Waypoints ?= EmptyWaypoints)
 GET        /change-your-previous-registration            controllers.amend.ViewOrChangePreviousRegistrationController.onPageLoad(waypoints: Waypoints ?= EmptyWaypoints)
 
 GET        /change-your-previous-registration-select     controllers.amend.ViewOrChangePreviousRegistrationsMultipleController.onPageLoad(waypoints: Waypoints ?= EmptyWaypoints)
