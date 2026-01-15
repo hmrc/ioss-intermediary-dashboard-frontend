@@ -44,7 +44,7 @@ class ClientReturnsListController @Inject()(
   def onPageLoad(waypoints: Waypoints): Action[AnyContent] = cc.identifyAndGetRegistration.async {
     implicit request =>
 
-      val numberOfEnrolments = findNumberOfIntermediaryEnrolments(request.enrolments)
+      val numberOfIntEnrolments = findNumberOfIntermediaryEnrolments(request.enrolments)
       val clientDetailsList: Seq[EtmpClientDetails] = request.registrationWrapper.etmpDisplayRegistration.clientDetails
       val intermediaryNumber = request.intermediaryNumber
       val startReturnsHistoryUrl = frontendAppConfig.startReturnsHistoryUrl
@@ -55,7 +55,7 @@ class ClientReturnsListController @Inject()(
 
           val viewModel: ClientReturnsListViewModel = ClientReturnsListViewModel(filteredClients, startReturnsHistoryUrl)
 
-          Ok(view(viewModel, navigateToPreviousRegistrationsListUrl, numberOfEnrolments))
+          Ok(view(viewModel, navigateToPreviousRegistrationsListUrl, numberOfIntEnrolments))
       }
   }
 
