@@ -1,5 +1,5 @@
 /*
- * Copyright 2026 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-package formats
+package models.returns
 
-import java.time.format.DateTimeFormatter
+import models.Period
+import play.api.libs.json.{Json, OFormat}
 
-object Format {
 
-  val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("d MMMM yyyy")
-  val dateMonthYearFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("MMMM yyyy")
+case class PreviousRegistration(intermediaryNumber: String, startPeriod: Period, endPeriod: Period)
 
+object PreviousRegistration {
+
+  implicit val format: OFormat[PreviousRegistration] = Json.format[PreviousRegistration]
 }

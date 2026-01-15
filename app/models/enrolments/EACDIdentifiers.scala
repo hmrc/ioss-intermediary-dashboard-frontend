@@ -1,5 +1,5 @@
 /*
- * Copyright 2026 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package formats
+package models.enrolments
 
-import java.time.format.DateTimeFormatter
+import play.api.libs.json.{Json, OFormat}
 
-object Format {
+case class EACDIdentifiers(key: String, value: String)
 
-  val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("d MMMM yyyy")
-  val dateMonthYearFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("MMMM yyyy")
-
+object EACDIdentifiers {
+  implicit val format: OFormat[EACDIdentifiers] = Json.format[EACDIdentifiers]
 }

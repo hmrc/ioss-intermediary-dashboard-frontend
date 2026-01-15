@@ -21,6 +21,7 @@ import connectors.RegistrationConnectorHttpParser.{EtmpDisplayRegistrationRespon
 import connectors.SavedPendingRegistrationHttpParser.{SavedPendingRegistrationResponse, SavedPendingRegistrationResultResponseReads}
 import connectors.VatCustomerInfoHttpParser.{VatCustomerInfoResponse, VatCustomerInfoResponseReads}
 import logging.Logging
+import models.enrolments.EACDEnrolments
 import models.etmp.RegistrationWrapper
 import play.api.Configuration
 import uk.gov.hmrc.http.HttpReads.Implicits.*
@@ -63,4 +64,7 @@ class RegistrationConnector @Inject()(config: Configuration, httpClientV2: HttpC
   def displayRegistration(intermediaryNumber: String)(implicit hc: HeaderCarrier): Future[EtmpDisplayRegistrationResponseWithWrapper] = {
     httpClientV2.get(url"$displayRegistrationUrl/get-registration/$intermediaryNumber").execute[EtmpDisplayRegistrationResponseWithWrapper]
   }
+
+  def getAccounts()(implicit hc: HeaderCarrier): Future[EACDEnrolments] =
+    httpClientV2.get(url"$displayRegistrationUrl/accounts").execute[EACDEnrolments]
 }
