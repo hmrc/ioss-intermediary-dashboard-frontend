@@ -28,6 +28,7 @@ import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import services.ClientReturnService
+import uk.gov.hmrc.auth.core.Enrolments
 import viewmodels.clientList.ClientReturnsListViewModel
 import views.html.ClientReturnsListView
 import utils.FutureSyntax.FutureOps
@@ -65,9 +66,23 @@ class ClientReturnsListControllerSpec extends SpecBase {
 
         val clientReturnsListViewModel: ClientReturnsListViewModel = ClientReturnsListViewModel(clientDetailsList, config.startReturnsHistoryUrl)
 
+        val numberOfIntEnrolments = findNumberOfIntermediaryEnrolments(enrolments)
+
+        val previousRegistrationMessageKey: Option[String] = {
+          numberOfIntEnrolments match {
+            case n if n > 2 => Some("clientReturnsList.previousRegistrations.link")
+            case 2 => Some("clientReturnsList.previousRegistrations.link")
+            case _ => None
+          }
+        }
+
         status(result) `mustBe` OK
-        contentAsString(result) `mustBe` view(clientReturnsListViewModel, navigateToPreviousRegistrationsListUrl)(request).toString
+        contentAsString(result) `mustBe` view(clientReturnsListViewModel, navigateToPreviousRegistrationsListUrl, previousRegistrationMessageKey)(request).toString
       }
     }
+  }
+
+  private def findNumberOfIntermediaryEnrolments(enrolments: Enrolments): Int = {
+    enrolments.enrolments.count(_.key == "HMRC-IOSS-INT")
   }
 }

@@ -23,18 +23,16 @@
         govukTable: GovukTable
 )
 
-@(clientReturnsListViewModel: ClientReturnsListViewModel, navigateToPreviousRegistrationUrl: String, numberOfIntEnrolments: Int)( implicit request: Request[_], messages: Messages)
+@(clientReturnsListViewModel: ClientReturnsListViewModel, navigateToPreviousRegistrationUrl: String, previousRegistrationMessageKey: Option[String])( implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("clientReturnsList.title"))) {
 
     <h1 class="govuk-heading-l">@messages("clientReturnsList.heading")</h1>
 
-    @if(numberOfIntEnrolments == 1) {
-
-    } else if (numberOfIntEnrolments > 2) {
-        <p class="govuk-body-m">@Html(messages("clientReturnsList.previousRegistrations.link", navigateToPreviousRegistrationUrl))</p>
-    } else {
-        <p class="govuk-body-m">@Html(messages("clientReturnsList.previousRegistration.link", navigateToPreviousRegistrationUrl))</p>
+    @previousRegistrationMessageKey.map { key =>
+        <p class="govuk-body-m">
+            @Html(messages(key, navigateToPreviousRegistrationUrl))
+        </p>
     }
 
     @if(

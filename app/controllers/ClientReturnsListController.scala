@@ -50,12 +50,20 @@ class ClientReturnsListController @Inject()(
       val startReturnsHistoryUrl = frontendAppConfig.startReturnsHistoryUrl
       val navigateToPreviousRegistrationsListUrl = routes.ClientsPreviousRegistrationListController.onPageLoad(waypoints).url
 
+      val previousRegistrationMessageKey: Option[String] = {
+        numberOfIntEnrolments match {
+          case n if n > 2 => Some("clientReturnsList.previousRegistrations.link")
+          case 2 => Some("clientReturnsList.previousRegistrations.link")
+          case _ => None
+        }
+      }
+
       clientReturnService.clientsWithCompletedReturns(clientDetailsList, intermediaryNumber).map {
         filteredClients =>
 
           val viewModel: ClientReturnsListViewModel = ClientReturnsListViewModel(filteredClients, startReturnsHistoryUrl)
 
-          Ok(view(viewModel, navigateToPreviousRegistrationsListUrl, numberOfIntEnrolments))
+          Ok(view(viewModel, navigateToPreviousRegistrationsListUrl, previousRegistrationMessageKey))
       }
   }
 
