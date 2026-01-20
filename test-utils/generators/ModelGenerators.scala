@@ -417,7 +417,7 @@ trait ModelGenerators extends EitherValues {
           otherAddress = Some(otherAddress),
           schemeDetails = schemeDetails,
           exclusions = exclusions,
-          bankDetails = bankDetails,
+          bankDetails = Some(bankDetails),
           adminUse = adminUse
         )
       }
