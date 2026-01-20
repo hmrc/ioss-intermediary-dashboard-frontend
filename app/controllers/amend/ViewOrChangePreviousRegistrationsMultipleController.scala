@@ -63,8 +63,7 @@ class ViewOrChangePreviousRegistrationsMultipleController @Inject()(
       }
   }
 
-  def onSubmit(waypoints: Waypoints): Action[AnyContent] =
-    cc.identifyGetDataAndRegistration.async { implicit request =>
+  def onSubmit(waypoints: Waypoints): Action[AnyContent] = cc.identifyGetDataAndRegistration.async { implicit request =>
 
       accountService.getPreviousRegistrations().flatMap { previousRegistrations =>
 
