@@ -58,8 +58,7 @@ class ClientsOutstandingReturnsListController @Inject()(
           ClientOutstandingReturnsListViewModel(clientIossNumbersWithDueAndOverdueReturns, startReturnUrl)
 
         val viewOverdueReturnsLink: String = routes.ClientsOverdueReturnsListController.onPageLoad(waypoints).url
-
-        // TODO - SCG - Note - Not officially acknowledging the Expired Excluded but also not collecting??
+        
         val currentReturnsNonEmpty: Boolean = clientIossNumbersWithDueAndOverdueReturns.nonEmpty
         val overdueReturnsNonEmpty: Boolean = getOutstandingClientDetailsForStatus(currentReturns, Overdue, clientDetails).nonEmpty
         Ok(view(viewModel, viewOverdueReturnsLink, currentReturnsNonEmpty, overdueReturnsNonEmpty))
