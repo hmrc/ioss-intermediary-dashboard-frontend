@@ -16,6 +16,7 @@
 
 package forms
 
+import forms.amend.ViewOrChangePreviousRegistrationsMultipleFormProvider
 import forms.behaviours.StringFieldBehaviours
 import models.amend.PreviousRegistration
 import org.scalacheck.Gen

@@ -17,7 +17,7 @@
 package controllers.amend
 
 import controllers.actions.*
-import forms.ViewOrChangePreviousRegistrationsMultipleFormProvider
+import forms.amend.ViewOrChangePreviousRegistrationsMultipleFormProvider
 import models.UserAnswers
 import pages.Waypoints
 import pages.amend.ViewOrChangePreviousRegistrationsMultiplePage

@@ -18,7 +18,7 @@ package controllers
 
 import base.SpecBase
 import connectors.RegistrationConnector
-import forms.ViewOrChangePreviousRegistrationsMultipleFormProvider
+import forms.amend.ViewOrChangePreviousRegistrationsMultipleFormProvider
 import models.UserAnswers
 import models.amend.PreviousRegistration
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}

@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package forms
+package forms.amend
+
+import forms.mappings.Mappings
+import models.amend.PreviousRegistration
+import play.api.data.Form
 
 import javax.inject.Inject
-import forms.mappings.Mappings
-import play.api.data.Form
-import models.amend.PreviousRegistration
 
 class ViewOrChangePreviousRegistrationsMultipleFormProvider @Inject() extends Mappings {
 
