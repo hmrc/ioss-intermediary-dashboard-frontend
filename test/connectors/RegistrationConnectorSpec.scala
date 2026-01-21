@@ -20,6 +20,8 @@ import base.SpecBase
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import models.SavedPendingRegistration
 import models.domain.VatCustomerInfo
+import models.enrolments.{EACDEnrolment, EACDEnrolments}
+import models.etmp.{EtmpClientDetails, RegistrationWrapper}
 import models.responses.*
 import org.scalacheck.Gen
 import play.api.Application
@@ -34,6 +36,7 @@ class RegistrationConnectorSpec extends SpecBase with WireMockHelper {
   implicit private lazy val hc: HeaderCarrier = HeaderCarrier()
 
   private val vatNumber: String = "123456789"
+  private val etmpClientDetails: Seq[EtmpClientDetails] = Gen.listOfN(3, arbitraryEtmpClientDetails.arbitrary).sample.value
 
   private def dashboardApplication: Application = applicationBuilder()
     .configure(
@@ -50,7 +53,7 @@ class RegistrationConnectorSpec extends SpecBase with WireMockHelper {
 
   "RegistrationConnector" - {
 
-    ".getCustomerVatInfo" - {
+    "getCustomerVatInfo" - {
 
       val url: String = "/ioss-intermediary-dashboard/vat-information/123456789"
 
@@ -59,15 +62,13 @@ class RegistrationConnectorSpec extends SpecBase with WireMockHelper {
         running(dashboardApplication) {
           val connector: RegistrationConnector = dashboardApplication.injector.instanceOf[RegistrationConnector]
 
-          val vatInfo: VatCustomerInfo = vatCustomerInfo
-
-          val responseBody = Json.toJson(vatInfo).toString()
+          val responseBody = Json.toJson(vatCustomerInfo).toString()
 
           server.stubFor(get(urlEqualTo(url)).willReturn(ok().withBody(responseBody)))
 
           val result = connector.getVatCustomerInfo(vatNumber).futureValue
 
-          result `mustBe` Right(vatInfo)
+          result `mustBe` Right(vatCustomerInfo)
         }
       }
 
@@ -159,7 +160,7 @@ class RegistrationConnectorSpec extends SpecBase with WireMockHelper {
       }
     }
 
-    ".getPendingRegistrations" - {
+    "getPendingRegistrations" - {
 
       val netpPendingRegUrl: String = s"/ioss-netp-registration/pending-registrations/$intermediaryNumber"
 
@@ -268,5 +269,62 @@ class RegistrationConnectorSpec extends SpecBase with WireMockHelper {
         }
       }
     }
+
+    "displayRegistration" - {
+
+      val displayRegistrationUrl: String = s"/ioss-intermediary-registration/get-registration/$intermediaryNumber"
+
+      val registrationWrapperResponse: RegistrationWrapper = registrationWrapper
+
+      "must return RegistrationWrapper when the backend returns Right" in {
+
+        running(dashboardApplication) {
+          val connector: RegistrationConnector = dashboardApplication.injector.instanceOf[RegistrationConnector]
+
+          val response: RegistrationWrapper = registrationWrapperResponse
+
+          val responseBody = Json.toJson(response).toString()
+
+          server.stubFor(get(urlEqualTo(displayRegistrationUrl)).willReturn(ok().withBody(responseBody)))
+
+          val result = connector.displayRegistration(intermediaryNumber).futureValue
+
+          result `mustBe` Right(response)
+        }
+      }
+
+      "must return InternalServerError when the backend returns Left" in {
+        running(dashboardApplication) {
+          val connector: RegistrationConnector = dashboardApplication.injector.instanceOf[RegistrationConnector]
+
+          server.stubFor(get(urlEqualTo(displayRegistrationUrl)).willReturn(notFound()))
+
+
+          val result = connector.displayRegistration(intermediaryNumber).futureValue
+
+          result `mustBe` Left(InternalServerError)
+
+        }
+
+      }
+
+      "must return InvalidJson ErrorResponse when the backend returns Left JSError" in {
+
+        running(dashboardApplication) {
+          val connector: RegistrationConnector = dashboardApplication.injector.instanceOf[RegistrationConnector]
+
+          val invalidJSONResponse = Json.obj("test" -> "test").toString()
+
+          val responseBody = Json.toJson(invalidJSONResponse).toString()
+
+          server.stubFor(get(urlEqualTo(displayRegistrationUrl)).willReturn(ok().withBody(responseBody)))
+
+          val result = connector.displayRegistration(intermediaryNumber).futureValue
+
+          result `mustBe` Left(InvalidJson)
+        }
+      }
+    }
+
   }
 }
