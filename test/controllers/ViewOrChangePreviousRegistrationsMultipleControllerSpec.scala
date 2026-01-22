@@ -27,7 +27,7 @@ import org.mockito.Mockito.{times, verify, when}
 import org.scalacheck.Gen
 import org.scalatestplus.mockito.MockitoSugar
 import pages.amend.ViewOrChangePreviousRegistrationsMultiplePage
-import pages.{EmptyWaypoints, JourneyRecoveryPage, Waypoints}
+import pages.{EmptyWaypoints, Waypoints}
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.test.FakeRequest
@@ -51,7 +51,6 @@ class ViewOrChangePreviousRegistrationsMultipleControllerSpec extends SpecBase w
 
   private val mockAccountService: AccountService = mock[AccountService]
   private val mockRegistrationConnector = mock[RegistrationConnector]
-
 
 
   "ViewOrChangePreviousRegistrationsMultiple Controller" - {

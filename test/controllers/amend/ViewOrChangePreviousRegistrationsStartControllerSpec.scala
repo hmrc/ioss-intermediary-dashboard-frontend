@@ -17,7 +17,6 @@
 package controllers.amend
 
 import base.SpecBase
-import connectors.RegistrationConnector
 import models.amend.PreviousRegistration
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito
@@ -29,8 +28,6 @@ import pages.amend.{ViewOrChangePreviousRegistrationPage, ViewOrChangePreviousRe
 import pages.{EmptyWaypoints, Waypoints}
 import play.api.inject.bind
 import play.api.test.FakeRequest
-//import play.api.test.Helpers.{GET, contentAsString, redirectLocation, route, running, status}
-import play.api.inject.bind
 import play.api.test.Helpers.*
 import repositories.SessionRepository
 import services.intermediaries.AccountService
@@ -42,10 +39,8 @@ class ViewOrChangePreviousRegistrationsStartControllerSpec extends SpecBase with
   private val waypoints: Waypoints = EmptyWaypoints
 
   private val mockAccountService: AccountService = mock[AccountService]
-  private val mockRegistrationConnector = mock[RegistrationConnector]
   private val previousRegistrations: Seq[PreviousRegistration] = Gen.listOfN(4, arbitraryPreviousRegistration.arbitrary).sample.value
 
-  private val clientDetails = registrationWrapper.etmpDisplayRegistration.clientDetails
 
   override def beforeEach(): Unit =
     Mockito.reset(mockAccountService)
