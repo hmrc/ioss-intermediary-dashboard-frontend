@@ -52,8 +52,8 @@ class ClientReturnsListController @Inject()(
 
       val previousRegistrationMessageKey: Option[String] = {
         numberOfIntEnrolments match {
-          case n if n > 2 => Some("clientReturnsList.previousRegistrations.link")
-          case 2 => Some("clientReturnsList.previousRegistrations.link")
+          case n if n > 2 => Some("clientReturnsList.previousRegistrations.multiple.link")
+          case 2 => Some("clientReturnsList.previousRegistrations.singular.link")
           case _ => None
         }
       }
