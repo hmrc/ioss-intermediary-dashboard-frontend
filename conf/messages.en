@@ -149,6 +149,8 @@ interceptUnusableEmail.confirm = Confirm email address
 
 clientReturnsList.title = Which client''s returns do you want to view?
 clientReturnsList.heading = Which client''s returns do you want to view?
+clientReturnsList.previousRegistrations.singular.link = <a class="govuk-link" href="{0}">View clients and returns from your previous IOSS registration</a>
+clientReturnsList.previousRegistrations.multiple.link = <a class="govuk-link" href="{0}">View clients and returns from your previous IOSS registrations</a>
 clientReturnsList.insetText = If your client does not appear on this list, then you have not completed any returns for them.
 clientReturnsList.active.heading = Active clients
 clientReturnsList.table.header.clientName = Client name
@@ -186,6 +188,24 @@ clientsOverdueReturnsList.heading = Start an overdue return
 clientsOverdueReturnsList.heading.noReturns = You do not have any clients with returns due.
 clientsOverdueReturnsList.viewDeReturns = <a class="govuk-link" href="{0}">View all your clients</a>
 clientsOverdueReturnsList.p1 = If your client does not appear on this list, then they don't have any returns due.
+
+previousRegistrationsList.title = Which client''s returns do you want to view?
+previousRegistrationsList.heading = Which client''s returns do you want to view?
+previousRegistrationsList.intermediaryNumber = IOSS intermediary number: {0}
+previousRegistrationsList.clientReturns.link = <a class="govuk-link" href="{0}">Return to your current registration</a>
+previousRegistrationsList.table.link = <a class="govuk-link" href="{1}"><span class="govuk-visually-hidden">{2}</span>{0}</a>
+previousRegistrationsList.p1 = If your client does not appear on this list, then you did not complete any returns for them.
+
+clientsPreviousRegistrationList.title = Which of your previous registrations do you want to view?
+clientsPreviousRegistrationList.heading = Which of your previous registrations do you want to view?
+clientsPreviousRegistrationList.noSubmittedReturns = You have not completed any returns.
+clientsPreviousRegistrationList.error.required = Select which registration you want to view
+clientsPreviousRegistrationList.error.invalid = Select a valid previous registration.
+
+previousRegistrationClientsList.table.header.clientName = Client name
+previousRegistrationClientsList.table.header.iossNumber = IOSS number
+previousRegistrationClientsList.table.startClientReturn.link = <a class="govuk-link" href="{1}"><span class="govuk-visually-hidden">{2}</span>{0}</a>
+previousRegistrationClientsList.table.startClientReturn.hidden = View returns for
 
 continueSingleClientSavedReturn.title = Do you want to continue the return for
 continueSingleClientSavedReturn.heading = Do you want to continue the return for

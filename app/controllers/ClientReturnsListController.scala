@@ -25,6 +25,7 @@ import pages.Waypoints
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.ClientReturnService
+import uk.gov.hmrc.auth.core.Enrolments
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.clientList.ClientReturnsListViewModel
 import views.html.ClientReturnsListView
@@ -42,17 +43,31 @@ class ClientReturnsListController @Inject()(
 
   def onPageLoad(waypoints: Waypoints): Action[AnyContent] = cc.identifyAndGetRegistration.async {
     implicit request =>
+
+      val numberOfIntEnrolments = findNumberOfIntermediaryEnrolments(request.enrolments)
       val clientDetailsList: Seq[EtmpClientDetails] = request.registrationWrapper.etmpDisplayRegistration.clientDetails
       val intermediaryNumber = request.intermediaryNumber
       val startReturnsHistoryUrl = frontendAppConfig.startReturnsHistoryUrl
+      val navigateToPreviousRegistrationsListUrl = routes.ClientsPreviousRegistrationListController.onPageLoad(waypoints).url
+
+      val previousRegistrationMessageKey: Option[String] = {
+        numberOfIntEnrolments match {
+          case n if n > 2 => Some("clientReturnsList.previousRegistrations.multiple.link")
+          case 2 => Some("clientReturnsList.previousRegistrations.singular.link")
+          case _ => None
+        }
+      }
 
       clientReturnService.clientsWithCompletedReturns(clientDetailsList, intermediaryNumber).map {
         filteredClients =>
 
           val viewModel: ClientReturnsListViewModel = ClientReturnsListViewModel(filteredClients, startReturnsHistoryUrl)
 
-          Ok(view(viewModel))
+          Ok(view(viewModel, navigateToPreviousRegistrationsListUrl, previousRegistrationMessageKey))
       }
+  }
 
+  private def findNumberOfIntermediaryEnrolments(enrolments: Enrolments): Int = {
+    enrolments.enrolments.count(_.key == "HMRC-IOSS-INT")
   }
 }

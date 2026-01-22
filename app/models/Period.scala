@@ -20,6 +20,8 @@ import models.returns.PartialReturnPeriod
 import play.api.libs.functional.syntax.*
 import play.api.libs.json.*
 import play.api.mvc.{PathBindable, QueryStringBindable}
+import uk.gov.hmrc.govukfrontend.views.Aliases.Text
+import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 
 import java.time.Month.*
 import java.time.format.TextStyle
@@ -46,11 +48,14 @@ trait Period {
 
 case class StandardPeriod(year: Int, month: Month) extends Period {
 
+  private val yearMonth: YearMonth = YearMonth.of(year, month)
   override val firstDay: LocalDate = LocalDate.of(year, month, 1)
   override val lastDay: LocalDate = firstDay.plusMonths(1).minusDays(1)
   override val isPartial: Boolean = false
 
   override def toString: String = s"$year-M${month.getValue}"
+
+  def compare(other: StandardPeriod): Int = yearMonth.compareTo(other.yearMonth)
 
 }
 
@@ -71,6 +76,17 @@ object StandardPeriod {
   }
 
   implicit val format: Format[StandardPeriod] = Format(reads, writes)
+
+  def apply(yearMonth: YearMonth): Period = StandardPeriod(yearMonth.getYear, yearMonth.getMonth)
+
+  def options(periods: Seq[StandardPeriod]): Seq[RadioItem] = periods.zipWithIndex.map {
+    case (value, index) =>
+      RadioItem(
+        content = Text(value.displayText),
+        value = Some(value.toString),
+        id = Some(s"value_$index")
+      )
+  }
 }
 
 object Period {

@@ -23,11 +23,17 @@
         govukTable: GovukTable
 )
 
-@(clientReturnsListViewModel: ClientReturnsListViewModel)( implicit request: Request[_], messages: Messages)
+@(clientReturnsListViewModel: ClientReturnsListViewModel, navigateToPreviousRegistrationUrl: String, previousRegistrationMessageKey: Option[String])( implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("clientReturnsList.title"))) {
 
     <h1 class="govuk-heading-l">@messages("clientReturnsList.heading")</h1>
+
+    @previousRegistrationMessageKey.map { key =>
+        <p class="govuk-body-m">
+            @Html(messages(key, navigateToPreviousRegistrationUrl))
+        </p>
+    }
 
     @if(
     clientReturnsListViewModel.activeClients.rows.nonEmpty ||
