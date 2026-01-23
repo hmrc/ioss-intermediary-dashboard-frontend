@@ -46,92 +46,92 @@ class ViewOrChangePreviousRegistrationControllerSpec extends SpecBase with Mocki
   override def beforeEach(): Unit =
     Mockito.reset(mockAccountService)
 
-    "ViewOrChangePreviousRegistration Controller" - {
+  "ViewOrChangePreviousRegistration Controller" - {
 
-      "must return OK and the correct view for a GET" in {
+    "must return OK and the correct view for a GET" in {
 
-        val userAnswers =
-          emptyUserAnswersWithVatInfo
-            .set(PreviousRegistrationIntermediaryNumberQuery, intermediaryNumber)
-            .success
-            .value
+      val userAnswers =
+        emptyUserAnswersWithVatInfo
+          .set(PreviousRegistrationIntermediaryNumberQuery, intermediaryNumber)
+          .success
+          .value
 
-        when(mockAccountService.getRegistrationClientDetails(eqTo(intermediaryNumber))(any()))
-          .thenReturn(Right(clientDetails).toFuture)
+      when(mockAccountService.getRegistrationClientDetails(eqTo(intermediaryNumber))(any()))
+        .thenReturn(Right(clientDetails).toFuture)
 
-        val application =
-          applicationBuilder(userAnswers = Some(userAnswers))
-            .overrides(bind[AccountService].toInstance(mockAccountService))
-            .build()
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(bind[AccountService].toInstance(mockAccountService))
+          .build()
 
-        running(application) {
-          val request = FakeRequest(GET, routes.ViewOrChangePreviousRegistrationController.onPageLoad(waypoints).url)
+      running(application) {
+        val request = FakeRequest(GET, routes.ViewOrChangePreviousRegistrationController.onPageLoad(waypoints).url)
 
-          implicit val msgs: Messages = messages(application)
+        implicit val msgs: Messages = messages(application)
 
-          val appConfig = application.injector.instanceOf[FrontendAppConfig]
+        val appConfig = application.injector.instanceOf[FrontendAppConfig]
 
-          val returnToCurrentRegUrl = appConfig.viewClientsListUrl
+        val returnToCurrentRegUrl = appConfig.viewClientsListUrl
 
-          val changeRegistrationRedirectUrl = appConfig.changeYourNetpRegistrationUrl
+        val changeRegistrationRedirectUrl = appConfig.changeYourNetpRegistrationUrl
 
-          val viewModel = ViewOrChangePreviousRegistrationViewModel(clientDetails, changeRegistrationRedirectUrl)
+        val viewModel = ViewOrChangePreviousRegistrationViewModel(clientDetails, changeRegistrationRedirectUrl)
 
-          val result = route(application, request).value
+        val result = route(application, request).value
 
-          val view = application.injector.instanceOf[ViewOrChangePreviousRegistrationView]
+        val view = application.injector.instanceOf[ViewOrChangePreviousRegistrationView]
 
-          status(result) mustBe OK
-          contentAsString(result) mustBe view(
-            waypoints,
-            intermediaryNumber,
-            viewModel,
-            returnToCurrentRegUrl
-          )(request).toString
-        }
+        status(result) mustBe OK
+        contentAsString(result) mustBe view(
+          waypoints,
+          intermediaryNumber,
+          viewModel,
+          returnToCurrentRegUrl
+        )(request).toString
       }
+    }
 
-      "must throw IllegalStateException when intermediary number is missing from userAnswers" in {
+    "must throw IllegalStateException when intermediary number is missing from userAnswers" in {
 
-        val application =
-          applicationBuilder(userAnswers = Some(emptyUserAnswersWithVatInfo))
-            .overrides(bind[AccountService].toInstance(mockAccountService))
-            .build()
+      val application =
+        applicationBuilder(userAnswers = Some(emptyUserAnswersWithVatInfo))
+          .overrides(bind[AccountService].toInstance(mockAccountService))
+          .build()
 
-        running(application) {
-          val request = FakeRequest(GET, routes.ViewOrChangePreviousRegistrationController.onPageLoad(waypoints).url)
-          val result = route(application, request).value.failed
+      running(application) {
+        val request = FakeRequest(GET, routes.ViewOrChangePreviousRegistrationController.onPageLoad(waypoints).url)
+        val result = route(application, request).value.failed
 
-          whenReady(result) { ex =>
-            ex mustBe a[IllegalStateException]
-            ex.getMessage must include("Intermediary number missing")
-          }
-        }
-      }
-
-      "must return InternalServerError when getRegistrationClientDetails returns Left" in {
-
-        val userAnswers =
-          emptyUserAnswersWithVatInfo
-            .set(PreviousRegistrationIntermediaryNumberQuery, intermediaryNumber)
-            .success
-            .value
-
-        when(mockAccountService.getRegistrationClientDetails(eqTo(intermediaryNumber))(any()))
-          .thenReturn(Left(InternalServerError).toFuture)
-
-        val application =
-          applicationBuilder(userAnswers = Some(userAnswers))
-            .overrides(bind[AccountService].toInstance(mockAccountService))
-            .build()
-
-        running(application) {
-          val request = FakeRequest(GET, routes.ViewOrChangePreviousRegistrationController.onPageLoad(waypoints).url)
-
-          val result = route(application, request).value
-
-          status(result) mustBe INTERNAL_SERVER_ERROR
+        whenReady(result) { ex =>
+          ex mustBe a[IllegalStateException]
+          ex.getMessage must include("Intermediary number missing")
         }
       }
     }
+
+    "must return InternalServerError when getRegistrationClientDetails returns Left" in {
+
+      val userAnswers =
+        emptyUserAnswersWithVatInfo
+          .set(PreviousRegistrationIntermediaryNumberQuery, intermediaryNumber)
+          .success
+          .value
+
+      when(mockAccountService.getRegistrationClientDetails(eqTo(intermediaryNumber))(any()))
+        .thenReturn(Left(InternalServerError).toFuture)
+
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(bind[AccountService].toInstance(mockAccountService))
+          .build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.ViewOrChangePreviousRegistrationController.onPageLoad(waypoints).url)
+
+        val result = route(application, request).value
+
+        status(result) mustBe INTERNAL_SERVER_ERROR
+      }
+    }
+  }
 }
