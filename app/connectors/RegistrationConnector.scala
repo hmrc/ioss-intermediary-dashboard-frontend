@@ -37,6 +37,7 @@ class RegistrationConnector @Inject()(config: Configuration, httpClientV2: HttpC
 
   private val baseUrl: Service = config.get[Service]("microservice.services.ioss-intermediary-dashboard")
   private val netpUrl: Service = config.get[Service]("microservice.services.ioss-netp-registration")
+  private val iossIntermediaryUrl: Service = config.get[Service]("microservice.services.ioss-intermediary-registration")
 
   private val displayRegistrationUrl: Service = config.get[Service]("microservice.services.ioss-intermediary-registration")
 
@@ -64,9 +65,6 @@ class RegistrationConnector @Inject()(config: Configuration, httpClientV2: HttpC
   def displayRegistration(intermediaryNumber: String)(implicit hc: HeaderCarrier): Future[EtmpDisplayRegistrationResponseWithWrapper] = {
     httpClientV2.get(url"$displayRegistrationUrl/get-registration/$intermediaryNumber").execute[EtmpDisplayRegistrationResponseWithWrapper]
   }
-
-  def getAccounts()(implicit hc: HeaderCarrier): Future[EACDEnrolments] =
-    httpClientV2.get(url"$displayRegistrationUrl/accounts").execute[EACDEnrolments]
 
   def getIntermediaryAccounts()(implicit hc: HeaderCarrier): Future[EACDEnrolments] =
     httpClientV2.get(url"$iossIntermediaryUrl/accounts").execute[EACDEnrolments]
