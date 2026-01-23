@@ -18,8 +18,10 @@ package connectors
 
 import base.SpecBase
 import com.github.tomakehurst.wiremock.client.WireMock.*
+import config.Constants
 import models.SavedPendingRegistration
 import models.domain.VatCustomerInfo
+import models.enrolments.{EACDEnrolment, EACDEnrolments}
 import models.etmp.RegistrationWrapper
 import models.responses.*
 import org.scalacheck.Gen
@@ -224,6 +226,52 @@ class RegistrationConnectorSpec extends SpecBase with WireMockHelper {
       }
     }
 
+    "getRegistration" - {
+
+      val displayRegistrationUrl: String = s"/ioss-intermediary-registration/get-registration/$intermediaryNumber"
+
+      val registrationWrapperResponse: RegistrationWrapper = registrationWrapper
+
+      "must return RegistrationWrapper when the backend is successful" in {
+
+        running(dashboardApplication) {
+          val connector: RegistrationConnector = dashboardApplication.injector.instanceOf[RegistrationConnector]
+
+          val response: RegistrationWrapper = registrationWrapperResponse
+
+          val responseBody = Json.toJson(response).toString()
+
+          server.stubFor(get(urlEqualTo(displayRegistrationUrl)).willReturn(ok().withBody(responseBody)))
+
+          val result = connector.getRegistration(intermediaryNumber).futureValue
+
+          result `mustBe` response
+        }
+      }
+
+      "must return UnexpectedResponseStatus when the backend returns another error code" in {
+
+        val status = Gen.oneOf(BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_IMPLEMENTED, BAD_GATEWAY, SERVICE_UNAVAILABLE).sample.value
+
+        running(dashboardApplication) {
+          val connector: RegistrationConnector = dashboardApplication.injector.instanceOf[RegistrationConnector]
+
+          server.stubFor(get(urlEqualTo(displayRegistrationUrl)).willReturn(aResponse().withStatus(status)))
+
+          val result = connector.getRegistration(intermediaryNumber)
+
+          whenReady(result.failed) {
+            case e: UpstreamErrorResponse =>
+              e.statusCode mustBe status
+            case e: BadRequestException =>
+              e.responseCode mustBe status
+            case other =>
+              fail(s"Expected UpstreamErrorResponse but got $other")
+          }
+        }
+      }
+    }
+
     "getNumberOfSavedUserAnswers" - {
 
       val netpSavedCountUrl: String = s"/ioss-netp-registration/save-for-later/count/$intermediaryNumber"
@@ -324,5 +372,64 @@ class RegistrationConnectorSpec extends SpecBase with WireMockHelper {
       }
     }
 
+    "getIntermediaryAccounts" - {
+
+      val iossIntermediaryUrl: String = "/ioss-intermediary-registration/accounts"
+
+      val eACDEnrolment1: EACDEnrolment = arbitraryEACDEnrolment.arbitrary.sample.value.copy(
+        identifiers = Seq(
+          arbitraryEACDIdentifiers.arbitrary.sample.value.copy(key = Constants.intermediaryEnrolmentKey)
+        )
+      )
+
+      val eACDEnrolment2: EACDEnrolment = arbitraryEACDEnrolment.arbitrary.sample.value.copy(
+        identifiers = Seq(
+          arbitraryEACDIdentifiers.arbitrary.sample.value.copy(key = Constants.intermediaryEnrolmentKey)
+        )
+      )
+
+      val eACDEnrolments: EACDEnrolments = arbitraryEACDEnrolments.arbitrary.sample.value
+        .copy(enrolments = Seq(eACDEnrolment1, eACDEnrolment2))
+
+
+      "must return eACDEnrolments when the backend returns when Future is successful" in {
+
+
+        running(dashboardApplication) {
+          val connector: RegistrationConnector = dashboardApplication.injector.instanceOf[RegistrationConnector]
+
+
+          val responseBody = Json.toJson(eACDEnrolments).toString()
+
+          server.stubFor(get(urlEqualTo(iossIntermediaryUrl)).willReturn(ok().withBody(responseBody)))
+
+          val result = connector.getIntermediaryAccounts().futureValue
+
+          result `mustBe` eACDEnrolments
+        }
+      }
+
+      "must return UnexpectedResponseStatus when the backend returns another error code" in {
+
+        val status = Gen.oneOf(BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_IMPLEMENTED, BAD_GATEWAY, SERVICE_UNAVAILABLE).sample.value
+
+        running(dashboardApplication) {
+          val connector: RegistrationConnector = dashboardApplication.injector.instanceOf[RegistrationConnector]
+
+          server.stubFor(get(urlEqualTo(iossIntermediaryUrl)).willReturn(aResponse().withStatus(status)))
+
+          val result = connector.getIntermediaryAccounts()
+
+          whenReady(result.failed) {
+            case e: UpstreamErrorResponse =>
+              e.statusCode mustBe status
+            case e: BadRequestException =>
+              e.responseCode mustBe status
+            case other =>
+              fail(s"Expected UpstreamErrorResponse but got $other")
+          }
+        }
+      }
+    }
   }
 }
