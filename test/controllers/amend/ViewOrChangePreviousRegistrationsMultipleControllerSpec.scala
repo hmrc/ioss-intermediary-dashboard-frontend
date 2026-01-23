@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.amend
 
 import base.SpecBase
 import connectors.RegistrationConnector
+import controllers.amend
 import forms.amend.ViewOrChangePreviousRegistrationsMultipleFormProvider
 import models.UserAnswers
 import models.amend.PreviousRegistration
