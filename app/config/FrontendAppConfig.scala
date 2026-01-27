@@ -70,4 +70,6 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   val cacheTtl: Long = configuration.get[Int]("mongodb.timeToLiveInSeconds")
 
   val intermediaryEnrolment: String = configuration.get[String]("intermediary-enrolment")
+  
+  val returnsEnabled: Boolean = configuration.get[Boolean]("features.returns.enabled")
 }
