@@ -33,9 +33,20 @@
 
     <h1 class="govuk-heading-l">@messages("clientList.heading")</h1>
 
-    @if(numberOfPreviousRegistrations > 0) {
+    @if(numberOfPreviousRegistrations == 1) {
         <p class="govuk-body">
-            <a class="govuk-link" href="@controllers.amend.routes.ViewOrChangePreviousRegistrationsStartController.onPageLoad(waypoints).url" id="messages">@messages("clientList.viewPrevRegistrationsLink") </a>
+            <a class="govuk-link"
+               href="@controllers.amend.routes.ViewOrChangePreviousRegistrationsStartController.onPageLoad(waypoints).url"
+               id="viewPrevRegistrationLink">@messages("clientList.viewPrevRegistrationLink")
+            </a>
+        </p>
+  } else if(numberOfPreviousRegistrations > 1) {
+        <p class="govuk-body">
+            <a
+               class="govuk-link"
+               href="@controllers.amend.routes.ViewOrChangePreviousRegistrationsStartController.onPageLoad(waypoints).url"
+               id="viewPrevRegistrationsLink">@messages("clientList.viewPrevRegistrationsLink")
+            </a>
         </p>
   }
 

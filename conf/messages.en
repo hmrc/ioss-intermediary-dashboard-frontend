@@ -128,6 +128,7 @@ clientList.change.hidden = Change client details for
 clientList.remove.hidden = Remove client details for {0}
 clientList.change.link = <a class="govuk-link" href="{1}"><span class="govuk-visually-hidden">{2}</span>{0}</a>
 clientList.remove.link = <a class="govuk-link" href="{1}"><span aria-hidden=true>{0}</span><span class="govuk-visually-hidden">{2}</span></a>
+clientList.viewPrevRegistrationLink = View clients from your previous IOSS registration
 clientList.viewPrevRegistrationsLink = View clients from your previous IOSS registrations
 
 viewOrChangePreviousRegistration.title = View clients from your previous registration
