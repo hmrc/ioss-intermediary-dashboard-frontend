@@ -41,7 +41,7 @@ class ClientReturnsListController @Inject()(
                                        view: ClientReturnsListView
                                      )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad(waypoints: Waypoints): Action[AnyContent] = cc.identifyAndGetRegistration.async {
+  def onPageLoad(waypoints: Waypoints): Action[AnyContent] = (cc.identifyAndGetRegistration andThen cc.featureEnabled("returns")).async {
     implicit request =>
 
       val numberOfIntEnrolments = findNumberOfIntermediaryEnrolments(request.enrolments)
