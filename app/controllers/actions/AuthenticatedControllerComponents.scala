@@ -45,8 +45,6 @@ trait AuthenticatedControllerComponents extends MessagesControllerComponents {
   
   def featureEnabled: FeatureEnabledFilterProvider
 
-  def featureEnabled: FeatureEnabledFilterProvider
-
   def identifyAndGetRegistrationWithoutCheckBouncedEmail: ActionBuilder[RegistrationRequest, AnyContent] = {
     identify andThen
       getRegistration
