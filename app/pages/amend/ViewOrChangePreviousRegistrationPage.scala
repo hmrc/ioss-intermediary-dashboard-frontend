@@ -14,12 +14,17 @@
  * limitations under the License.
  */
 
-package config
+package pages.amend
 
-object Constants {
+import controllers.amend.routes
+import pages.{Page, Waypoints}
+import play.api.mvc.Call
 
-  val pendingRegistrationTTL: Int = 28
-  val niPostCodeAreaPrefix: String = "BT"
+case object ViewOrChangePreviousRegistrationPage extends Page {
 
-  val intermediaryEnrolmentKey: String = "IntNumber"
+
+  override def toString: String = "viewOrChangePreviousRegistration"
+
+  override def route(waypoints: Waypoints): Call =
+    routes.ViewOrChangePreviousRegistrationController.onPageLoad(waypoints)
 }

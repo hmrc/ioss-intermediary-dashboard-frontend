@@ -15,6 +15,7 @@
  *@
 
 @import viewmodels.clientList.ClientListViewModel
+@import controllers.amend.routes.ViewOrChangePreviousRegistrationsStartController
 
 @this(
     layout: templates.Layout,
@@ -23,12 +24,31 @@
 )
 
 @(
-    clientListViewModel: ClientListViewModel
+    waypoints: Waypoints,
+    clientListViewModel: ClientListViewModel,
+    numberOfPreviousRegistrations: Int,
 )(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("clientList.title"))) {
 
     <h1 class="govuk-heading-l">@messages("clientList.heading")</h1>
+
+    @if(numberOfPreviousRegistrations == 1) {
+        <p class="govuk-body">
+            <a class="govuk-link"
+               href="@controllers.amend.routes.ViewOrChangePreviousRegistrationsStartController.onPageLoad(waypoints).url"
+               id="viewPrevRegistrationLink">@messages("clientList.viewPrevRegistrationLink")
+            </a>
+        </p>
+  } else if(numberOfPreviousRegistrations > 1) {
+        <p class="govuk-body">
+            <a
+               class="govuk-link"
+               href="@controllers.amend.routes.ViewOrChangePreviousRegistrationsStartController.onPageLoad(waypoints).url"
+               id="viewPrevRegistrationsLink">@messages("clientList.viewPrevRegistrationsLink")
+            </a>
+        </p>
+  }
 
     @govukWarningText(WarningText(
         iconFallbackText = Option(messages("site.warning")),

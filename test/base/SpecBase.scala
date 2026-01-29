@@ -76,8 +76,8 @@ trait SpecBase
     FakeRequest("", "/endpoint").withCSRFToken.asInstanceOf[FakeRequest[AnyContentAsEmpty.type]]
 
   def testEnrolments: Enrolments = Enrolments(Set(Enrolment("HMRC-MTD-VAT", Seq(EnrolmentIdentifier("VRN", vrn.vrn)), "Activated")))
-  
-  def emptyUserAnswers : UserAnswers = UserAnswers(userAnswersId)
+
+  def emptyUserAnswers : UserAnswers = UserAnswers(userAnswersId, journeyId, lastUpdated = arbitraryInstant)
 
   def messages(app: Application): Messages = app.injector.instanceOf[MessagesApi].preferred(FakeRequest())
 
@@ -103,7 +103,8 @@ trait SpecBase
                                     userAnswers: Option[UserAnswers] = None,
                                     clock: Option[Clock] = None,
                                     registrationWrapper: RegistrationWrapper = registrationWrapper,
-                                    getRegistrationAction: Option[GetRegistrationAction] = None
+                                    getRegistrationAction: Option[GetRegistrationAction] = None,
+                                    getOptionalDataRegistrationAction: Option[GetOptionalDataRegistrationAction] = None
                                   ): GuiceApplicationBuilder = {
 
     val clockToBind = clock.getOrElse(stubClockAtArbitraryDate)
@@ -113,6 +114,19 @@ trait SpecBase
       bind[GetRegistrationAction].toInstance(new FakeGetRegistrationAction(registrationWrapper))
     }
 
+    val getOptionalDataRegistrationActionBind =
+      getOptionalDataRegistrationAction match {
+        case Some(action) =>
+          bind[GetOptionalDataRegistrationAction].toInstance(action)
+        case None =>
+          bind[GetOptionalDataRegistrationAction].toInstance(
+            new FakeGetOptionalDataRegistrationAction(
+              userAnswers,
+              registrationWrapper
+            )
+          )
+      }
+
     new GuiceApplicationBuilder()
       .overrides(
         bind[DataRequiredAction].to[DataRequiredActionImpl],
@@ -120,6 +134,7 @@ trait SpecBase
         bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers)),
         bind[CheckBouncedEmailFilterProvider].toInstance(new FakeCheckBouncedEmailFilterProvider()),
         getRegistrationActionBind,
+        getOptionalDataRegistrationActionBind,
         bind[Clock].toInstance(clockToBind),
       )
   }

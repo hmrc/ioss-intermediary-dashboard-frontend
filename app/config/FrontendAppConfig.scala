@@ -42,6 +42,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   val changeYourRegistrationUrl: String       = configuration.get[String]("urls.changeYourRegistrationUrl")
   val leaveThisServiceUrl: String             = configuration.get[String]("urls.leaveThisServiceUrl")
   val leaveNetpServiceUrl: String             = configuration.get[String]("urls.leaveNetpServiceUrl")
+  val viewClientsListUrl: String              = configuration.get[String]("urls.redirectToViewClientsPageUrl")
   val changeYourNetpRegistrationUrl: String   = configuration.get[String]("urls.changeNetpRegistrationUrl")
   val cancelYourRequestToLeaveUrl: String     = configuration.get[String]("urls.cancelYourRequestToLeaveUrl")
   val continueRegistrationUrl:String          = configuration.get[String]("urls.continueRegistrationUrl")

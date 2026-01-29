@@ -30,7 +30,7 @@ class AccountService @Inject()(
                               )(implicit ec: ExecutionContext) {
 
   def getPreviousRegistrations()(implicit hc: HeaderCarrier): Future[Seq[PreviousRegistration]] = {
-    registrationConnector.getAccounts().map { accounts =>
+    registrationConnector.getIntermediaryAccounts().map { accounts =>
 
       val accountDetails: Seq[(YearMonth, String)] = accounts
         .enrolments.map(e => e.activationDate -> e.identifiers.find(_.key == "IntNumber").map(_.value))
