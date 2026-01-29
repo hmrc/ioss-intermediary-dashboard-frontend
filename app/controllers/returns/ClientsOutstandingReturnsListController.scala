@@ -45,7 +45,7 @@ class ClientsOutstandingReturnsListController @Inject()(
 
   protected val controllerComponents: MessagesControllerComponents = cc
 
-  def onPageLoad(waypoints: Waypoints): Action[AnyContent] = cc.identifyAndGetRegistration.async {
+  def onPageLoad(waypoints: Waypoints): Action[AnyContent] = (cc.identifyAndGetRegistration andThen cc.featureEnabled("returns")).async {
     implicit request =>
 
       val clientDetails: Seq[EtmpClientDetails] = request.registrationWrapper.etmpDisplayRegistration.clientDetails
