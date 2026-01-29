@@ -234,21 +234,6 @@ previousRegistrationClientsList.table.header.iossNumber = IOSS number
 previousRegistrationClientsList.table.startClientReturn.link = <a class="govuk-link" href="{1}"><span class="govuk-visually-hidden">{2}</span>{0}</a>
 previousRegistrationClientsList.table.startClientReturn.hidden = View returns for
 
-continueSingleClientSavedReturn.title = Do you want to continue the return for
-continueSingleClientSavedReturn.heading = Do you want to continue the return for
-continueSingleClientSavedReturn.yes = Yes
-continueSingleClientSavedReturn.no = No, delete this return
-continueSingleClientSavedReturn.checkYourAnswersLabel = Do you want to continue the return for
-continueSingleClientSavedReturn.error.required = Select continueSingleClientSavedReturn
-continueSingleClientSavedReturn.change.hidden = ContinueSingleClientSavedReturn
-
-continueSingleClientSavedReturn.title = Do you want to continue the return for {0} (IOSS reference {1})?
-continueSingleClientSavedReturn.heading = Do you want to continue the return for {0} (IOSS reference {1})?
-continueSingleClientSavedReturn.yes = Yes
-continueSingleClientSavedReturn.no = No, delete this return
-continueSingleClientSavedReturn.error.required = Select Yes if you want to continue the return for {0} (IOSS reference {1})
-continueSingleClientSavedReturn.change.hidden = to continue the return for {0} (IOSS reference {1})
-
 selectClientSavedReturn.title = Which return would you like to continue?
 selectClientSavedReturn.heading = Which return would you like to continue?
 selectClientSavedReturn.option = {0} (IOSS reference {1})
