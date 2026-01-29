@@ -42,6 +42,8 @@ trait AuthenticatedControllerComponents extends MessagesControllerComponents {
   def checkNiBasedAddress: CheckNiBasedAddressFilterProvider
 
   def checkBouncedEmail: CheckBouncedEmailFilterProvider
+  
+  def featureEnabled: FeatureEnabledFilterProvider
 
   def featureEnabled: FeatureEnabledFilterProvider
 
