@@ -23,7 +23,7 @@ import play.api.mvc.Call
 case object ViewOrChangePreviousRegistrationPage extends Page {
 
 
-  override def toString: String = "view-or-change-previous-registration"
+  override def toString: String = "viewOrChangePreviousRegistration"
 
   override def route(waypoints: Waypoints): Call =
     routes.ViewOrChangePreviousRegistrationController.onPageLoad(waypoints)

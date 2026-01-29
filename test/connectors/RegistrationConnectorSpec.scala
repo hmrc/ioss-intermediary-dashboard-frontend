@@ -374,7 +374,7 @@ class RegistrationConnectorSpec extends SpecBase with WireMockHelper {
 
     "getIntermediaryAccounts" - {
 
-      val iossIntermediaryUrl: String = "/ioss-intermediary-registration/accounts"
+      val displayRegistrationUrl: String = "/ioss-intermediary-registration/accounts"
 
       val eACDEnrolment1: EACDEnrolment = arbitraryEACDEnrolment.arbitrary.sample.value.copy(
         identifiers = Seq(
@@ -401,7 +401,7 @@ class RegistrationConnectorSpec extends SpecBase with WireMockHelper {
 
           val responseBody = Json.toJson(eACDEnrolments).toString()
 
-          server.stubFor(get(urlEqualTo(iossIntermediaryUrl)).willReturn(ok().withBody(responseBody)))
+          server.stubFor(get(urlEqualTo(displayRegistrationUrl)).willReturn(ok().withBody(responseBody)))
 
           val result = connector.getIntermediaryAccounts().futureValue
 
@@ -416,7 +416,7 @@ class RegistrationConnectorSpec extends SpecBase with WireMockHelper {
         running(dashboardApplication) {
           val connector: RegistrationConnector = dashboardApplication.injector.instanceOf[RegistrationConnector]
 
-          server.stubFor(get(urlEqualTo(iossIntermediaryUrl)).willReturn(aResponse().withStatus(status)))
+          server.stubFor(get(urlEqualTo(displayRegistrationUrl)).willReturn(aResponse().withStatus(status)))
 
           val result = connector.getIntermediaryAccounts()
 

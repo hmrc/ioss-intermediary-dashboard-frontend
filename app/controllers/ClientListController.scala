@@ -26,7 +26,6 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.intermediaries.AccountService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.FutureSyntax.FutureOps
 import viewmodels.clientList.ClientListViewModel
 import views.html.ClientListView
 
@@ -61,9 +60,9 @@ class ClientListController @Inject()(
         excludeClientRedirectUrl,
       )
 
-      previousRegistrations.flatMap { previousRegistrations =>
+      previousRegistrations.map { previousRegistrations =>
         val numberOfPreviousRegistrations: Int = previousRegistrations.size
-        Ok(view(waypoints, viewModel, numberOfPreviousRegistrations)).toFuture
+        Ok(view(waypoints, viewModel, numberOfPreviousRegistrations))
       }
   }
 }

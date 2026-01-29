@@ -26,7 +26,7 @@ case object ViewOrChangePreviousRegistrationsMultiplePage extends QuestionPage[S
 
   override def path: JsPath = JsPath \ toString
 
-  override def toString: String = "view-or-change-previous-registrations-multiple"
+  override def toString: String = "viewOrChangePreviousRegistrationsMultiple"
 
   override def route(waypoints: Waypoints): Call =
     routes.ViewOrChangePreviousRegistrationsMultipleController.onPageLoad(waypoints)
