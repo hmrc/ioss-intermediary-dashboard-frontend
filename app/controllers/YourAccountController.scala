@@ -24,7 +24,7 @@ import models.etmp.EtmpExclusion
 import models.etmp.EtmpExclusionReason.*
 import models.returns.{CurrentReturns, SubmissionStatus}
 import pages.Waypoints
-import pages.saveForLater.{ContinueSingleClientSavedReturnPage, SelectClientSavedReturnPage}
+import pages.saveForLater.SelectClientSavedReturnPage
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.SaveForLaterService
@@ -109,7 +109,7 @@ class YourAccountController @Inject()(
                       }
 
                       futureFinalReturnComplete.flatMap { finalReturnComplete =>
-                        checkIntermediarySavedAnswersAndRedirect(waypoints).flatMap { redirectUrl =>
+                        checkIntermediarySavedAnswersAndRedirect(waypoints).map { redirectUrl =>
 
                           val urls = DashboardUrlsViewModel(
                             addClientUrl = appConfig.addClientUrl,
@@ -139,7 +139,7 @@ class YourAccountController @Inject()(
                             finalReturnComplete,
                             maybeExclusion,
                             appConfig.returnsEnabled
-                          )).toFuture
+                          ))
                         }
                       }
 
@@ -201,8 +201,7 @@ class YourAccountController @Inject()(
           None
 
         case saveAnswers :: Nil =>
-          val iossNumber: String = saveAnswers.iossNumber
-          Some(ContinueSingleClientSavedReturnPage(iossNumber).route(waypoints).url)
+          Some(s"${appConfig.startCurrentReturnUrl}/${saveAnswers.iossNumber}")
 
         case _ =>
           Some(SelectClientSavedReturnPage.route(waypoints).url)

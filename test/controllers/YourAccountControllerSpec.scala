@@ -35,7 +35,7 @@ import org.scalacheck.Gen
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.mockito.MockitoSugar.mock
-import pages.saveForLater.{ContinueSingleClientSavedReturnPage, SelectClientSavedReturnPage}
+import pages.saveForLater.SelectClientSavedReturnPage
 import pages.{EmptyWaypoints, Waypoints}
 import play.api.inject.bind
 import play.api.test.FakeRequest
@@ -263,7 +263,7 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar with BeforeAn
 
         val appConfig = application.injector.instanceOf[FrontendAppConfig]
 
-        val continueSavedReturnUrl: String = ContinueSingleClientSavedReturnPage(mappedSavedUserAnswers.head.iossNumber).route(waypoints).url
+        val continueSavedReturnUrl: String = s"${appConfig.startCurrentReturnUrl}/${mappedSavedUserAnswers.head.iossNumber}"
 
         val urls = DashboardUrlsViewModel(
           addClientUrl = appConfig.addClientUrl,
