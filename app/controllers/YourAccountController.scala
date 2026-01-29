@@ -93,14 +93,14 @@ class YourAccountController @Inject()(
                         request.registrationWrapper.etmpDisplayRegistration.clientDetails.isEmpty
 
                       val futureFinalReturnComplete = if (isRejoinEligible) {
-                        if (hasNoClients){
+                        if (hasNoClients) {
                           true.toFuture
                         } else {
                           currentReturnsService.getCurrentReturns(intermediaryNumber).map { hasOutstandingReturns =>
                             getExistingOutstandingReturns(hasOutstandingReturns)
                           }
                         }
-                      } else if (hasNoClients){
+                      } else if (hasNoClients) {
                         true.toFuture
                       } else {
                         currentReturnsService.getCurrentReturns(intermediaryNumber).map { hasOutstandingReturns =>
@@ -137,8 +137,10 @@ class YourAccountController @Inject()(
                             urls,
                             isRejoinEligible,
                             finalReturnComplete,
-                          maybeExclusion
-                        )).toFuture}
+                            maybeExclusion,
+                            appConfig.returnsEnabled
+                          )).toFuture
+                        }
                       }
 
                     case Left(error) =>

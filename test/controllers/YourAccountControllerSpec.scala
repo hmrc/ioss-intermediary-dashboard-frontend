@@ -198,7 +198,8 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar with BeforeAn
             urls,
             false,
             finalReturnComplete = false,
-            maybeExclusion = None
+            maybeExclusion = None,
+            returnsEnabled = true
           )(request, messages(application)).toString
 
           verify(mockSaveForLaterService, times(1)).getAllClientSavedAnswers()(any())
@@ -298,7 +299,8 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar with BeforeAn
             urls,
             false,
             finalReturnComplete = false,
-            maybeExclusion = None
+            maybeExclusion = None,
+            returnsEnabled = true
           )(request, messages(application)).toString
 
           verify(mockSaveForLaterService, times(1)).getAllClientSavedAnswers()(any())
@@ -398,7 +400,8 @@ class YourAccountControllerSpec extends SpecBase with MockitoSugar with BeforeAn
             urls,
             false,
             finalReturnComplete = false,
-            maybeExclusion = None
+            maybeExclusion = None,
+            returnsEnabled = true
           )(request, messages(application)).toString
 
           verify(mockSaveForLaterService, times(1)).getAllClientSavedAnswers()(any())

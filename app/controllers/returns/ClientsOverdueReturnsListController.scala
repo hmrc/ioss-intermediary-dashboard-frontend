@@ -44,7 +44,7 @@ class ClientsOverdueReturnsListController @Inject()(
 
   protected val controllerComponents: MessagesControllerComponents = cc
 
-  def onPageLoad(waypoints: Waypoints): Action[AnyContent] = cc.identifyAndGetRegistration.async {
+  def onPageLoad(waypoints: Waypoints): Action[AnyContent] = (cc.identifyAndGetRegistration andThen cc.featureEnabled("returns")).async {
     implicit request =>
 
       currentReturnsService.getCurrentReturns(request.intermediaryNumber).map { currentReturns =>

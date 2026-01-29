@@ -35,6 +35,7 @@
     canRejoin: Boolean,
     finalReturnComplete: Boolean,
     maybeExclusion: Option[EtmpExclusion],
+    returnsEnabled: Boolean
 )(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("yourAccount.title")),
@@ -60,6 +61,13 @@
             }
         </a>
     </p>
+
+    @if(!returnsEnabled) {
+      @govukWarningText(WarningText(
+        iconFallbackText = Option(messages("site.warning")),
+        content = Text(messages("yourAccount.returnsDisabled.warn"))
+      ))
+    }
 
     @{
         if(numberOfAwaitingClients > 0) {
@@ -143,28 +151,36 @@
             <div id="next-return" class="tile-body">
                 <h2 class="govuk-heading-m">@messages("yourAccount.returns.heading")</h2>
 
-                @if(urls.continueSavedReturnUrl.nonEmpty) {
+                @if(!returnsEnabled) {
+                  <p class="govuk-body">
+                    @messages("yourAccount.returnsDisabled")
+                  </p>
+                } else {
+
+                  @if(urls.continueSavedReturnUrl.nonEmpty) {
                     <p class="govuk-body">
-                        <a class="govuk-link" href="@urls.continueSavedReturnUrl"
-                           id="continue-return">
-                            @messages("yourAccount.returns.savedReturns.continue")
-                        </a>
+                      <a class="govuk-link" href="@urls.continueSavedReturnUrl"
+                        id="continue-return">
+                        @messages("yourAccount.returns.savedReturns.continue")
+                      </a>
                     </p>
+                  }
+
+                  <p class="govuk-body">
+                    <a class="govuk-link" href="@urls.startClientCurrentReturnsUrl"
+                      id="start-a-return">
+                      @messages("yourAccount.returns.startReturn")
+                    </a>
+                  </p>
+
+                  <p class="govuk-body">
+                    <a class="govuk-link" href="@urls.viewClientReturnsListUrl"
+                      id="view-return">
+                      @messages("yourAccount.returns.previousReturn")
+                    </a>
+                  </p>
                 }
 
-                <p class="govuk-body">
-                    <a class="govuk-link" href="@urls.startClientCurrentReturnsUrl"
-                       id="start-a-return">
-                        @messages("yourAccount.returns.startReturn")
-                    </a>
-                </p>
-
-                <p class="govuk-body">
-                    <a class="govuk-link" href="@urls.viewClientReturnsListUrl"
-                       id="view-return">
-                        @messages("yourAccount.returns.previousReturn")
-                    </a>
-                </p>
             </div>
         </div>
 
@@ -172,12 +188,18 @@
             <div id="payments" class="tile-body">
                 <h2 class="govuk-heading-m push--top">@messages("yourAccount.payment.heading")</h2>
 
+              @if(!returnsEnabled) {
                 <p class="govuk-body">
-                    <a class="govuk-link" href="@urls.makeAPaymentUrl"
-                       id="make-a-payment">
-                        @messages("yourAccount.payment.makeAPayment")
-                    </a>
+                  @messages("yourAccount.paymentsDisabled")
                 </p>
+              } else {
+                <p class="govuk-body">
+                  <a class="govuk-link" href="@urls.makeAPaymentUrl"
+                    id="make-a-payment">
+                    @messages("yourAccount.payment.makeAPayment")
+                  </a>
+                </p>
+              }
             </div>
         </div>
 

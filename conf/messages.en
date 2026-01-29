@@ -74,6 +74,9 @@ yourAccount.details.changeYourRegistration = Change your registration
 yourAccount.details.leaveThisService = Leave this service
 yourAccount.details.cancelYourRequestToLeave = Cancel your request to leave
 yourAccount.details.rejoinScheme = Rejoin this service
+yourAccount.returnsDisabled.warn = This service is currently open for registering clients. Returns and payments will be available soon.
+yourAccount.returnsDisabled = The returns service is unavailable.
+yourAccount.paymentsDisabled = The payments service is unavailable.
 
 yourAccount.leftService = You have left this service.
 yourAccount.leftService.outstanding = You have left this service. You must complete and pay any outstanding returns for all your clients.
