@@ -16,12 +16,11 @@
 
 package pages.saveForLater
 
-import pages.{JourneyRecoveryPage, Page, QuestionPage, Waypoints}
+import controllers.saveForLater.routes
+import models.etmp.EtmpClientDetails
+import pages.{QuestionPage, Waypoints}
 import play.api.libs.json.JsPath
 import play.api.mvc.Call
-import controllers.saveForLater.routes
-import models.UserAnswers
-import models.etmp.EtmpClientDetails
 
 case object SelectClientSavedReturnPage extends QuestionPage[EtmpClientDetails] {
 
@@ -33,12 +32,4 @@ case object SelectClientSavedReturnPage extends QuestionPage[EtmpClientDetails] 
     routes.SelectClientSavedReturnController.onPageLoad(waypoints)
   }
 
-  override protected def nextPageNormalMode(waypoints: Waypoints, answers: UserAnswers): Page = {
-    answers.get(this) match {
-      case Some(clientDetails) =>
-        ContinueSingleClientSavedReturnPage(clientDetails.clientIossID)
-      case _ =>
-        JourneyRecoveryPage
-    }
-  }
 }

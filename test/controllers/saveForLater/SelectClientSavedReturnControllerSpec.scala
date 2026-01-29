@@ -17,6 +17,7 @@
 package controllers.saveForLater
 
 import base.SpecBase
+import config.FrontendAppConfig
 import connectors.RegistrationConnector
 import forms.saveForLater.SelectClientSavedReturnFormProvider
 import models.UserAnswers
@@ -140,17 +141,16 @@ class SelectClientSavedReturnControllerSpec extends SpecBase with MockitoSugar w
           .build()
 
       running(application) {
+        val config = application.injector.instanceOf[FrontendAppConfig]
+
         val request =
           FakeRequest(POST, selectClientSavedReturnRoute)
             .withFormUrlEncodedBody(("value", etmpClientDetails.head.clientIossID))
 
         val result = route(application, request).value
 
-        val expectedAnswers: UserAnswers = emptyUserAnswers
-          .set(SelectClientSavedReturnPage, etmpClientDetails.head).success.value
-
         status(result) `mustBe` SEE_OTHER
-        redirectLocation(result).value `mustBe` SelectClientSavedReturnPage.navigate(waypoints, emptyUserAnswers, expectedAnswers).url
+        redirectLocation(result).value `mustBe` s"${config.startCurrentReturnUrl}/${etmpClientDetails.head.clientIossID}"
         verify(mockSaveForLaterService, times(1)).getAllClientSavedAnswers()(any())
         verify(mockRegistrationConnector, times(1)).getRegistration(any())(any())
       }
