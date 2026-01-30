@@ -49,6 +49,9 @@ signedOut.guidance = We did not save your answers.
 unauthorised.title = You can’t access this service with this account
 unauthorised.heading = You can’t access this service with this account
 
+insufficientEnrolments.title = You cannot use this service
+insufficientEnrolments.heading = You cannot use this service
+
 yourAccount.title = Your Import One Stop Shop intermediary account
 yourAccount.heading = Your Import One Stop Shop intermediary account
 yourAccount.intermediaryNumber = IOSS intermediary number: {0}
