@@ -24,6 +24,7 @@ import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl.idFunctor
 import uk.gov.hmrc.play.bootstrap.binders.{AbsoluteWithHostnameFromAllowlist, OnlyRelative, RedirectUrl}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import views.html.auth.InsufficientEnrolmentsView
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
@@ -33,7 +34,8 @@ class AuthController @Inject()(
                                 val controllerComponents: MessagesControllerComponents,
                                 config: FrontendAppConfig,
                                 sessionRepository: SessionRepository,
-                                identify: IdentifierAction
+                                identify: IdentifierAction,
+                                insufficientEnrolmentsView: InsufficientEnrolmentsView
                               )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   private val redirectPolicy = OnlyRelative | AbsoluteWithHostnameFromAllowlist(config.allowedRedirectUrls: _*)
@@ -60,5 +62,10 @@ class AuthController @Inject()(
         "continue" -> Seq(continueUrl.get(redirectPolicy).url)
       )
     )
+  }
+
+  def insufficientEnrolments(): Action[AnyContent] = Action {
+    implicit request =>
+      Ok(insufficientEnrolmentsView())
   }
 }
