@@ -18,12 +18,21 @@ package controllers
 
 import base.SpecBase
 import config.FrontendAppConfig
+import models.amend.PreviousRegistration
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
 import org.scalatest.BeforeAndAfterEach
+import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.i18n.Messages
+import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import services.intermediaries.AccountService
 import viewmodels.clientList.ClientListViewModel
 import views.html.ClientListView
+
+import java.time.LocalDate
+import scala.concurrent.Future
 
 class ClientListControllerSpec extends SpecBase with BeforeAndAfterEach {
 
@@ -31,7 +40,16 @@ class ClientListControllerSpec extends SpecBase with BeforeAndAfterEach {
 
     "must return OK and the correct view for a GET" in {
 
+      val mockAccountService = mock[AccountService]
+      val previousRegistrations = Seq(PreviousRegistration(intermediaryNumber, LocalDate.now(), LocalDate.now().plusMonths(6)))
+      when(mockAccountService.getPreviousRegistrations()(any()))
+        .thenReturn(Future.successful(previousRegistrations))
+
+
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        .overrides(
+          bind[AccountService].toInstance(mockAccountService)
+        )
         .build()
 
       running(application) {
@@ -54,7 +72,11 @@ class ClientListControllerSpec extends SpecBase with BeforeAndAfterEach {
         )
 
         status(result) `mustBe` OK
-        contentAsString(result) `mustBe` view(clientListViewModel)(request).toString
+        contentAsString(result) `mustBe` view(
+          waypoints,
+          clientListViewModel,
+          numberOfPreviousRegistrations = previousRegistrations.size
+        )(request).toString
       }
     }
   }

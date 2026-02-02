@@ -1,5 +1,5 @@
 /*
- * Copyright 2026 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-package config
+package queries
 
-object Constants {
+import play.api.libs.json.JsPath
 
-  val pendingRegistrationTTL: Int = 28
-  val niPostCodeAreaPrefix: String = "BT"
-
-  val intermediaryEnrolmentKey: String = "IntNumber"
+case object PreviousRegistrationIntermediaryNumberQuery extends Gettable[String] with Settable[String] {
+  override def path: JsPath = JsPath \ "previousRegistrationIntermediaryNumber"
 }
