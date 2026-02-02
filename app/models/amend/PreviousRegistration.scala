@@ -19,7 +19,7 @@ package models.amend
 import formats.Format.dateMonthYearFormatter
 import play.api.i18n.Messages
 import play.api.libs.json.{Json, OFormat}
-import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.hint.Hint
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 
@@ -38,10 +38,25 @@ object PreviousRegistration {
         val endPeriod: String = previousRegistration.endPeriod.format(dateMonthYearFormatter)
 
         RadioItem(
-          content = Text(s"$startPeriod to $endPeriod"),
+          content = HtmlContent(
+            messages(
+              "viewOrChangePreviousRegistrationsMultiple.startEndPeriod",
+              startPeriod,
+              endPeriod
+            )
+          ),
           id = Some(s"value_$index"),
           value = Some(previousRegistration.intermediaryNumber),
-          hint = Some(Hint(content = HtmlContent(messages("viewOrChangePreviousRegistrationsMultiple.hint", previousRegistration.intermediaryNumber))))
+          hint = Some(
+            Hint(
+              content = HtmlContent(
+                messages(
+                  "viewOrChangePreviousRegistrationsMultiple.hint",
+                  previousRegistration.intermediaryNumber
+                )
+              )
+            )
+          )
         )
     }
   }
