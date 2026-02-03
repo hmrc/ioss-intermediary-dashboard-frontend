@@ -48,9 +48,7 @@
     @if(currentReturnsNonEmpty) {
         <p class="govuk-body">@Html(messages("clientsOverdueReturnsList.viewDeReturns", viewDueReturnsLink))</p>
 
-        <div class="govuk-inset-text">
-            <p class="govuk-body">@messages("clientsOverdueReturnsList.p1")</p>
-        </div>
+        <p class="govuk-body">@messages("clientsOverdueReturnsList.p1")</p>
 
         @govukTable(viewModel.clientOutstandingReturns)
     }

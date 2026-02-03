@@ -38,9 +38,9 @@
     @if(
     clientReturnsListViewModel.activeClients.rows.nonEmpty ||
     clientReturnsListViewModel.excludedClients.rows.nonEmpty) {
-        @govukInsetText(InsetText(
-            content = Text(messages("clientReturnsList.insetText"))
-          ))
+        <p class="govuk-body">
+            @Html(messages("clientReturnsList.p1"))
+        </p>
     }
 
     @if(
