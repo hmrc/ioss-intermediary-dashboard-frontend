@@ -93,6 +93,9 @@ yourAccount.quarantined.outstanding = We have removed you from this service, but
 cannotUseNotAnIntermediary.title = You cannot use this service
 cannotUseNotAnIntermediary.heading = You cannot use this service
 
+noRegistrationFound.title = Sorry, there is a problem with the service
+noRegistrationFound.heading = Sorry, there is a problem with the service
+
 vatApiDown.title = Sorry, there is a problem with the service
 vatApiDown.heading = Sorry, there is a problem with the service
 vatApiDown.tryAgain = Try again later.

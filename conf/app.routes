@@ -26,6 +26,8 @@ GET         /your-account                                controllers.YourAccount
 
 GET        /cannot-use-this-service                      controllers.CannotUseNotAnIntermediaryController.onPageLoad()
 
+GET        /no-registration-found                        controllers.NoRegistrationFoundController.onPageLoad()
+
 GET        /service-error                                controllers.VatApiDownController.onPageLoad()
 
 GET        /vat-info-not-found                           controllers.VatInfoNotFoundController.onPageLoad()
