@@ -20,6 +20,7 @@ import connectors.RegistrationConnector
 
 import javax.inject.Inject
 import models.requests.{IdentifierRequest, RegistrationRequest}
+import play.api.mvc.Results.Redirect
 import play.api.mvc.{ActionRefiner, Result}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
@@ -34,6 +35,9 @@ class GetRegistrationAction @Inject()(val registrationConnector: RegistrationCon
     val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request.request, request.request.session)
     registrationConnector.getRegistration(request.intermediaryNumber)(hc).map { registration =>
       Right(RegistrationRequest(request.request, request.userId, request.enrolments, request.vrn, request.intermediaryNumber, registration))
+    }.recover {
+      case _ =>
+        Left(Redirect(controllers.routes.NoRegistrationFoundController.onPageLoad()))
     }
   }
 }
