@@ -16,22 +16,22 @@
 
 package generators
 
+import models.*
 import models.amend.PreviousRegistration
 import models.domain.ModelHelpers.normaliseSpaces
 import models.domain.VatCustomerInfo
 import models.enrolments.{EACDEnrolment, EACDEnrolments, EACDIdentifiers}
 import models.etmp.*
 import models.returns.{CurrentReturns, PartialReturnPeriod, Return, SubmissionStatus}
-import models.saveForLater.{ContinueSingleClientSavedReturn, SavedUserAnswers}
-import models.{Bic, Country, DesAddress, Iban, IntermediaryDetails, Period, SavedPendingRegistration, StandardPeriod, UserAnswers}
+import models.saveForLater.SavedUserAnswers
+import org.scalacheck.{Arbitrary, Gen}
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Gen.{choose, listOfN}
-import org.scalacheck.{Arbitrary, Gen}
 import org.scalatest.EitherValues
 import play.api.libs.json.{JsObject, Json}
 
-import java.time.*
 import java.time.temporal.ChronoUnit
+import java.time.{Instant, LocalDate, LocalDateTime, Month, ZoneOffset}
 import java.util.UUID
 
 trait ModelGenerators extends EitherValues {
@@ -577,12 +577,6 @@ trait ModelGenerators extends EitherValues {
         data = JsObject(Seq("test" -> Json.toJson("test")))
         now = Instant.now
       } yield SavedUserAnswers(iossNumber, period, data, now)
-    }
-  }
-
-  implicit lazy val arbitraryContinueSingleClientSavedReturn: Arbitrary[ContinueSingleClientSavedReturn] = {
-    Arbitrary {
-      Gen.oneOf(ContinueSingleClientSavedReturn.values)
     }
   }
 }

@@ -16,6 +16,7 @@
 
 package controllers.saveForLater
 
+import config.FrontendAppConfig
 import connectors.RegistrationConnector
 import controllers.actions.*
 import forms.saveForLater.SelectClientSavedReturnFormProvider
@@ -40,6 +41,7 @@ class SelectClientSavedReturnController @Inject()(
                                                    formProvider: SelectClientSavedReturnFormProvider,
                                                    saveForLaterService: SaveForLaterService,
                                                    registrationConnector: RegistrationConnector,
+                                                   appConfig: FrontendAppConfig,
                                                    view: SelectClientSavedReturnView
                                                  )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
@@ -97,7 +99,7 @@ class SelectClientSavedReturnController @Inject()(
               for {
                 updatedAnswers <- Future.fromTry(userAnswers.set(SelectClientSavedReturnPage, value))
                 _ <- cc.sessionRepository.set(updatedAnswers)
-              } yield Redirect(SelectClientSavedReturnPage.navigate(waypoints, userAnswers, updatedAnswers).route)
+              } yield Redirect(s"${appConfig.startCurrentReturnUrl}/${value.clientIossID}")
           )
         }
       }
