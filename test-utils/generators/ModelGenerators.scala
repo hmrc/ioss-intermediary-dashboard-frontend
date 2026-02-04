@@ -30,8 +30,8 @@ import org.scalacheck.Gen.{choose, listOfN}
 import org.scalatest.EitherValues
 import play.api.libs.json.{JsObject, Json}
 
-import java.time.*
 import java.time.temporal.ChronoUnit
+import java.time.{Instant, LocalDate, LocalDateTime, Month, ZoneOffset}
 import java.util.UUID
 
 trait ModelGenerators extends EitherValues {
