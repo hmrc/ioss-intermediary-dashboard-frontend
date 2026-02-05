@@ -30,7 +30,7 @@ import viewmodels.clientList.ClientListViewModel
 import views.html.ClientListView
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
 class ClientListController @Inject()(
@@ -39,7 +39,7 @@ class ClientListController @Inject()(
                                       frontendAppConfig: FrontendAppConfig,
                                       view: ClientListView,
                                       accountService: AccountService
-                                    )
+                                    )(implicit ec: ExecutionContext)
   extends FrontendBaseController with I18nSupport with Logging {
 
   protected val controllerComponents: MessagesControllerComponents = cc
