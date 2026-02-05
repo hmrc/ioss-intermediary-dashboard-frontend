@@ -160,7 +160,7 @@ secureMessages.title = Messages
 secureMessages.subject.read = <a class="govuk-link" href="">{0}</a>
 secureMessages.subject.unread = <a class="govuk-link" href="{1}"><span class="govuk-visually-hidden">Unread message</span><span class="govuk-!-font-weight-bold">{0}</span></a>
 secureMessages.subject.read   = <a class="govuk-link" href="{1}">{0}</a>
-secureMessages.table.headContent.column1 = Messages
+secureMessages.table.headContent.column1 = Subject
 secureMessages.table.headContent.column2 = Date
 secureMessages.table.caption = Messages
 redDot = <span class="dot-unread"></span>
@@ -178,7 +178,7 @@ clientReturnsList.title = Which client''s returns do you want to view?
 clientReturnsList.heading = Which client''s returns do you want to view?
 clientReturnsList.previousRegistrations.singular.link = <a class="govuk-link" href="{0}">View clients and returns from your previous IOSS registration</a>
 clientReturnsList.previousRegistrations.multiple.link = <a class="govuk-link" href="{0}">View clients and returns from your previous IOSS registrations</a>
-clientReturnsList.insetText = If your client does not appear on this list, then you have not completed any returns for them.
+clientReturnsList.p1 = If your client does not appear on this list, then you have not completed any returns for them.
 clientReturnsList.active.heading = Active clients
 clientReturnsList.table.header.clientName = Client name
 clientReturnsList.table.header.iossNumber = IOSS number

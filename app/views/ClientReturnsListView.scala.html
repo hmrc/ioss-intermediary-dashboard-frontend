@@ -19,7 +19,6 @@
 @this(
         layout: templates.Layout,
         govukButton: GovukButton,
-        govukInsetText : GovukInsetText,
         govukTable: GovukTable
 )
 
@@ -38,9 +37,9 @@
     @if(
     clientReturnsListViewModel.activeClients.rows.nonEmpty ||
     clientReturnsListViewModel.excludedClients.rows.nonEmpty) {
-        @govukInsetText(InsetText(
-            content = Text(messages("clientReturnsList.insetText"))
-          ))
+        <p class="govuk-body">
+            @Html(messages("clientReturnsList.p1"))
+        </p>
     }
 
     @if(
