@@ -93,6 +93,9 @@ yourAccount.quarantined.outstanding = We have removed you from this service, but
 cannotUseNotAnIntermediary.title = You cannot use this service
 cannotUseNotAnIntermediary.heading = You cannot use this service
 
+noRegistrationFound.title = Sorry, there is a problem with the service
+noRegistrationFound.heading = Sorry, there is a problem with the service
+
 vatApiDown.title = Sorry, there is a problem with the service
 vatApiDown.heading = Sorry, there is a problem with the service
 vatApiDown.tryAgain = Try again later.
@@ -230,21 +233,6 @@ previousRegistrationClientsList.table.header.clientName = Client name
 previousRegistrationClientsList.table.header.iossNumber = IOSS number
 previousRegistrationClientsList.table.startClientReturn.link = <a class="govuk-link" href="{1}"><span class="govuk-visually-hidden">{2}</span>{0}</a>
 previousRegistrationClientsList.table.startClientReturn.hidden = View returns for
-
-continueSingleClientSavedReturn.title = Do you want to continue the return for
-continueSingleClientSavedReturn.heading = Do you want to continue the return for
-continueSingleClientSavedReturn.yes = Yes
-continueSingleClientSavedReturn.no = No, delete this return
-continueSingleClientSavedReturn.checkYourAnswersLabel = Do you want to continue the return for
-continueSingleClientSavedReturn.error.required = Select continueSingleClientSavedReturn
-continueSingleClientSavedReturn.change.hidden = ContinueSingleClientSavedReturn
-
-continueSingleClientSavedReturn.title = Do you want to continue the return for {0} (IOSS reference {1})?
-continueSingleClientSavedReturn.heading = Do you want to continue the return for {0} (IOSS reference {1})?
-continueSingleClientSavedReturn.yes = Yes
-continueSingleClientSavedReturn.no = No, delete this return
-continueSingleClientSavedReturn.error.required = Select Yes if you want to continue the return for {0} (IOSS reference {1})
-continueSingleClientSavedReturn.change.hidden = to continue the return for {0} (IOSS reference {1})
 
 selectClientSavedReturn.title = Which return would you like to continue?
 selectClientSavedReturn.heading = Which return would you like to continue?

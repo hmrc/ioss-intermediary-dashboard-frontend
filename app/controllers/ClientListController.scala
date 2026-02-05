@@ -30,8 +30,7 @@ import viewmodels.clientList.ClientListViewModel
 import views.html.ClientListView
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class ClientListController @Inject()(
                                       override val messagesApi: MessagesApi,
