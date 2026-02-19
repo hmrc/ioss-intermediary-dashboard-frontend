@@ -29,8 +29,8 @@ import uk.gov.hmrc.govukfrontend.views.Aliases.Table
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.table.{HeadCell, TableRow}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.SecureMessagesView
 import utils.FutureSyntax.FutureOps
+import views.html.SecureMessagesView
 
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -75,7 +75,7 @@ class SecureMessagesController @Inject()(
                                   validFrom: Seq[String],
                                   unreadMessages: Seq[Boolean],
                                   messageId: Seq[String]
-                                 )(implicit messages: Messages): Table = {
+                                )(implicit messages: Messages): Table = {
 
     val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("d MMMM yyyy")
 
@@ -90,16 +90,19 @@ class SecureMessagesController @Inject()(
       sortedList.map { case (sub, dateStr, unreadMessage, messageId) =>
         val formattedDate = LocalDate.parse(dateStr, DateTimeFormatter.ISO_LOCAL_DATE).format(dateFormatter)
 
-        val displayRedDot = if (unreadMessage) HtmlContent(messages("redDot")) else HtmlContent(messages(""))
-
         val messageLink = routes.IndividualSecureMessageController.onPageLoad(messageId).url
-        
+
         val displayCorrectMessage =
-          if (unreadMessage) HtmlContent(messages("secureMessages.subject.unread", sub, messageLink)) else HtmlContent(messages("secureMessages.subject.read", sub, messageLink))
+          if (unreadMessage) {
+            HtmlContent(messages("redDot") ++ messages("secureMessages.subject.unread", sub, messageLink))
+          } else {
+            HtmlContent(messages("secureMessages.subject.read", sub, messageLink))
+          }
 
         Seq(
-          TableRow(content = displayRedDot),
-          TableRow(content = displayCorrectMessage),
+          TableRow(
+            content = displayCorrectMessage
+          ),
           TableRow(content = Text(formattedDate))
         )
       }
@@ -109,18 +112,13 @@ class SecureMessagesController @Inject()(
       rows,
       head = Some(Seq(
         HeadCell(
-          content = Text("")
-        ),
-        HeadCell(
           content = Text(messages("secureMessages.table.headContent.column1"))
         ),
         HeadCell(
           content = Text(messages("secureMessages.table.headContent.column2")),
           classes = "govuk-!-width-one-quarter"
         )
-      )),
-      caption = Some(messages("secureMessages.table.caption")),
-      captionClasses = "govuk-table__caption--l"
+      ))
     )
   }
 }

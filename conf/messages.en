@@ -24,6 +24,8 @@ timeout.message = For security reasons, you will be signed out of this service i
 timeout.keepAlive = Stay signed in
 timeout.signOut = Sign out
 
+table.header.action = Action
+
 error.title.prefix = Error:
 error.prefix = Error
 error.summary.title = There is a problem
@@ -157,12 +159,12 @@ viewOrChangePreviousRegistrationsMultiple.error.required = Select which registra
 viewOrChangePreviousRegistrationsMultiple.error.invalid = Select a valid previous registration.
 
 secureMessages.title = Messages
+secureMessages.heading = Messages
 secureMessages.subject.read = <a class="govuk-link" href="">{0}</a>
 secureMessages.subject.unread = <a class="govuk-link" href="{1}"><span class="govuk-visually-hidden">Unread message</span><span class="govuk-!-font-weight-bold">{0}</span></a>
 secureMessages.subject.read   = <a class="govuk-link" href="{1}">{0}</a>
 secureMessages.table.headContent.column1 = Subject
 secureMessages.table.headContent.column2 = Date
-secureMessages.table.caption = Messages
 redDot = <span class="dot-unread"></span>
 
 individualSecureMessage.title = Message Details

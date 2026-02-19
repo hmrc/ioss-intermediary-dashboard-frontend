@@ -25,6 +25,7 @@
 
 @layout(pageTitle = titleNoForm(messages("secureMessages.title"))) {
 
-    @govukTable(messagesTable)
+    <h1 class="govuk-heading-l govuk-!-margin-bottom-3">@messages("secureMessages.heading")</h1>
 
+    @govukTable(messagesTable)
 }
