@@ -54,10 +54,7 @@ private def clientRows(
     ),
     TableRow(
       content = Text(clients.clientIossID),
-      classes = "govuk-!-width-one-third"
-    ),
-    TableRow(
-      classes = "govuk-!-width-one-third"
+      classes = "govuk-!-width-two-thirds"
     )
   )
 }
@@ -80,10 +77,7 @@ private def clientTable(
       ),
       HeadCell(
         content = Text(messages("viewOrChangePreviousRegistration.table.header.iossNumber")),
-        classes = "govuk-!-width-one-third"
-      ),
-      HeadCell(
-        classes = "govuk-!-width-one-third"
+        classes = "govuk-!-width-two-thirds"
       )
     ))
   )

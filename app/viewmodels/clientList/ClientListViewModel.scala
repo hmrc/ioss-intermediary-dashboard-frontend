@@ -125,11 +125,10 @@ object ClientListViewModel {
           classes = "govuk-!-width-one-third"
         ),
         HeadCell(
+          content = Text(messages("table.header.action")),
           classes = "govuk-table__header--numeric govuk-!-width-one-third"
         )
-      )),
-      caption = Some(messages("clientList.active.heading")),
-      captionClasses = "govuk-table__caption govuk-table__caption--m"
+      ))
     )
   }
 
@@ -150,10 +149,7 @@ object ClientListViewModel {
         ),
         HeadCell(
           content = Text(messages("clientList.table.header.iossNumber")),
-          classes = "govuk-!-width-one-third"
-        ),
-        HeadCell(
-          classes = "govuk-table__header--numeric govuk-!-width-one-third"
+          classes = "govuk-!-width-two-thirds"
         )
       )),
       caption = Some(messages("clientList.excluded.heading")),

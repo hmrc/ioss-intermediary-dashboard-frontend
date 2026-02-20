@@ -22,10 +22,10 @@ import uk.gov.hmrc.govukfrontend.views.Aliases.{Table, Text}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.table.{HeadCell, TableRow}
 
-case class ClientReturnsListViewModel (
-                                activeClients: Table,
-                                excludedClients: Table
-                              )
+case class ClientReturnsListViewModel(
+                                       activeClients: Table,
+                                       excludedClients: Table
+                                     )
 
 object ClientReturnsListViewModel {
 
@@ -45,9 +45,9 @@ object ClientReturnsListViewModel {
   }
 
   private def activeClientReturnsRows(
-                                activeClient: EtmpClientDetails,
-                                redirectUrl: String
-                              )(implicit messages: Messages): Seq[TableRow] = {
+                                       activeClient: EtmpClientDetails,
+                                       redirectUrl: String
+                                     )(implicit messages: Messages): Seq[TableRow] = {
     Seq(
       TableRow(
         content = HtmlContent(
@@ -67,9 +67,9 @@ object ClientReturnsListViewModel {
   }
 
   private def excludedClientReturnsRows(
-                                  excludedClient: EtmpClientDetails,
-                                  redirectUrl: String
-                                )(implicit messages: Messages): Seq[TableRow] = {
+                                         excludedClient: EtmpClientDetails,
+                                         redirectUrl: String
+                                       )(implicit messages: Messages): Seq[TableRow] = {
     Seq(
       TableRow(
         content = HtmlContent(
@@ -92,9 +92,9 @@ object ClientReturnsListViewModel {
   }
 
   private def activeClientReturnsTable(
-                                 activeClients: Seq[EtmpClientDetails],
-                                 redirectUrl: String
-                               )(implicit messages: Messages): Table = {
+                                        activeClients: Seq[EtmpClientDetails],
+                                        redirectUrl: String
+                                      )(implicit messages: Messages): Table = {
 
     val activeClientsRows = activeClients.map { activeClient =>
       activeClientReturnsRows(activeClient, redirectUrl)
@@ -110,9 +110,6 @@ object ClientReturnsListViewModel {
         HeadCell(
           content = Text(messages("clientReturnsList.table.header.iossNumber")),
           classes = "govuk-!-width-one-quarter"
-        ),
-        HeadCell(
-          classes = "govuk-table__header--numeric"
         )
       )),
       caption = Some(messages("clientReturnsList.active.heading")),
@@ -121,9 +118,9 @@ object ClientReturnsListViewModel {
   }
 
   private def excludedClientReturnsTable(
-                                   excludedClients: Seq[EtmpClientDetails],
-                                   redirectUrl: String
-                                 )(implicit messages: Messages): Table = {
+                                          excludedClients: Seq[EtmpClientDetails],
+                                          redirectUrl: String
+                                        )(implicit messages: Messages): Table = {
 
     val excludedClientsRows = excludedClients.map { excludedClient =>
       excludedClientReturnsRows(excludedClient, redirectUrl)
@@ -139,9 +136,6 @@ object ClientReturnsListViewModel {
         HeadCell(
           content = Text(messages("clientReturnsList.table.header.iossNumber")),
           classes = "govuk-!-width-one-quarter"
-        ),
-        HeadCell(
-          classes = "govuk-table__header--numeric govuk-!-width-one-quarter"
         )
       )),
       caption = Some(messages("clientReturnsList.excluded.heading")),
