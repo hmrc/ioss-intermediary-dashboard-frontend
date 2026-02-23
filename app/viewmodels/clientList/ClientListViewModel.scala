@@ -128,7 +128,9 @@ object ClientListViewModel {
           content = Text(messages("table.header.action")),
           classes = "govuk-table__header--numeric govuk-!-width-one-third"
         )
-      ))
+      )),
+      caption = Some(messages("clientList.active.heading")),
+      captionClasses = "govuk-table__caption govuk-table__caption--m"
     )
   }
 
