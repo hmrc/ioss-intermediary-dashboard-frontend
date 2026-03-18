@@ -21,7 +21,7 @@
 
 @(id: String, message: String)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("individualSecureMessage.title"))) {
+@layout(pageTitle = titleNoForm(messages("individualSecureMessage.title")), fullWidth = true) {
 
     @Html(message)
 }
