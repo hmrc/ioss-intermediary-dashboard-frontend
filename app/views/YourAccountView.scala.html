@@ -147,10 +147,11 @@
     }
 
     <div class="flex-container govuk-grid-row">
-        <div class="tile tile-no-border">
+        <div class="govuk-summary-card tile">
             <div id="next-return" class="tile-body">
                 <h2 class="govuk-heading-m">@messages("yourAccount.returns.heading")</h2>
-
+            </div>
+            <div class="govuk-summary-card__content">
                 @if(!returnsEnabled) {
                   <p class="govuk-body">
                     @messages("yourAccount.returnsDisabled")
@@ -184,10 +185,11 @@
             </div>
         </div>
 
-        <div class="tile tile-no-border">
+        <div class="govuk-summary-card tile">
             <div id="payments" class="tile-body">
                 <h2 class="govuk-heading-m push--top">@messages("yourAccount.payment.heading")</h2>
-
+            </div>
+            <div class="govuk-summary-card__content">
               @if(!returnsEnabled) {
                 <p class="govuk-body">
                   @messages("yourAccount.paymentsDisabled")
@@ -203,10 +205,11 @@
             </div>
         </div>
 
-        <div class="tile tile-no-border">
+        <div class="govuk-summary-card tile">
             <div id="clients" class="tile-body">
                 <h2 class="govuk-heading-m push--top">@messages("yourAccount.clients.heading")</h2>
-
+            </div>
+            <div class="govuk-summary-card__content">
                 @if(numberOfSavedUserJourneys >= 1) {
                 <p class="govuk-body">
                     <a class="govuk-link" href="@urls.continueSavedRegUrl"
@@ -251,10 +254,11 @@
             </div>
         </div>
 
-        <div class="tile tile-no-border">
+        <div class="govuk-summary-card tile">
             <div id="details" class="tile-body">
                 <h2 class="govuk-heading-m">@messages("yourAccount.details.heading")</h2>
-
+            </div>
+            <div class="govuk-summary-card__content">
                 <p class="govuk-body">
                     <a class="govuk-link" href="@urls.changeYourRegistrationUrl"
                        id="change-your-registration">
