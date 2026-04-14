@@ -246,3 +246,6 @@ deleteIntermediaryReturn.title = Are you sure you want to delete this return?
 deleteIntermediaryReturn.heading = Are you sure you want to delete this return?
 deleteIntermediaryReturn.error.required = Select yes if you want to delete this return
 deleteIntermediaryReturn.button = Delete return
+
+pagination.previous = Previous
+pagination.next = Next
