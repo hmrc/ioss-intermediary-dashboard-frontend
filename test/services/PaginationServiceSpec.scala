@@ -119,8 +119,7 @@ class PaginationServiceSpec extends SpecBase with MockitoSugar {
         PageLink(2, "/secure-messages?page=2", current = false),
         PageLink(3, "/secure-messages?page=3", current = false),
         PageLink(4, "/secure-messages?page=4", current = false),
-        PageLink(5, "/secure-messages?page=5", current = true),
-        PageLink(6, "/secure-messages?page=6", current = false)
+        PageLink(5, "/secure-messages?page=5", current = true)
       )
     }
 
@@ -209,7 +208,7 @@ class PaginationServiceSpec extends SpecBase with MockitoSugar {
       viewModel.nextUrl mustBe None
     }
 
-    "must show ellipsis when current page is near the start" in {
+    "must not show ellipsis when current page is near the start" in {
       val items = 1 to 2000
 
       val (_, viewModel) = service.paginate(
@@ -223,9 +222,7 @@ class PaginationServiceSpec extends SpecBase with MockitoSugar {
         PageLink(2, "/secure-messages?page=2", current = false),
         PageLink(3, "/secure-messages?page=3", current = false),
         PageLink(4, "/secure-messages?page=4", current = false),
-        PageLink(5, "/secure-messages?page=5", current = false),
-        Ellipsis,
-        PageLink(100, "/secure-messages?page=100", current = false)
+        PageLink(5, "/secure-messages?page=5", current = false)
       )
     }
 

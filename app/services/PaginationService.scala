@@ -105,10 +105,10 @@ class PaginationService @Inject()() {
     val pagesToShow: Seq[Int] =
       if (totalPages <= config.maxVisiblePages) {
         1 to totalPages
-      } else if (currentPage <= 4) {
-        Seq(1, 2, 3, 4, 5, totalPages)
-      } else if (currentPage >= totalPages - 3) {
-        Seq(1, totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages)
+      } else if (currentPage <= 5) {
+        1 to 5
+      } else if (currentPage >= totalPages - 4) {
+        Seq(1) ++ ((totalPages - 4) to totalPages)
       } else {
         Seq(1, currentPage - 1, currentPage, currentPage + 1, totalPages)
       }
