@@ -16,6 +16,8 @@
 
 @import models.securemessage.responses.SecureMessageResponseWithCount
 @import services.PaginationViewModel
+@import services.PageLink
+@import services.Ellipsis
 
 @this(
     layout: templates.Layout,
@@ -24,7 +26,12 @@
 
 @(messagesTable: Table, pagination: PaginationViewModel, currentPage: Int, totalPages: Int)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("secureMessages.title"))) {
+@layout(pageTitle = titleNoForm(messages("secureMessages.title")), showBackLink = false) {
+
+    <a href="@routes.YourAccountController.onPageLoad().url"
+       class="pagination-back-link">
+        @messages("site.back")
+    </a>
 
     <h1 class="govuk-heading-l govuk-!-margin-bottom-3">@messages("secureMessages.heading")</h1>
 
@@ -32,41 +39,54 @@
 
     @if(pagination.show) {
         <nav class="govuk-pagination" aria-label="Pagination">
-            <div class="govuk-pagination__prev">
-                <a class="govuk-link govuk-pagination__link" href="#" rel="prev">
-                    <svg class="govuk-pagination__icon govuk-pagination__icon--prev" xmlns="http://www.w3.org/2000/svg" height="13" width="15" aria-hidden="true" focusable="false" viewBox="0 0 15 13">
-                        <path d="m6.5938-0.0078125-6.7266 6.7266 6.7441 6.4062 1.377-1.449-4.1856-3.9768h12.896v-2h-12.984l4.2931-4.293-1.414-1.414z"></path>
-                    </svg>
-                    <span class="govuk-pagination__link-title">
-                        @messages("pagination.previous")
-                    </span>
-                </a>
-            </div>
+            @pagination.previousUrl.map { url =>
+                <div class="govuk-pagination__prev">
+                    <a class="govuk-link govuk-pagination__link" href="@url" rel="prev">
+                        <svg class="govuk-pagination__icon govuk-pagination__icon--prev" xmlns="http://www.w3.org/2000/svg" height="13" width="15" aria-hidden="true" focusable="false" viewBox="0 0 15 13">
+                            <path d="m6.5938-0.0078125-6.7266 6.7266 6.7441 6.4062 1.377-1.449-4.1856-3.9768h12.896v-2h-12.984l4.2931-4.293-1.414-1.414z"></path>
+                        </svg>
+                        <span class="govuk-pagination__link-title">
+                            @messages("pagination.previous")
+                        </span>
+                    </a>
+                </div>
+            }
             <ul class="govuk-pagination__list">
-                @for(page <- pagination.pages) {
-                    <li class="govuk-pagination__item @if(page.current){govuk-pagination__item--current}">
-                        @if(page.current) {
-                            <span class="govuk-pagination__link" aria-current="page">
-                                @page.number
-                            </span>
-                        } else {
-                            <a class="govuk-link govuk-pagination__link" href="@page.url">
-                                @page.number
-                            </a>
+                @for(item <- pagination.items) {
+                    @item match {
+                        case page: PageLink => {
+                            <li class="govuk-pagination__item @if(page.current){govuk-pagination__item--current}">
+                                @if(page.current) {
+                                    <span class="govuk-pagination__link" aria-current="page">
+                                        @page.number
+                                    </span>
+                                } else {
+                                    <a class="govuk-link govuk-pagination__link" href="@page.url">
+                                        @page.number
+                                    </a>
+                                }
+                            </li>
                         }
-                    </li>
+                        case Ellipsis => {
+                            <li class="govuk-pagination__item govuk-pagination__item--ellipsis">
+                                &ctdot;
+                            </li>
+                        }
+                    }
                 }
             </ul>
-            <div class="govuk-pagination__next">
-                <a class="govuk-link govuk-pagination__link" href="#" rel="next">
-              <span class="govuk-pagination__link-title">
-                @messages("pagination.next")
-              </span>
-                    <svg class="govuk-pagination__icon govuk-pagination__icon--next" xmlns="http://www.w3.org/2000/svg" height="13" width="15" aria-hidden="true" focusable="false" viewBox="0 0 15 13">
-                        <path d="m8.107-0.0078125-1.4136 1.414 4.2926 4.293h-12.986v2h12.896l-4.1855 3.9766 1.377 1.4492 6.7441-6.4062-6.7246-6.7266z"></path>
-                    </svg>
-                </a>
-            </div>
+            @pagination.nextUrl.map { url =>
+                <div class="govuk-pagination__next">
+                    <a class="govuk-link govuk-pagination__link" href="@url" rel="next">
+                  <span class="govuk-pagination__link-title">
+                    @messages("pagination.next")
+                  </span>
+                        <svg class="govuk-pagination__icon govuk-pagination__icon--next" xmlns="http://www.w3.org/2000/svg" height="13" width="15" aria-hidden="true" focusable="false" viewBox="0 0 15 13">
+                            <path d="m8.107-0.0078125-1.4136 1.414 4.2926 4.293h-12.986v2h12.896l-4.1855 3.9766 1.377 1.4492 6.7441-6.4062-6.7246-6.7266z"></path>
+                        </svg>
+                    </a>
+                </div>
+            }
         </nav>
     }
 }

@@ -17,13 +17,11 @@
 package services
 
 
-
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.{ExecutionContext, Future}
 
 case class PaginationConfig(
                              recordsPerPage: Int = 20,
-                             maxRecords: Int = 99,
+                             maxRecords: Int = 9999,
                              maxVisiblePages: Int = 5
                            )
 
@@ -34,19 +32,22 @@ case class PaginationResult[A](
                               totalRecords: Int
                            )
 
+sealed trait PaginationItem
 case class PageLink(
                      number: Int,
                      url: String,
                      current: Boolean
-                   )
+                   ) extends PaginationItem
+
+case object Ellipsis extends PaginationItem
 
 case class PaginationViewModel(
-                                pages: Seq[PageLink] = Nil,
+                                items: Seq[PaginationItem] = Nil,
                                 previousUrl: Option[String] = None,
                                 nextUrl: Option[String] = None
                               ) {
   def show: Boolean =
-    previousUrl.nonEmpty || nextUrl.nonEmpty || pages.nonEmpty
+    previousUrl.nonEmpty || nextUrl.nonEmpty || items.nonEmpty
 }
 
 @Singleton
@@ -78,17 +79,11 @@ class PaginationService @Inject()() {
         PaginationViewModel()
       } else {
         PaginationViewModel(
-          pages = visiblePages(validCurrentPage, totalPages).map { page =>
-            PageLink(
-              number = page,
-              url = s"$baseUrl?page=$page",
-              current = page == validCurrentPage
-            )
-          },
+          items = buildPaginationItems(validCurrentPage, totalPages, baseUrl),
           previousUrl =
-            if (validCurrentPage > 1) Some(s"$baseUrl?page=${validCurrentPage - 1}") else None,
+            if (validCurrentPage > 1) Some(pageUrl(baseUrl, validCurrentPage - 1)) else None,
           nextUrl =
-            if (validCurrentPage < totalPages) Some(s"$baseUrl?page=${validCurrentPage + 1}") else None
+            if (validCurrentPage < totalPages) Some(pageUrl(baseUrl, validCurrentPage + 1)) else None
         )
       }
 
@@ -96,13 +91,46 @@ class PaginationService @Inject()() {
     
   }
 
-  private def visiblePages(currentPage: Int, totalPages: Int): Seq[Int] = {
-    val maxVisible = config.maxVisiblePages
-    val half = maxVisible / 2
+  private def pageUrl(baseUrl: String, page: Int): String = {
+    val separator = if (baseUrl.contains("?")) "&" else "?"
+    s"$baseUrl${separator}page=$page"
+  }
 
-    val start = math.max(1, math.min(currentPage - half, totalPages - maxVisible + 1))
-    val end = math.min(totalPages, start + maxVisible - 1)
+  private def buildPaginationItems(
+                                    currentPage: Int,
+                                    totalPages: Int,
+                                    baseUrl: String
+                                  ): Seq[PaginationItem] = {
 
-    start to end
+    val pagesToShow: Seq[Int] =
+      if (totalPages <= config.maxVisiblePages) {
+        1 to totalPages
+      } else if (currentPage <= 4) {
+        Seq(1, 2, 3, 4, 5, totalPages)
+      } else if (currentPage >= totalPages - 3) {
+        Seq(1, totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages)
+      } else {
+        Seq(1, currentPage - 1, currentPage, currentPage + 1, totalPages)
+      }
+
+    val distinctSortedPages = pagesToShow.distinct.sorted
+    val items = scala.collection.mutable.ListBuffer[PaginationItem]()
+
+    distinctSortedPages.zipWithIndex.foreach { case (page, index) =>
+      if (index > 0) {
+        val previousPage = distinctSortedPages(index - 1)
+        if (page - previousPage > 1) {
+          items += Ellipsis
+        }
+      }
+
+      items += PageLink(
+        number = page,
+        url = pageUrl(baseUrl, page),
+        current = page == currentPage
+      )
+    }
+
+    items.toSeq
   }
 }

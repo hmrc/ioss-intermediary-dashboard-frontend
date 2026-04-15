@@ -57,11 +57,6 @@ class SecureMessagesController @Inject()(
       secureMessageConnector.getMessages(taxIdentifiers = Some(intermediaryEnrolment)).flatMap {
         case Right(secureMessages) =>
 
-          val unreadMessages: Seq[Boolean] = secureMessages.items.map(_.unreadMessages)
-          val messageSubject: Seq[String] = secureMessages.items.map(_.subject)
-          val messageValidFrom: Seq[String] = secureMessages.items.map(_.validFrom)
-          val messageId: Seq[String] = secureMessages.items.map(_.id)
-
           val sortedMessages = secureMessages.items.sortBy { message =>
             LocalDate.parse(message.validFrom, DateTimeFormatter.ISO_LOCAL_DATE)
           }(Ordering[LocalDate].reverse)
@@ -72,6 +67,11 @@ class SecureMessagesController @Inject()(
               currentPage = currentPage,
               baseUrl = routes.SecureMessagesController.onPageLoad(waypoints).url
             )
+
+          val unreadMessages: Seq[Boolean] = paginatedResult.items.map(_.unreadMessages)
+          val messageSubject: Seq[String] = paginatedResult.items.map(_.subject)
+          val messageValidFrom: Seq[String] = paginatedResult.items.map(_.validFrom)
+          val messageId: Seq[String] = paginatedResult.items.map(_.id)
 
           val messagesTable = buildMessagesTable(messageSubject, messageValidFrom, unreadMessages, messageId)
 
