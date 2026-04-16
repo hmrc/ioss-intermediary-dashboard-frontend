@@ -103,17 +103,28 @@ class PaginationService @Inject()() {
                                   ): Seq[PaginationItem] = {
 
     val pagesToShow: Seq[Int] =
-      if (totalPages <= config.maxVisiblePages) {
+      if (totalPages <= 5) {
         1 to totalPages
-      } else if (currentPage <= 5) {
-        1 to 5
-      } else if (currentPage >= totalPages - 4) {
-        Seq(1) ++ ((totalPages - 4) to totalPages)
+      } else if (currentPage == 1) {
+        Seq(1, 2, totalPages)
+      } else if (currentPage == 2) {
+        Seq(1, 2, 3, totalPages)
+      } else if (currentPage == 3) {
+        Seq(1, 2, 3, 4, totalPages)
+      } else if (currentPage == 4) {
+        Seq(1, 2, 3, 4, 5, totalPages)
+      } else if (currentPage == totalPages) {
+        Seq(1, totalPages - 1, totalPages)
+      } else if (currentPage == totalPages - 1) {
+        Seq(1, totalPages - 2, totalPages - 1, totalPages)
+      } else if (currentPage == totalPages - 2) {
+        Seq(1, totalPages - 3, totalPages - 2, totalPages - 1, totalPages)
       } else {
         Seq(1, currentPage - 1, currentPage, currentPage + 1, totalPages)
       }
 
-    val distinctSortedPages = pagesToShow.distinct.sorted
+
+    val distinctSortedPages = pagesToShow.distinct.filter(p => p >= 1 && p <= totalPages).sorted
     val items = scala.collection.mutable.ListBuffer[PaginationItem]()
 
     distinctSortedPages.zipWithIndex.foreach { case (page, index) =>

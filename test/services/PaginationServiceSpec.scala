@@ -116,10 +116,10 @@ class PaginationServiceSpec extends SpecBase with MockitoSugar {
       viewModel.nextUrl mustBe Some("/secure-messages?page=6")
       viewModel.items mustEqual Seq(
         PageLink(1, "/secure-messages?page=1", current = false),
-        PageLink(2, "/secure-messages?page=2", current = false),
-        PageLink(3, "/secure-messages?page=3", current = false),
+        Ellipsis,
         PageLink(4, "/secure-messages?page=4", current = false),
-        PageLink(5, "/secure-messages?page=5", current = true)
+        PageLink(5, "/secure-messages?page=5", current = true),
+        PageLink(6, "/secure-messages?page=6", current = false),
       )
     }
 
@@ -220,9 +220,8 @@ class PaginationServiceSpec extends SpecBase with MockitoSugar {
       viewModel.items mustEqual Seq(
         PageLink(1, "/secure-messages?page=1", current = true),
         PageLink(2, "/secure-messages?page=2", current = false),
-        PageLink(3, "/secure-messages?page=3", current = false),
-        PageLink(4, "/secure-messages?page=4", current = false),
-        PageLink(5, "/secure-messages?page=5", current = false)
+        Ellipsis,
+        PageLink(100, "/secure-messages?page=100", current = false),
       )
     }
 
@@ -258,8 +257,6 @@ class PaginationServiceSpec extends SpecBase with MockitoSugar {
       viewModel.items mustEqual Seq(
         PageLink(1, "/secure-messages?page=1", current = false),
         Ellipsis,
-        PageLink(96, "/secure-messages?page=96", current = false),
-        PageLink(97, "/secure-messages?page=97", current = false),
         PageLink(98, "/secure-messages?page=98", current = false),
         PageLink(99, "/secure-messages?page=99", current = true),
         PageLink(100, "/secure-messages?page=100", current = false)
