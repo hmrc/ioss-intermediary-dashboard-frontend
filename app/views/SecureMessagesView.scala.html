@@ -55,17 +55,19 @@
                 @for(item <- pagination.items) {
                     @item match {
                         case page: PageLink => {
-                            <li class="govuk-pagination__item @if(page.current){govuk-pagination__item--current}">
-                                @if(page.current) {
-                                    <span class="govuk-pagination__link" aria-current="page">
+                            @if(page.current) {
+                                <li class="govuk-pagination__item @if(page.current){govuk-pagination__item--current}">
+                                    <a class="govuk-link govuk-pagination__link" href="@page.url" aria-current="page">
                                         @page.number
-                                    </span>
-                                } else {
+                                    </a>
+                                </li>
+                            } else {
+                                <li class="govuk-pagination__item">
                                     <a class="govuk-link govuk-pagination__link" href="@page.url">
                                         @page.number
                                     </a>
-                                }
-                            </li>
+                                </li>
+                            }
                         }
                         case Ellipsis => {
                             <li class="govuk-pagination__item govuk-pagination__item--ellipsis">
