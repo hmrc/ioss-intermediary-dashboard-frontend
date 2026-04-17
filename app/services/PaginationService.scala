@@ -18,6 +18,7 @@ package services
 
 
 import javax.inject.{Inject, Singleton}
+import uk.gov.hmrc.govukfrontend.views.viewmodels.pagination.{Pagination, PaginationItem, PaginationLink}
 
 case class PaginationConfig(
                              recordsPerPage: Int = 20,
@@ -29,7 +30,8 @@ case class PaginationResult[A](
                               items: Seq[A],
                               currentPage: Int,
                               totalPages: Int,
-                              totalRecords: Int
+                              totalRecords: Int,
+                              pagination: Option[Pagination]
                            )
 
 sealed trait PaginationItem
@@ -59,8 +61,8 @@ class PaginationService @Inject()() {
                    allItems: Seq[A],
                    currentPage: Int,
                    baseUrl: String
-                 ): (PaginationResult[A], PaginationViewModel) = {
-    
+                 ): PaginationResult[A] = {
+
     val cappedItems = allItems.take(config.maxRecords)
     val totalRecords = cappedItems.size
     val totalPages = math.max(1, math.ceil(totalRecords.toDouble / config.recordsPerPage).toInt)
@@ -68,32 +70,71 @@ class PaginationService @Inject()() {
     val startIndex = (validCurrentPage - 1) * config.recordsPerPage
     val endIndex = math.min(startIndex + config.recordsPerPage, totalRecords)
     val paginatedItems = cappedItems.slice(startIndex, endIndex)
-    val result = PaginationResult(
+
+    PaginationResult(
       items = paginatedItems,
       currentPage = validCurrentPage,
       totalPages = totalPages,
-      totalRecords = totalRecords
+      totalRecords = totalRecords,
+      pagination =
+        if (totalPages <= 1) {
+          None
+        } else {
+          Some(buildGovukPagination(validCurrentPage, totalPages, baseUrl))
+        }
     )
-    val viewModel =
-      if (totalPages <= 1) {
-        PaginationViewModel()
-      } else {
-        PaginationViewModel(
-          items = buildPaginationItems(validCurrentPage, totalPages, baseUrl),
-          previousUrl =
-            if (validCurrentPage > 1) Some(pageUrl(baseUrl, validCurrentPage - 1)) else None,
-          nextUrl =
-            if (validCurrentPage < totalPages) Some(pageUrl(baseUrl, validCurrentPage + 1)) else None
-        )
-      }
-
-    (result, viewModel)
-    
   }
 
   private def pageUrl(baseUrl: String, page: Int): String = {
     val separator = if (baseUrl.contains("?")) "&" else "?"
     s"$baseUrl${separator}page=$page"
+  }
+
+  private def buildGovukPagination(
+                                    currentPage: Int,
+                                    totalPages: Int,
+                                    baseUrl: String
+                                  ): Pagination = {
+    val items = buildPaginationItems(currentPage, totalPages, baseUrl)
+
+    Pagination(
+      items = Some(
+        items.map {
+          case PageLink(number, url, current) =>
+            PaginationItem(
+              number = Some(number.toString),
+              href = url,
+              current = if (current) Some(true) else None
+            )
+
+          case Ellipsis =>
+            PaginationItem(
+              ellipsis = Some(true),
+              href = ""
+            )
+        }
+      ),
+      previous =
+        if (currentPage > 1) {
+          Some(
+            PaginationLink(
+              href = pageUrl(baseUrl, currentPage - 1)
+            )
+          )
+        } else {
+          None
+        },
+      next =
+        if (currentPage < totalPages) {
+          Some(
+            PaginationLink(
+              href = pageUrl(baseUrl, currentPage + 1)
+            )
+          )
+        } else {
+          None
+        }
+    )
   }
 
   private def buildPaginationItems(
@@ -122,9 +163,9 @@ class PaginationService @Inject()() {
       } else {
         Seq(1, currentPage - 1, currentPage, currentPage + 1, totalPages)
       }
-
-
+    
     val distinctSortedPages = pagesToShow.distinct.filter(p => p >= 1 && p <= totalPages).sorted
+
     val items = scala.collection.mutable.ListBuffer[PaginationItem]()
 
     distinctSortedPages.zipWithIndex.foreach { case (page, index) =>

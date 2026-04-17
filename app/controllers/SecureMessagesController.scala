@@ -61,7 +61,7 @@ class SecureMessagesController @Inject()(
             LocalDate.parse(message.validFrom, DateTimeFormatter.ISO_LOCAL_DATE)
           }(Ordering[LocalDate].reverse)
           
-          val (paginatedResult, paginationViewModel) =
+          val paginatedResult =
             paginationService.paginate(
               allItems = sortedMessages,
               currentPage = currentPage,
@@ -77,7 +77,7 @@ class SecureMessagesController @Inject()(
 
           Ok(view(
             messagesTable = messagesTable,
-            pagination = paginationViewModel,
+            pagination = paginatedResult.pagination,
             currentPage = paginatedResult.currentPage,
             totalPages = paginatedResult.totalPages
           )).toFuture
