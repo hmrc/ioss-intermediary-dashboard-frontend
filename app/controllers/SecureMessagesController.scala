@@ -25,6 +25,7 @@ import models.securemessage.{CustomerEnrolment, MessageFilter}
 import pages.Waypoints
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.PaginationService
 import uk.gov.hmrc.govukfrontend.views.Aliases.Table
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{HtmlContent, Text}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.table.{HeadCell, TableRow}
@@ -42,25 +43,44 @@ class SecureMessagesController @Inject()(
                                           cc: AuthenticatedControllerComponents,
                                           secureMessageConnector: SecureMessageConnector,
                                           frontendAppConfig: FrontendAppConfig,
+                                          paginationService: PaginationService,
                                           view: SecureMessagesView
                                         )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
 
   def onPageLoad(waypoints: Waypoints): Action[AnyContent] = cc.actionBuilder.async {
     implicit request =>
 
+      val currentPage = request.getQueryString("page").flatMap(_.toIntOption).getOrElse(1)
+      logger.info(s"secure messages currentPage from query string = $currentPage")
       val intermediaryEnrolment = frontendAppConfig.intermediaryEnrolment
 
       secureMessageConnector.getMessages(taxIdentifiers = Some(intermediaryEnrolment)).flatMap {
         case Right(secureMessages) =>
 
-          val unreadMessages: Seq[Boolean] = secureMessages.items.map(_.unreadMessages)
-          val messageSubject: Seq[String] = secureMessages.items.map(_.subject)
-          val messageValidFrom: Seq[String] = secureMessages.items.map(_.validFrom)
-          val messageId: Seq[String] = secureMessages.items.map(_.id)
+          val sortedMessages = secureMessages.items.sortBy { message =>
+            LocalDate.parse(message.validFrom, DateTimeFormatter.ISO_LOCAL_DATE)
+          }(Ordering[LocalDate].reverse)
+          
+          val paginatedResult =
+            paginationService.paginate(
+              allItems = sortedMessages,
+              currentPage = currentPage,
+              baseUrl = routes.SecureMessagesController.onPageLoad(waypoints).url
+            )
+
+          val unreadMessages: Seq[Boolean] = paginatedResult.items.map(_.unreadMessages)
+          val messageSubject: Seq[String] = paginatedResult.items.map(_.subject)
+          val messageValidFrom: Seq[String] = paginatedResult.items.map(_.validFrom)
+          val messageId: Seq[String] = paginatedResult.items.map(_.id)
 
           val messagesTable = buildMessagesTable(messageSubject, messageValidFrom, unreadMessages, messageId)
 
-          Ok(view(messagesTable)).toFuture
+          Ok(view(
+            messagesTable = messagesTable,
+            pagination = paginatedResult.pagination,
+            currentPage = paginatedResult.currentPage,
+            totalPages = paginatedResult.totalPages
+          )).toFuture
 
         case Left(errors) =>
           val message: String = s"Received an unexpected error when trying to retrieve secure messages: $errors."
