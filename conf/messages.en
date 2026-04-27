@@ -249,3 +249,4 @@ deleteIntermediaryReturn.button = Delete return
 
 pagination.previous = Previous
 pagination.next = Next
+pagination.back = Back to your account
