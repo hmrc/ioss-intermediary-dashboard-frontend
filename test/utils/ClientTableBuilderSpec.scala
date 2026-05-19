@@ -16,9 +16,11 @@
 
 package utils
 
+import config.FrontendAppConfig
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalactic.Prettifier.default
+import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.i18n.{DefaultMessagesApi, Lang, Messages, MessagesImpl}
 
 class ClientTableBuilderSpec extends AnyFreeSpec with Matchers {
@@ -57,17 +59,18 @@ class ClientTableBuilderSpec extends AnyFreeSpec with Matchers {
       "must render rows with name, hidden text and expiry date" in {
 
         val messagesApi = new DefaultMessagesApi(Map("en" -> Map(
-          "clientAwaitingActivation.link" -> "<a class=\"govuk-link\" href=\"{1}\"><span class=\"govuk-visually-hidden\">{2}</span>{0}</a>",
+          "clientAwaitingActivation.link" -> "<a class=\"govuk-link\" href=\"{1}\" id=\"{2}\"><span class=\"govuk-visually-hidden\">{3}</span>{0}</a>",
           "clientAwaitingActivation.hidden" -> "view registration details for"
         )))
 
         implicit val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
+        val mockFrontendAppConfig = mock[FrontendAppConfig]
 
         val names = Seq("Alpha Works")
         val dates = Seq("2025-09-24")
-        val urls = Seq("/test-url/2")
+        val journeyIds = Seq("/test-url/2")
 
-        val table = ClientTableBuilder.buildClientsTable(names, dates, urls)
+        val table = ClientTableBuilder.buildClientsTable(names, dates, journeyIds, mockFrontendAppConfig)
 
         val firstRow = table.rows.head
 
