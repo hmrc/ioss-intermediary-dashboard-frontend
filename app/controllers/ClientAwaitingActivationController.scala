@@ -53,12 +53,12 @@ class ClientAwaitingActivationController @Inject()(
             }
             
             val activationExpiryDates = savedPendingRegistrations.map(_.activationExpiryDate)
-            val pendingRegistrationUrls = savedPendingRegistrations.map { registration =>
-              s"${frontendAppConfig.pendingRegistrationUrl}/${registration.journeyId}"
+            val pendingRegistrationJourneyId = savedPendingRegistrations.map { registration =>
+              registration.journeyId
             }
 
             val clientsTable =
-              buildClientsTable(companyNames, activationExpiryDates, pendingRegistrationUrls)
+              buildClientsTable(companyNames, activationExpiryDates, pendingRegistrationJourneyId, frontendAppConfig)
 
             Ok(view(numberOfAwaitingClients, clientsTable)).toFuture
 

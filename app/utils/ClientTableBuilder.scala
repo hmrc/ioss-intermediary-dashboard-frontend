@@ -16,6 +16,8 @@
 
 package utils
 
+import config.FrontendAppConfig
+
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -29,39 +31,41 @@ object ClientTableBuilder {
   private val dateFormatter = DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.ENGLISH)
 
   private def parseDate(dateStr: String): LocalDate = LocalDate.parse(dateStr, dateFormatter)
-  
+
   def sortClients(
-                  clientCompanyNames: Seq[String],
-                  activationExpiryDates: Seq[String],
-                  pendingRegistrationUrls: Seq[String]
+                   clientCompanyNames: Seq[String],
+                   activationExpiryDates: Seq[String],
+                   journeyIds: Seq[String]
                  ): Seq[(String, String, String)] = {
 
     val combined: Seq[(String, String, String)] =
       clientCompanyNames
         .lazyZip(activationExpiryDates)
-        .lazyZip(pendingRegistrationUrls)
-        .map((name, expiryDate, url) => (name, expiryDate, url))
-      
-    combined.sortBy { case (name, expiryDate, _) => (parseDate(expiryDate), name)}
+        .lazyZip(journeyIds)
+        .map((name, expiryDate, journeyId) => (name, expiryDate, journeyId))
+
+    combined.sortBy { case (name, expiryDate, _) => (parseDate(expiryDate), name) }
   }
 
   def buildClientsTable(
                          clientCompanyNames: Seq[String],
                          activationExpiryDates: Seq[String],
-                         pendingRegistrationUrls: Seq[String]
-                         )(implicit messages: Messages): Table = {
+                         journeyIds: Seq[String],
+                         frontendAppConfig: FrontendAppConfig
+                       )(implicit messages: Messages): Table = {
 
     val rows: Seq[Seq[TableRow]] =
-      sortClients(clientCompanyNames, activationExpiryDates, pendingRegistrationUrls)
-        .map { case (name, expiryDate, url) =>
-          
+      sortClients(clientCompanyNames, activationExpiryDates, journeyIds)
+        .map { case (name, expiryDate, journeyId) =>
+
           Seq(
             TableRow(
               content = HtmlContent(
                 messages(
                   "clientAwaitingActivation.link",
                   name,
-                  url,
+                  s"${frontendAppConfig.pendingRegistrationUrl}/$journeyId",
+                  journeyId,
                   messages("clientAwaitingActivation.hidden", name)
                 )
               )
@@ -79,6 +83,6 @@ object ClientTableBuilder {
         HeadCell(content = Text("Expiry date"))
       ))
     )
-    
+
   }
 }
