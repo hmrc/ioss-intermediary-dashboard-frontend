@@ -33,10 +33,9 @@ class CheckNiBasedAddressFilterImpl(frontendAppConfig: FrontendAppConfig)
 
     val isIntermediaryExcluded = request.registrationWrapper.etmpDisplayRegistration.exclusions.nonEmpty
     val vatInfoPostcodeInNi = request.registrationWrapper.vatInfo.desAddress.postCode.exists(_.toUpperCase.startsWith(niPostCodeAreaPrefix))
-    val isOtherAddressEmpty = request.registrationWrapper.etmpDisplayRegistration.otherAddress.isEmpty
     val isOtherAddressInNi = request.registrationWrapper.etmpDisplayRegistration.otherAddress.exists(_.postcode.toUpperCase.startsWith(niPostCodeAreaPrefix))
-    
-    if (isIntermediaryExcluded || vatInfoPostcodeInNi && (isOtherAddressInNi || isOtherAddressEmpty)) {
+
+    if (isIntermediaryExcluded || vatInfoPostcodeInNi || isOtherAddressInNi) {
       None.toFuture
     } else {
       Some(Redirect(frontendAppConfig.changeYourRegistrationUrl)).toFuture
