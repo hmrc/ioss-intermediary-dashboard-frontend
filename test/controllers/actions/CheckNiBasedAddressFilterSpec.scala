@@ -136,7 +136,7 @@ class CheckNiBasedAddressFilterSpec extends SpecBase with MockitoSugar {
 
       "when both VAT address and otherAddress is NI based" in {
 
-        val emptyOtherAddress = registrationWrapper.copy(
+        val niOtherAddress = registrationWrapper.copy(
           vatInfo = niVatInfo,
           etmpDisplayRegistration = arbitraryEtmpDisplayRegistration.arbitrary.sample.value.copy(
             otherAddress = Some(
@@ -163,7 +163,7 @@ class CheckNiBasedAddressFilterSpec extends SpecBase with MockitoSugar {
             enrolments = enrolments,
             vrn = vrn,
             intermediaryNumber = intermediaryNumber,
-            registrationWrapper = emptyOtherAddress
+            registrationWrapper = niOtherAddress
           )
 
           val frontendAppConfig = application.injector.instanceOf[FrontendAppConfig]
@@ -175,7 +175,48 @@ class CheckNiBasedAddressFilterSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "when intermediary is excluded, VAT address si NI and otherAddress field is empty" in {
+      "when VAT address is non-ni, but otherAddress is NI based" in {
+
+        val niOtherAddress = registrationWrapper.copy(
+          vatInfo = nonNiVatInfo,
+          etmpDisplayRegistration = arbitraryEtmpDisplayRegistration.arbitrary.sample.value.copy(
+            otherAddress = Some(
+              EtmpOtherAddress(
+                issuedBy = "GB",
+                tradingName = Some("Company name"),
+                addressLine1 = "Other Address Line 1",
+                addressLine2 = Some("Other Address Line 2"),
+                townOrCity = "Other Town or City",
+                regionOrState = Some("Other Region or State"),
+                postcode = "BT11AH"
+              )
+            )
+          )
+        )
+
+        val application = applicationBuilder(None).build()
+
+        running(application) {
+
+          val request = RegistrationRequest(
+            FakeRequest(),
+            userId = userAnswersId,
+            enrolments = enrolments,
+            vrn = vrn,
+            intermediaryNumber = intermediaryNumber,
+            registrationWrapper = niOtherAddress
+          )
+
+          val frontendAppConfig = application.injector.instanceOf[FrontendAppConfig]
+          val controller = new Harness(frontendAppConfig)
+
+          val result = controller.callFilter(request).futureValue
+
+          result mustBe None
+        }
+      }
+
+      "when intermediary is excluded, VAT address is NI and otherAddress field is empty" in {
 
         val emptyOtherAddress = registrationWrapper.copy(
           vatInfo = niVatInfo,
