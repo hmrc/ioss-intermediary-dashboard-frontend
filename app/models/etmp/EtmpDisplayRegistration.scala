@@ -17,7 +17,8 @@
 package models.etmp
 
 import date.LocalDateOps
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.functional.syntax.*
+import play.api.libs.json.*
 
 import java.time.LocalDate
 
