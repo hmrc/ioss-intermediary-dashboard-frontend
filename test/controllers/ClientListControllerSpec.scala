@@ -18,21 +18,13 @@ package controllers
 
 import base.SpecBase
 import config.FrontendAppConfig
-import models.amend.PreviousRegistration
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
 import org.scalatest.BeforeAndAfterEach
-import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.i18n.Messages
-import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import services.intermediaries.AccountService
 import viewmodels.clientList.ClientListViewModel
 import views.html.ClientListView
 
-import java.time.LocalDate
-import scala.concurrent.Future
 
 class ClientListControllerSpec extends SpecBase with BeforeAndAfterEach {
 

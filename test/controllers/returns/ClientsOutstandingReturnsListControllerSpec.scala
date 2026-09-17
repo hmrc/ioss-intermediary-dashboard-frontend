@@ -18,29 +18,36 @@ package controllers.returns
 
 import base.SpecBase
 import config.FrontendAppConfig
-import models.etmp.{EtmpClientDetails, EtmpDisplayRegistration}
+import models.etmp.{EtmpAdminUse, EtmpClientDetails, EtmpDisplayRegistration}
 import models.returns.SubmissionStatus.{Due, Overdue}
 import models.returns.{CurrentReturns, Return}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito
-import org.mockito.Mockito.{times, verify, when}
+import org.mockito.Mockito.{never, times, verify, when}
 import org.scalacheck.Gen
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar.mock
+import pages.ReviewRegistrationInterceptPage
 import play.api.i18n.Messages
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import repositories.SessionRepository
 import services.returns.CurrentReturnsService
 import utils.FutureSyntax.FutureOps
 import viewmodels.returns.ClientOutstandingReturnsListViewModel
 import views.html.returns.ClientsOutstandingReturnsListView
 
+import java.time.LocalDateTime
+
 class ClientsOutstandingReturnsListControllerSpec extends SpecBase with BeforeAndAfterEach {
 
   private val mockCurrentReturnsService: CurrentReturnsService = mock[CurrentReturnsService]
 
-  private val etmpDisplayRegistration: EtmpDisplayRegistration = arbitraryEtmpDisplayRegistration.arbitrary.sample.value
+  private val etmpDisplayRegistration: EtmpDisplayRegistration =
+    arbitraryEtmpDisplayRegistration.arbitrary.sample.value.copy(
+      adminUse = EtmpAdminUse(Some(LocalDateTime.now(stubClockAtArbitraryDate).minusYears(1)))
+    )
 
   private val allClientIossNumbers: Seq[String] = etmpDisplayRegistration.clientDetails.map(_.clientIossID)
 
@@ -224,6 +231,75 @@ class ClientsOutstandingReturnsListControllerSpec extends SpecBase with BeforeAn
           overdueReturnsNonEmpty = false
         )(request, messages(application)).toString
         verify(mockCurrentReturnsService, times(1)).getCurrentReturns(any())(any())
+      }
+    }
+
+    "must redirect to the review registration intercept when the registration has not been updated for two years" in {
+
+      val registrationNeedingReview = etmpDisplayRegistration.copy(
+          adminUse = EtmpAdminUse(Some(LocalDateTime.now(stubClockAtArbitraryDate).minusYears(3)))
+        )
+
+      val application = applicationBuilder(
+        userAnswers = Some(emptyUserAnswers),
+        registrationWrapper = registrationWrapper.copy(
+          etmpDisplayRegistration = registrationNeedingReview
+        )
+      )
+        .overrides(bind[CurrentReturnsService].toInstance(mockCurrentReturnsService))
+        .build()
+
+      running(application) {
+
+        val request = FakeRequest(GET, clientsOutstandingReturnsRoute)
+
+        val result = route(application, request).value
+
+        status(result) mustBe SEE_OTHER
+
+        redirectLocation(result).value mustBe controllers.routes.ReviewRegistrationInterceptController.onPageLoad(waypoints).url
+
+        verify(mockCurrentReturnsService, never()).getCurrentReturns(any())(any())
+      }
+    }
+
+    "must continue to the outstanding returns page when registration review has been skipped" in {
+
+      val registrationNeedingReview = etmpDisplayRegistration.copy(
+        adminUse = EtmpAdminUse(
+          Some(LocalDateTime.now(stubClockAtArbitraryDate).minusYears(3))
+        )
+      )
+
+      val skippedAnswers = emptyUserAnswers.set(ReviewRegistrationInterceptPage, true).success.value
+
+      when(mockCurrentReturnsService.getCurrentReturns(any())(any())) thenReturn updatedCurrentReturns.toFuture
+
+      val application = applicationBuilder(
+        userAnswers = Some(skippedAnswers),
+        registrationWrapper = registrationWrapper.copy(etmpDisplayRegistration = registrationNeedingReview)
+      )
+        .overrides(bind[CurrentReturnsService].toInstance(mockCurrentReturnsService))
+        .build()
+
+      running(application) {
+
+        val repository =
+          application.injector.instanceOf[SessionRepository]
+
+        repository.set(skippedAnswers).futureValue
+
+        val request = FakeRequest(GET, clientsOutstandingReturnsRoute)
+
+        val result = route(application, request).value
+
+        status(result) mustBe OK
+
+        verify(mockCurrentReturnsService, times(1)).getCurrentReturns(any())(any())
+
+        val persistedAnswers = repository.get(skippedAnswers.id).futureValue.value
+
+        persistedAnswers.get(ReviewRegistrationInterceptPage).value mustBe true
       }
     }
   }
