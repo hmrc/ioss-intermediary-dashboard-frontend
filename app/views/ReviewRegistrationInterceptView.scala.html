@@ -32,7 +32,7 @@
 
     @formHelper(action = controllers.routes.ReviewRegistrationInterceptController.onSubmit(waypoints)) {
         @govukButton(
-            ButtonViewModel(messages("reviewRegistrationIntercept.skip")).withCssClass("govuk-button--secondary")
+            ButtonViewModel(messages("reviewRegistrationIntercept.skip")).withAttribute("id", "skip").withCssClass("govuk-button--secondary")
         )
     }
 }
