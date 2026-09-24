@@ -250,3 +250,9 @@ deleteIntermediaryReturn.button = Delete return
 pagination.previous = Previous
 pagination.next = Next
 pagination.back = Back to your account
+
+reviewRegistrationIntercept.title = Check your registration is up to date
+reviewRegistrationIntercept.heading = Check your registration is up to date
+reviewRegistrationIntercept.p1 = You have not reviewed your IOSS intermediary registration details for over 2 years. It is important that you keep them up to date.
+reviewRegistrationIntercept.reviewAndUpdateLink = <a class="govuk-link" id="back-to-your-account" href={0}>Review your registration details</a>
+reviewRegistrationIntercept.skip = Skip for now

@@ -17,12 +17,9 @@
 package services
 
 import base.SpecBase
-import connectors.{RegistrationConnector, ReturnStatusConnector}
-import models.{IntermediaryDetails, SavedPendingRegistration, SavedPendingRegistrationWithUserAnswers, StandardPeriod, UserAnswers}
-import models.etmp.EtmpClientDetails
+import connectors.RegistrationConnector
+import models.{IntermediaryDetails, SavedPendingRegistration, SavedPendingRegistrationWithUserAnswers, UserAnswers}
 import models.responses.InternalServerError
-import models.returns.SubmissionStatus.Complete
-import models.returns.{CurrentReturns, Return}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{never, reset, times, verify, when}
 import org.scalatest.BeforeAndAfterEach
@@ -31,8 +28,7 @@ import org.scalatestplus.mockito.MockitoSugar.mock
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.FutureSyntax.FutureOps
 
-import java.time.temporal.ChronoUnit
-import java.time.{Instant, Month}
+import java.time.Instant
 import java.util.UUID
 import scala.concurrent.ExecutionContext
 
