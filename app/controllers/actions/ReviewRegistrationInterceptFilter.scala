@@ -43,7 +43,7 @@ class ReviewRegistrationInterceptFilter(
     } else {
       val changeDate = request.registrationWrapper.etmpDisplayRegistration.adminUse.changeDate
       val needsReview = changeDate.exists { date =>
-        !date.toLocalDate.plusYears(2).isAfter(LocalDate.now(clock))
+        !date.toLocalDate.plusMonths(6).isAfter(LocalDate.now(clock))
       }
 
       if (!needsReview) {

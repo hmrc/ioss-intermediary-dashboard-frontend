@@ -49,7 +49,7 @@ class ReviewRegistrationInterceptFilterSpec extends SpecBase with MockitoSugar {
 
   private val registrationNotNeedingReview: EtmpDisplayRegistration =
     arbitraryEtmpDisplayRegistration.arbitrary.sample.value.copy(
-      adminUse = EtmpAdminUse(Some(LocalDateTime.now(stubClockAtArbitraryDate).minusYears(1)))
+      adminUse = EtmpAdminUse(Some(LocalDateTime.now(stubClockAtArbitraryDate).minusMonths(1)))
     )
 
   private val registrationNeedingReview: EtmpDisplayRegistration =

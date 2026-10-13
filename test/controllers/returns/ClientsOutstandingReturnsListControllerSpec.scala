@@ -46,7 +46,7 @@ class ClientsOutstandingReturnsListControllerSpec extends SpecBase with BeforeAn
 
   private val etmpDisplayRegistration: EtmpDisplayRegistration =
     arbitraryEtmpDisplayRegistration.arbitrary.sample.value.copy(
-      adminUse = EtmpAdminUse(Some(LocalDateTime.now(stubClockAtArbitraryDate).minusYears(1)))
+      adminUse = EtmpAdminUse(Some(LocalDateTime.now(stubClockAtArbitraryDate).minusMonths(1)))
     )
 
   private val allClientIossNumbers: Seq[String] = etmpDisplayRegistration.clientDetails.map(_.clientIossID)
@@ -234,7 +234,7 @@ class ClientsOutstandingReturnsListControllerSpec extends SpecBase with BeforeAn
       }
     }
 
-    "must redirect to the review registration intercept when the registration has not been updated for two years" in {
+    "must redirect to the review registration intercept when the registration has not been updated for 6 months" in {
 
       val registrationNeedingReview = etmpDisplayRegistration.copy(
           adminUse = EtmpAdminUse(Some(LocalDateTime.now(stubClockAtArbitraryDate).minusYears(3)))
