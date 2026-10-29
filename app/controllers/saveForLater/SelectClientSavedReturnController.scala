@@ -23,7 +23,7 @@ import forms.saveForLater.SelectClientSavedReturnFormProvider
 import models.UserAnswers
 import models.etmp.EtmpClientDetails
 import pages.Waypoints
-import pages.saveForLater.SelectClientSavedReturnPage
+import pages.saveForLater.{NoSavedReturnsPage, SelectClientSavedReturnPage}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -62,14 +62,17 @@ class SelectClientSavedReturnController @Inject()(
             registrationWrapper.etmpDisplayRegistration.clientDetails.filter(_.clientIossID == savedAnswers.iossNumber)
           }
 
-          val form: Form[EtmpClientDetails] = formProvider(allClientsDetailsWithSavedAnswers)
+          if (allClientsDetailsWithSavedAnswers.nonEmpty) {
+            val form: Form[EtmpClientDetails] = formProvider(allClientsDetailsWithSavedAnswers)
 
-          val preparedForm = userAnswers.get(SelectClientSavedReturnPage) match {
-            case None => form
-            case Some(value) => form.fill(value)
+            val preparedForm = userAnswers.get(SelectClientSavedReturnPage) match {
+              case None => form
+              case Some(value) => form.fill(value)
+            }
+            Ok(view(preparedForm, waypoints, allClientsDetailsWithSavedAnswers))
+          } else {
+            Redirect(NoSavedReturnsPage.route(waypoints))
           }
-
-          Ok(view(preparedForm, waypoints, allClientsDetailsWithSavedAnswers))
         }
       }
   }
