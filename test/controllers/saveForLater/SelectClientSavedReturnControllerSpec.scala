@@ -29,7 +29,7 @@ import org.mockito.Mockito.{times, verify, when}
 import org.scalacheck.Gen
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.mockito.MockitoSugar
-import pages.saveForLater.SelectClientSavedReturnPage
+import pages.saveForLater.{NoSavedReturnsPage, SelectClientSavedReturnPage}
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.test.FakeRequest
@@ -88,6 +88,30 @@ class SelectClientSavedReturnControllerSpec extends SpecBase with MockitoSugar w
 
         status(result) `mustBe` OK
         contentAsString(result) `mustBe` view(form, waypoints, etmpClientDetails)(request, messages(application)).toString
+        verify(mockSaveForLaterService, times(1)).getAllClientSavedAnswers()(any())
+        verify(mockRegistrationConnector, times(1)).getRegistration(any())(any())
+      }
+    }
+
+    "must redirect to No Saved Returns page when a user manually navigates to this page with no saved returns for a GET" in {
+
+      when(mockSaveForLaterService.getAllClientSavedAnswers()(any())) thenReturn Seq.empty.toFuture
+      when(mockRegistrationConnector.getRegistration(any())(any())) thenReturn registrationWrapper.toFuture
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        .overrides(
+          bind[SaveForLaterService].toInstance(mockSaveForLaterService),
+          bind[RegistrationConnector].toInstance(mockRegistrationConnector)
+        )
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, selectClientSavedReturnRoute)
+
+        val result = route(application, request).value
+
+        status(result) `mustBe` SEE_OTHER
+        redirectLocation(result).value `mustBe` NoSavedReturnsPage.route(waypoints).url
         verify(mockSaveForLaterService, times(1)).getAllClientSavedAnswers()(any())
         verify(mockRegistrationConnector, times(1)).getRegistration(any())(any())
       }

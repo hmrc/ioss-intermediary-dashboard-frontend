@@ -18,20 +18,20 @@ package controllers.actions
 
 import com.google.inject.Inject
 import config.FrontendAppConfig
-import controllers.routes
 import controllers.auth.routes as authRoutes
+import controllers.routes
 import logging.Logging
 import models.requests.{IdentifierRequest, SessionRequest}
-import play.api.mvc.Results.*
 import play.api.mvc.*
+import play.api.mvc.Results.*
 import services.UrlBuilderService
 import uk.gov.hmrc.auth.core.*
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.domain.Vrn
 import uk.gov.hmrc.http.{HeaderCarrier, UnauthorizedException}
-import uk.gov.hmrc.play.bootstrap.binders.{AbsoluteWithHostnameFromAllowlist, OnlyRelative}
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl.idFunctor
+import uk.gov.hmrc.play.bootstrap.binders.{AbsoluteWithHostnameFromAllowlist, OnlyRelative}
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import utils.FutureSyntax.FutureOps
 
@@ -44,8 +44,8 @@ class AuthenticatedIdentifierAction @Inject()(
                                                config: FrontendAppConfig,
                                                val parser: BodyParsers.Default,
                                                urlBuilderService: UrlBuilderService
-                                             )
-                                             (implicit val executionContext: ExecutionContext) extends IdentifierAction with AuthorisedFunctions with Logging {
+                                             )(implicit val executionContext: ExecutionContext)
+  extends IdentifierAction with AuthorisedFunctions with Logging {
 
   private lazy val redirectPolicy = OnlyRelative | AbsoluteWithHostnameFromAllowlist(config.allowedRedirectUrls: _*)
 
