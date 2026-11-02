@@ -50,7 +50,6 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   val startCurrentReturnUrl: String           = configuration.get[String]("urls.startCurrentReturnUrl")
   val startReturnsHistoryUrl: String          = configuration.get[String]("urls.startReturnsHistoryUrl")
   val startPaymentUrl: String                 = configuration.get[String]("urls.startPaymentUrl")
-  val startIntermediarySavedReturns: String   = configuration.get[String]("urls.startIntermediarySavedReturns")
   val registrationReviewEnabled: Boolean      = configuration.get[Boolean]("features.registration-review-enabled")
 
   val allowedRedirectUrls: Seq[String] = configuration.get[Seq[String]]("urls.allowedRedirects")

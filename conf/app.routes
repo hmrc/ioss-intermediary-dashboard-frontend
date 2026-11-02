@@ -68,3 +68,5 @@ POST        /change-your-previous-registration-select              controllers.a
 
 GET        /review-registration-intercept                          controllers.ReviewRegistrationInterceptController.onPageLoad(waypoints: Waypoints ?= EmptyWaypoints)
 POST       /review-registration-intercept                          controllers.ReviewRegistrationInterceptController.onSubmit(waypoints: Waypoints ?= EmptyWaypoints)
+
+GET        /no-saved-returns                                       controllers.saveForLater.NoSavedReturnsController.onPageLoad()

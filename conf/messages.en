@@ -256,3 +256,7 @@ reviewRegistrationIntercept.heading = Check your registration is up to date
 reviewRegistrationIntercept.p1 = You have not reviewed your IOSS intermediary registration details for over 6 months. You must keep your details and your clients'' details up to date.
 reviewRegistrationIntercept.reviewAndUpdateLink = <a class="govuk-link" id="back-to-your-account" href={0}>Review your registration details</a>
 reviewRegistrationIntercept.skip = Skip for now
+
+noSavedReturns.title = You do not have any returns in progress
+noSavedReturns.heading = You do not have any returns in progress
+noSavedReturns.returnToYourAccountLink = <a class="govuk-link govuk-link--no-visited-state" id="return-to-your-account" href={0}>Return to your account</a>
