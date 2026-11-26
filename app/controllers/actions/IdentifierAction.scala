@@ -25,6 +25,7 @@ import models.requests.{IdentifierRequest, SessionRequest}
 import play.api.mvc.*
 import play.api.mvc.Results.*
 import services.UrlBuilderService
+import services.intermediaries.AccountService
 import uk.gov.hmrc.auth.core.*
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.retrieve.~
@@ -43,6 +44,7 @@ class AuthenticatedIdentifierAction @Inject()(
                                                override val authConnector: AuthConnector,
                                                config: FrontendAppConfig,
                                                val parser: BodyParsers.Default,
+                                               accountService: AccountService,
                                                urlBuilderService: UrlBuilderService
                                              )(implicit val executionContext: ExecutionContext)
   extends IdentifierAction with AuthorisedFunctions with Logging {
@@ -55,7 +57,7 @@ class AuthenticatedIdentifierAction @Inject()(
 
     authorised().retrieve(Retrievals.internalId and Retrievals.allEnrolments) {
       case Some(internalId) ~ enrolments =>
-        findIntermediaryNumberFromEnrolments(enrolments) match {
+        findIntermediaryNumberFromEnrolments(enrolments).flatMap {
           case Some(intermediaryNumber) =>
             val vrn = findVrnFromEnrolments(enrolments)
             block(IdentifierRequest(request, internalId, enrolments, vrn, intermediaryNumber))
@@ -84,11 +86,19 @@ class AuthenticatedIdentifierAction @Inject()(
       }
   }
 
-  private def findIntermediaryNumberFromEnrolments(enrolments: Enrolments): Option[String] = {
-    val intermediaryEnrolmentKey: String = "IntNumber"
-    enrolments.enrolments
-      .find(_.key == config.intermediaryEnrolment)
-      .flatMap(_.identifiers.find(id => id.key == intermediaryEnrolmentKey && id.value.nonEmpty).map(_.value))
+  private def findIntermediaryNumberFromEnrolments(enrolments: Enrolments)(implicit hc: HeaderCarrier): Future[Option[String]] = {
+    val filteredIntermediaryNumbers = enrolments
+      .enrolments
+      .filter(_.key == config.intermediaryEnrolment)
+      .flatMap(_.identifiers.filter(_.key == "IntNumber").map(_.value))
+      .toSeq
+
+    filteredIntermediaryNumbers match {
+      case firstEnrolment :: Nil => Some(firstEnrolment).toFuture
+      case multipleEnrolments if multipleEnrolments.nonEmpty =>
+        accountService.getLatestIntermediaryAccount()
+      case _ => None.toFuture
+    }
   }
 }
 

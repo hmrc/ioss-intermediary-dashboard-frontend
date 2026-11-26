@@ -21,10 +21,12 @@ import com.google.inject.Inject
 import config.FrontendAppConfig
 import controllers.routes
 import controllers.auth.routes as authRoutes
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.mvc.{Action, AnyContent, BodyParsers, Results}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import services.UrlBuilderService
+import services.intermediaries.AccountService
 import uk.gov.hmrc.auth.core.*
 import uk.gov.hmrc.auth.core.authorise.Predicate
 import uk.gov.hmrc.auth.core.retrieve.Retrieval
@@ -33,11 +35,13 @@ import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
 
-class AuthActionSpec extends SpecBase {
+class AuthActionSpec extends SpecBase with MockitoSugar {
 
   class Harness(authAction: IdentifierAction) {
     def onPageLoad(): Action[AnyContent] = authAction { _ => Results.Ok }
   }
+
+  private val mockAccountService = mock[AccountService]
 
   "Auth Action" - {
 
@@ -56,6 +60,7 @@ class AuthActionSpec extends SpecBase {
             new FakeFailingAuthConnector(new MissingBearerToken),
             appConfig,
             bodyParsers,
+            mockAccountService,
             urlBuilder
           )
           val controller = new Harness(authAction)
@@ -82,6 +87,7 @@ class AuthActionSpec extends SpecBase {
             new FakeFailingAuthConnector(new BearerTokenExpired),
             appConfig,
             bodyParsers,
+            mockAccountService,
             urlBuilder
           )
           val controller = new Harness(authAction)
@@ -108,6 +114,7 @@ class AuthActionSpec extends SpecBase {
             new FakeFailingAuthConnector(new InsufficientEnrolments),
             appConfig,
             bodyParsers,
+            mockAccountService,
             urlBuilder
           )
           val controller = new Harness(authAction)
@@ -134,6 +141,7 @@ class AuthActionSpec extends SpecBase {
             new FakeFailingAuthConnector(new InsufficientConfidenceLevel),
             appConfig,
             bodyParsers,
+            mockAccountService,
             urlBuilder
           )
           val controller = new Harness(authAction)
@@ -160,6 +168,7 @@ class AuthActionSpec extends SpecBase {
             new FakeFailingAuthConnector(new UnsupportedAuthProvider),
             appConfig,
             bodyParsers,
+            mockAccountService,
             urlBuilder
           )
           val controller = new Harness(authAction)
@@ -186,6 +195,7 @@ class AuthActionSpec extends SpecBase {
             new FakeFailingAuthConnector(new UnsupportedAffinityGroup),
             appConfig,
             bodyParsers,
+            mockAccountService,
             urlBuilder
           )
           val controller = new Harness(authAction)
@@ -212,6 +222,7 @@ class AuthActionSpec extends SpecBase {
             new FakeFailingAuthConnector(new UnsupportedCredentialRole),
             appConfig,
             bodyParsers,
+            mockAccountService,
             urlBuilder
           )
           val controller = new Harness(authAction)
